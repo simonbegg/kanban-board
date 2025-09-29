@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { AuthForm } from "@/components/auth/auth-form"
 import { UserMenu } from "@/components/auth/user-menu"
 import { SupabaseKanbanBoard } from "@/components/supabase-kanban-board"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function Home() {
   const { user, loading } = useAuth()
@@ -31,7 +32,10 @@ export default function Home() {
             <h1 className="text-3xl font-bold text-foreground mb-2">Project Board</h1>
             <p className="text-muted-foreground">Organize your tasks efficiently</p>
           </div>
-          <UserMenu />
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <UserMenu />
+          </div>
         </div>
         <SupabaseKanbanBoard />
       </div>
