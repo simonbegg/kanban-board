@@ -35,11 +35,13 @@ export function KanbanCard({ task, onEdit, onDelete }: KanbanCardProps) {
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation()
+    e.preventDefault()
     onEdit?.(task)
   }
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation()
+    e.preventDefault()
     onDelete?.(task.id)
   }
 
@@ -47,20 +49,24 @@ export function KanbanCard({ task, onEdit, onDelete }: KanbanCardProps) {
     <Card
       ref={setNodeRef}
       style={style}
-      className={`cursor-grab active:cursor-grabbing transition-all duration-200 hover:shadow-lg group ${
+      className={`transition-all duration-200 hover:shadow-lg group ${
         isDragging ? "opacity-50 rotate-3 scale-105" : ""
       }`}
       {...attributes}
-      {...listeners}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
-          <h4 className="font-medium text-card-foreground text-sm leading-tight">{task.title}</h4>
+          <div 
+            className="flex-1 cursor-grab active:cursor-grabbing"
+            {...listeners}
+          >
+            <h4 className="font-medium text-card-foreground text-sm leading-tight">{task.title}</h4>
+          </div>
           <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="sm"
-              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-accent"
               onClick={handleEdit}
             >
               <Edit className="h-3 w-3" />
@@ -68,16 +74,21 @@ export function KanbanCard({ task, onEdit, onDelete }: KanbanCardProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
               onClick={handleDelete}
             >
               <Trash2 className="h-3 w-3" />
             </Button>
-            <GripVertical className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <div 
+              className="h-4 w-4 text-muted-foreground flex-shrink-0 cursor-grab active:cursor-grabbing"
+              {...listeners}
+            >
+              <GripVertical className="h-4 w-4" />
+            </div>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-0">
+      <CardContent className="pt-0 cursor-grab active:cursor-grabbing" {...listeners}>
         <p className="text-sm text-muted-foreground mb-3 leading-relaxed">{task.description}</p>
         <Badge
           variant="outline"
