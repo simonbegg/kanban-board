@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { DndContext, type DragEndEvent, DragOverlay, type DragStartEvent, closestCorners } from "@dnd-kit/core"
+import { DndContext, type DragEndEvent, DragOverlay, type DragStartEvent, type DragOverEvent, closestCorners } from "@dnd-kit/core"
 import { KanbanColumn } from "./kanban-column"
 import { KanbanCard } from "./kanban-card"
 import { AddTaskDialog } from "./add-task-dialog"
@@ -45,6 +45,7 @@ export function SupabaseKanbanBoard() {
     "research",
   ])
   const [isDragging, setIsDragging] = useState(false)
+  const [overId, setOverId] = useState<string | null>(null)
 
   useEffect(() => {
     if (selectedBoardId) {
@@ -114,9 +115,15 @@ export function SupabaseKanbanBoard() {
     }
   }
 
+  const handleDragOver = (event: DragOverEvent) => {
+    const { over } = event
+    setOverId(over ? over.id as string : null)
+  }
+
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
     setActiveTask(null)
+    setOverId(null)
 
     if (!over || !boardData || isDragging) return
 
@@ -628,7 +635,12 @@ export function SupabaseKanbanBoard() {
         )}
       </div>
 
-      <DndContext collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <DndContext 
+        collisionDetection={closestCorners} 
+        onDragStart={handleDragStart} 
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
+      >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {sortedColumns.map((column) => (
             <KanbanColumn
@@ -636,6 +648,8 @@ export function SupabaseKanbanBoard() {
               column={column}
               onEditTask={handleEditTask}
               onDeleteTask={handleDeleteTask}
+              activeId={activeTask?.id || null}
+              overId={overId}
             />
           ))}
         </div>
