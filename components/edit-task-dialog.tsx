@@ -16,14 +16,23 @@ interface EditTaskDialogProps {
   onOpenChange: (open: boolean) => void
   onEditTask: (taskId: string, updates: Partial<Task>) => void
   availableCategories: string[]
-  onAddCategory: (category: string) => void
+  onAddCategory: (category: string, color?: string) => void
+  categoryColors?: Record<string, string>
 }
 
-export function EditTaskDialog({ task, open, onOpenChange, onEditTask, availableCategories, onAddCategory }: EditTaskDialogProps) {
+const DEFAULT_COLORS = [
+  '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16',
+  '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9',
+  '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef',
+  '#ec4899', '#f43f5e'
+]
+
+export function EditTaskDialog({ task, open, onOpenChange, onEditTask, availableCategories, onAddCategory, categoryColors }: EditTaskDialogProps) {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [category, setCategory] = useState("")
   const [newCategory, setNewCategory] = useState("")
+  const [newCategoryColor, setNewCategoryColor] = useState(DEFAULT_COLORS[0])
   const [showNewCategory, setShowNewCategory] = useState(false)
 
   useEffect(() => {
@@ -39,9 +48,10 @@ export function EditTaskDialog({ task, open, onOpenChange, onEditTask, available
     if (!task || !title.trim()) return
 
     let finalCategory = category
-    if (showNewCategory && newCategory.trim()) {
+    // Check if user entered a new category (regardless of showNewCategory state)
+    if (newCategory.trim()) {
       finalCategory = newCategory.trim().toLowerCase()
-      onAddCategory(finalCategory)
+      onAddCategory(finalCategory, newCategoryColor)
     }
 
     if (!finalCategory) return
@@ -54,6 +64,7 @@ export function EditTaskDialog({ task, open, onOpenChange, onEditTask, available
 
     setShowNewCategory(false)
     setNewCategory("")
+    setNewCategoryColor(DEFAULT_COLORS[0])
     onOpenChange(false)
   }
 
@@ -65,6 +76,7 @@ export function EditTaskDialog({ task, open, onOpenChange, onEditTask, available
     }
     setShowNewCategory(false)
     setNewCategory("")
+    setNewCategoryColor(DEFAULT_COLORS[0])
     onOpenChange(false)
   }
 
@@ -99,7 +111,7 @@ export function EditTaskDialog({ task, open, onOpenChange, onEditTask, available
             </div>
             <div className="grid gap-2">
               <Label htmlFor="edit-category">Category</Label>
-              {!showNewCategory ? (
+              {!showNewCategory && availableCategories.length > 0 ? (
                 <div className="flex gap-2">
                   <Select value={category} onValueChange={setCategory}>
                     <SelectTrigger className="flex-1">
@@ -118,24 +130,45 @@ export function EditTaskDialog({ task, open, onOpenChange, onEditTask, available
                   </Button>
                 </div>
               ) : (
-                <div className="flex gap-2">
+                <div className="space-y-3">
                   <Input
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
-                    placeholder="Enter new category name..."
-                    className="flex-1"
+                    placeholder="Enter category name..."
                   />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setShowNewCategory(false)
-                      setNewCategory("")
-                    }}
-                  >
-                    Cancel
-                  </Button>
+                  <div>
+                    <Label className="text-xs mb-2 block">Category Color</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {DEFAULT_COLORS.map((color) => (
+                        <button
+                          key={color}
+                          type="button"
+                          className={`w-8 h-8 rounded-md border-2 transition-all ${
+                            newCategoryColor === color
+                              ? 'border-foreground scale-110'
+                              : 'border-transparent hover:scale-105'
+                          }`}
+                          style={{ backgroundColor: color }}
+                          onClick={() => setNewCategoryColor(color)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  {availableCategories.length > 0 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => {
+                        setShowNewCategory(false)
+                        setNewCategory("")
+                        setNewCategoryColor(DEFAULT_COLORS[0])
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  )}
                 </div>
               )}
             </div>

@@ -39,12 +39,8 @@ export function SupabaseKanbanBoard() {
   const [sortBy, setSortBy] = useState<"none" | "category">("none")
   const [editingTask, setEditingTask] = useState<LegacyTask | null>(null)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [availableCategories, setAvailableCategories] = useState<string[]>([
-    "feature",
-    "bug",
-    "improvement",
-    "research",
-  ])
+  const [availableCategories, setAvailableCategories] = useState<string[]>([])
+  const [categoryColors, setCategoryColors] = useState<Record<string, string>>({})
   const [isDragging, setIsDragging] = useState(false)
   const [overId, setOverId] = useState<string | null>(null)
   const [boardRefreshTrigger, setBoardRefreshTrigger] = useState(0)
@@ -127,7 +123,11 @@ export function SupabaseKanbanBoard() {
     setActiveTask(null)
     setOverId(null)
 
-    if (!over || !boardData || isDragging) return
+    if (!over || !boardData) return
+    if (isDragging) {
+      console.log('Already dragging, ignoring')
+      return
+    }
 
     setIsDragging(true)
 
@@ -145,6 +145,7 @@ export function SupabaseKanbanBoard() {
 
     if (!activeTask) {
       console.log('Active task not found!')
+      setIsDragging(false)
       return
     }
 
@@ -156,6 +157,7 @@ export function SupabaseKanbanBoard() {
     )
     if (!currentColumn) {
       console.log('Current column not found!')
+      setIsDragging(false)
       return
     }
 
@@ -179,6 +181,7 @@ export function SupabaseKanbanBoard() {
       )
       if (!targetColumn) {
         console.log('Target column not found!')
+        setIsDragging(false)
         return
       }
 
@@ -232,6 +235,7 @@ export function SupabaseKanbanBoard() {
       console.log('Same position check - currentIndex:', currentIndex, 'newIndex:', newIndex)
       if (currentIndex === newIndex) {
         console.log('Same position, returning early')
+        setIsDragging(false)
         return
       }
     }
@@ -535,9 +539,12 @@ export function SupabaseKanbanBoard() {
     }
   }
 
-  const handleAddCategory = (category: string) => {
+  const handleAddCategory = (category: string, color?: string) => {
     if (!availableCategories.includes(category)) {
       setAvailableCategories(prev => [...prev, category])
+      if (color) {
+        setCategoryColors(prev => ({ ...prev, [category]: color }))
+      }
     }
   }
 
@@ -626,6 +633,7 @@ export function SupabaseKanbanBoard() {
           <AddTaskDialog
             onAddTask={addNewTask}
             availableCategories={availableCategories}
+            categoryColors={categoryColors}
             onAddCategory={handleAddCategory}
           />
         </div>
@@ -668,6 +676,7 @@ export function SupabaseKanbanBoard() {
               onDeleteTask={handleDeleteTask}
               activeId={activeTask?.id || null}
               overId={overId}
+              categoryColors={categoryColors}
             />
           ))}
         </div>
@@ -675,7 +684,7 @@ export function SupabaseKanbanBoard() {
         <DragOverlay>
           {activeTask && (
             <div className="rotate-3 opacity-90">
-              <KanbanCard task={activeTask} />
+              <KanbanCard task={activeTask} categoryColors={categoryColors} />
             </div>
           )}
         </DragOverlay>
@@ -687,6 +696,7 @@ export function SupabaseKanbanBoard() {
         onOpenChange={setEditDialogOpen}
         onEditTask={handleUpdateTask}
         availableCategories={availableCategories}
+        categoryColors={categoryColors}
         onAddCategory={handleAddCategory}
       />
     </div>

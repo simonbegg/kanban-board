@@ -11,9 +11,10 @@ interface KanbanColumnProps {
   onDeleteTask?: (taskId: string) => void
   activeId?: string | null
   overId?: string | null
+  categoryColors?: Record<string, string>
 }
 
-export function KanbanColumn({ column, onEditTask, onDeleteTask, activeId, overId }: KanbanColumnProps) {
+export function KanbanColumn({ column, onEditTask, onDeleteTask, activeId, overId, categoryColors }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
   })
@@ -54,7 +55,7 @@ export function KanbanColumn({ column, onEditTask, onDeleteTask, activeId, overI
                     <span className="text-sm text-primary/60">Drop here</span>
                   </div>
                 )}
-                <KanbanCard task={task} onEdit={onEditTask} onDelete={onDeleteTask} />
+                <KanbanCard task={task} onEdit={onEditTask} onDelete={onDeleteTask} categoryColors={categoryColors} />
               </div>
             ))}
           </div>

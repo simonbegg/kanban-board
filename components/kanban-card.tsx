@@ -7,23 +7,17 @@ import { CSS } from "@dnd-kit/utilities"
 import { Card, CardContent, CardHeader } from "./ui/card"
 import { Badge } from "./ui/badge"
 import { Button } from "./ui/button"
-import { GripVertical, Edit, Trash2 } from "lucide-react"
+import { Edit, Trash2 } from "lucide-react"
 import type { Task } from "./kanban-board"
 
 interface KanbanCardProps {
   task: Task
   onEdit?: (task: Task) => void
   onDelete?: (taskId: string) => void
+  categoryColors?: Record<string, string>
 }
 
-const categoryColors = {
-  feature: "bg-primary/20 text-primary border-primary/30",
-  bug: "bg-destructive/20 text-destructive border-destructive/30",
-  improvement: "bg-chart-2/20 text-chart-2 border-chart-2/30",
-  research: "bg-chart-4/20 text-chart-4 border-chart-4/30",
-}
-
-export function KanbanCard({ task, onEdit, onDelete }: KanbanCardProps) {
+export function KanbanCard({ task, onEdit, onDelete, categoryColors }: KanbanCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
   })
@@ -76,9 +70,6 @@ export function KanbanCard({ task, onEdit, onDelete }: KanbanCardProps) {
               >
                 <Trash2 className="h-3 w-3" />
               </Button>
-              <div className="h-4 w-4 text-muted-foreground flex-shrink-0">
-                <GripVertical className="h-4 w-4" />
-              </div>
             </div>
           </div>
         </CardHeader>
@@ -86,7 +77,16 @@ export function KanbanCard({ task, onEdit, onDelete }: KanbanCardProps) {
           <p className="text-sm text-muted-foreground mb-3 leading-relaxed">{task.description}</p>
           <Badge
             variant="outline"
-            className={`text-xs ${categoryColors[task.category as keyof typeof categoryColors] || "bg-muted/20 text-muted-foreground border-muted/30"}`}
+            className="text-xs border"
+            style={
+              categoryColors?.[task.category]
+                ? {
+                    backgroundColor: `${categoryColors[task.category]}20`,
+                    color: categoryColors[task.category],
+                    borderColor: `${categoryColors[task.category]}50`,
+                  }
+                : undefined
+            }
           >
             {task.category}
           </Badge>
