@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Plus, Folder } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -30,9 +30,11 @@ type Board = Database['public']['Tables']['boards']['Row']
 interface BoardSelectorProps {
   selectedBoardId: string | null
   onBoardSelect: (boardId: string) => void
+  onBoardsChange?: () => void
+  refreshTrigger?: number
 }
 
-export function BoardSelector({ selectedBoardId, onBoardSelect }: BoardSelectorProps) {
+export function BoardSelector({ selectedBoardId, onBoardSelect, onBoardsChange, refreshTrigger }: BoardSelectorProps) {
   const [boards, setBoards] = useState<Board[]>([])
   const [loading, setLoading] = useState(true)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
@@ -40,17 +42,23 @@ export function BoardSelector({ selectedBoardId, onBoardSelect }: BoardSelectorP
   const [newBoardDescription, setNewBoardDescription] = useState('')
   const [creating, setCreating] = useState(false)
 
-  useEffect(() => {
-    loadBoards()
-  }, [])
-
-  const loadBoards = async () => {
+  const loadBoards = useCallback(async () => {
+    console.log('loadBoards called with selectedBoardId:', selectedBoardId)
     try {
       const boardsData = await getBoards()
+      console.log('Loaded boards:', boardsData.map(b => ({ id: b.id, title: b.title })))
       setBoards(boardsData)
+      
+      // If currently selected board no longer exists, clear selection
+      if (selectedBoardId && !boardsData.some(b => b.id === selectedBoardId)) {
+        console.log('Selected board no longer exists, clearing selection')
+        onBoardSelect('')
+        return
+      }
       
       // If no board is selected and we have boards, select the first one
       if (!selectedBoardId && boardsData.length > 0) {
+        console.log('Auto-selecting first board:', boardsData[0].title)
         onBoardSelect(boardsData[0].id)
       }
     } catch (error) {
@@ -58,7 +66,19 @@ export function BoardSelector({ selectedBoardId, onBoardSelect }: BoardSelectorP
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedBoardId, onBoardSelect])
+
+  useEffect(() => {
+    loadBoards()
+  }, [loadBoards])
+
+  // Reload boards when refreshTrigger changes (but not on initial mount when it's 0)
+  useEffect(() => {
+    if (refreshTrigger !== undefined && refreshTrigger > 0) {
+      console.log('Reloading boards due to refresh trigger:', refreshTrigger, 'Current selectedBoardId:', selectedBoardId)
+      loadBoards()
+    }
+  }, [refreshTrigger, loadBoards])
 
   const handleCreateBoard = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -80,6 +100,7 @@ export function BoardSelector({ selectedBoardId, onBoardSelect }: BoardSelectorP
       
       setBoards(prev => [newBoard, ...prev])
       onBoardSelect(newBoard.id)
+      onBoardsChange?.()
       
       // Reset form
       setNewBoardTitle('')

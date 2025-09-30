@@ -7,8 +7,8 @@ import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Kanban Board',
-  description: 'Personal kanban board application',
+  title: 'ThreeLanes - Kanban without the clutter',
+  description: 'ThreeLanes - Kanban without the clutter. Simple, focused task management.',
   generator: 'v0.app',
 }
 

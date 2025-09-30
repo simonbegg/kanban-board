@@ -8,6 +8,7 @@ import { AddTaskDialog } from "./add-task-dialog"
 import { EditTaskDialog } from "./edit-task-dialog"
 import { Button } from "./ui/button"
 import { BoardSelector } from "./boards/board-selector"
+import { BoardActions } from "./boards/board-actions"
 import { getBoardWithData, createTask, updateTask, deleteTask, moveTask, BoardWithColumnsAndTasks } from "@/lib/api/boards"
 import { Database } from "@/lib/supabase"
 
@@ -46,6 +47,7 @@ export function SupabaseKanbanBoard() {
   ])
   const [isDragging, setIsDragging] = useState(false)
   const [overId, setOverId] = useState<string | null>(null)
+  const [boardRefreshTrigger, setBoardRefreshTrigger] = useState(0)
 
   useEffect(() => {
     if (selectedBoardId) {
@@ -607,6 +609,7 @@ export function SupabaseKanbanBoard() {
         <BoardSelector
           selectedBoardId={selectedBoardId}
           onBoardSelect={setSelectedBoardId}
+          refreshTrigger={boardRefreshTrigger}
         />
 
         <div className="flex items-center gap-4">
@@ -628,11 +631,26 @@ export function SupabaseKanbanBoard() {
         </div>
       </div>
 
-      <div className="mb-4">
-        <h2 className="text-xl font-semibold">{boardData.title}</h2>
-        {boardData.description && (
-          <p className="text-muted-foreground">{boardData.description}</p>
-        )}
+      <div className="mb-4 flex items-start justify-between">
+        <div>
+          <h2 className="text-xl font-semibold">{boardData.title}</h2>
+          {boardData.description && (
+            <p className="text-muted-foreground">{boardData.description}</p>
+          )}
+        </div>
+        <BoardActions
+          board={boardData}
+          onBoardUpdated={loadBoardData}
+          onBoardDeleted={() => {
+            console.log('Board deleted, clearing selection and refreshing list')
+            setBoardData(null)
+            setSelectedBoardId(null)
+            // Use setTimeout to ensure state updates before triggering refresh
+            setTimeout(() => {
+              setBoardRefreshTrigger(prev => prev + 1)
+            }, 0)
+          }}
+        />
       </div>
 
       <DndContext 

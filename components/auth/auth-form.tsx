@@ -61,11 +61,15 @@ export function AuthForm() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
-        <CardHeader>
+        <CardHeader className="text-center">
+          <div className="mb-2">
+            <h1 className="text-3xl font-bold mb-1">ThreeLanes</h1>
+            <p className="text-sm text-muted-foreground">Kanban without the clutter</p>
+          </div>
           <CardTitle>{isSignUp ? 'Create Account' : 'Sign In'}</CardTitle>
           <CardDescription>
             {isSignUp
-              ? 'Create a new account to start managing your kanban boards'
+              ? 'Create a new account to start managing your boards'
               : 'Sign in to your account to access your boards'}
           </CardDescription>
         </CardHeader>

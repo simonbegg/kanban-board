@@ -29,8 +29,8 @@ export default function Home() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Project Board</h1>
-            <p className="text-muted-foreground">Organize your tasks efficiently</p>
+            <h1 className="text-3xl font-bold text-foreground mb-1">ThreeLanes</h1>
+            <p className="text-muted-foreground">Kanban without the clutter</p>
           </div>
           <div className="flex items-center gap-4">
             <ThemeToggle />
