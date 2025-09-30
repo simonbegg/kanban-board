@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Chrome } from 'lucide-react'
 
 export function AuthForm() {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -15,7 +16,7 @@ export function AuthForm() {
   const [fullName, setFullName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const { signIn, signUp } = useAuth()
+  const { signIn, signUp, signInWithGoogle } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,6 +37,23 @@ export function AuthForm() {
     } catch (err) {
       setError('An unexpected error occurred')
     } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const result = await signInWithGoogle()
+      if (result.error) {
+        setError(result.error.message)
+        setLoading(false)
+      }
+      // Don't set loading to false here - let the redirect happen
+    } catch (err) {
+      setError('Failed to sign in with Google')
       setLoading(false)
     }
   }
@@ -101,6 +119,26 @@ export function AuthForm() {
               {loading ? 'Loading...' : isSignUp ? 'Create Account' : 'Sign In'}
             </Button>
           </form>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+          >
+            <Chrome className="mr-2 h-4 w-4" />
+            Google
+          </Button>
 
           <div className="mt-4 text-center">
             <Button

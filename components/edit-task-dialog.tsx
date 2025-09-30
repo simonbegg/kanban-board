@@ -16,12 +16,15 @@ interface EditTaskDialogProps {
   onOpenChange: (open: boolean) => void
   onEditTask: (taskId: string, updates: Partial<Task>) => void
   availableCategories: string[]
+  onAddCategory: (category: string) => void
 }
 
-export function EditTaskDialog({ task, open, onOpenChange, onEditTask, availableCategories }: EditTaskDialogProps) {
+export function EditTaskDialog({ task, open, onOpenChange, onEditTask, availableCategories, onAddCategory }: EditTaskDialogProps) {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [category, setCategory] = useState("")
+  const [newCategory, setNewCategory] = useState("")
+  const [showNewCategory, setShowNewCategory] = useState(false)
 
   useEffect(() => {
     if (task) {
@@ -35,12 +38,22 @@ export function EditTaskDialog({ task, open, onOpenChange, onEditTask, available
     e.preventDefault()
     if (!task || !title.trim()) return
 
+    let finalCategory = category
+    if (showNewCategory && newCategory.trim()) {
+      finalCategory = newCategory.trim().toLowerCase()
+      onAddCategory(finalCategory)
+    }
+
+    if (!finalCategory) return
+
     onEditTask(task.id, {
       title: title.trim(),
       description: description.trim(),
-      category,
+      category: finalCategory,
     })
 
+    setShowNewCategory(false)
+    setNewCategory("")
     onOpenChange(false)
   }
 
@@ -50,6 +63,8 @@ export function EditTaskDialog({ task, open, onOpenChange, onEditTask, available
       setDescription(task.description)
       setCategory(task.category)
     }
+    setShowNewCategory(false)
+    setNewCategory("")
     onOpenChange(false)
   }
 
@@ -84,18 +99,45 @@ export function EditTaskDialog({ task, open, onOpenChange, onEditTask, available
             </div>
             <div className="grid gap-2">
               <Label htmlFor="edit-category">Category</Label>
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableCategories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {!showNewCategory ? (
+                <div className="flex gap-2">
+                  <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger className="flex-1">
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableCategories.map((cat) => (
+                        <SelectItem key={cat} value={cat}>
+                          {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button type="button" variant="outline" size="sm" onClick={() => setShowNewCategory(true)}>
+                    New
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    placeholder="Enter new category name..."
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setShowNewCategory(false)
+                      setNewCategory("")
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>

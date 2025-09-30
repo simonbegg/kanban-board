@@ -669,6 +669,7 @@ export function SupabaseKanbanBoard() {
         onOpenChange={setEditDialogOpen}
         onEditTask={handleUpdateTask}
         availableCategories={availableCategories}
+        onAddCategory={handleAddCategory}
       />
     </div>
   )
