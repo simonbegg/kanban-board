@@ -8,9 +8,15 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Chrome } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
-export function AuthForm() {
-  const [isSignUp, setIsSignUp] = useState(false)
+interface AuthFormProps {
+  initialMode?: 'signin' | 'signup'
+}
+
+export function AuthForm({ initialMode = 'signin' }: AuthFormProps = {}) {
+  const router = useRouter()
+  const [isSignUp, setIsSignUp] = useState(initialMode === 'signup')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
@@ -33,10 +39,13 @@ export function AuthForm() {
 
       if (result.error) {
         setError(result.error.message)
+        setLoading(false)
+      } else {
+        // Success - redirect to board
+        router.push('/board')
       }
     } catch (err) {
       setError('An unexpected error occurred')
-    } finally {
       setLoading(false)
     }
   }
