@@ -683,7 +683,7 @@ export function SupabaseKanbanBoard() {
 
         <DragOverlay>
           {activeTask && (
-            <div className="rotate-3 opacity-90">
+            <div className="opacity-90 scale-105">
               <KanbanCard task={activeTask} categoryColors={categoryColors} />
             </div>
           )}
