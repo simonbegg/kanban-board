@@ -47,7 +47,7 @@ export default function Home() {
       <header className="border-b">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Layers className="h-6 w-6 text-primary" />
+            <Layers className="h-8 w-8 text-primary rotate-90" />
             <span className="text-2xl font-display tracking-wider font-semibold">ThreeLanes</span>
           </div>
           <div className="flex items-center gap-4">
@@ -81,7 +81,7 @@ export default function Home() {
         {/* Content */}
         <div className="container mx-auto px-6 relative z-10 w-full">
           <div className="max-w-5xl mx-auto text-center">
-            <h1 className="text-5xl md:text-9xl font-bold mb-6 text-white">
+            <h1 className="text-5xl md:text-9xl font-medium mb-6 text-white">
               Kanban without the Clutter
             </h1>
             <p className="text-xl md:text-3xl text-white/90 mb-12 max-w-2xl mx-auto">
@@ -101,35 +101,24 @@ export default function Home() {
       </section>
 
       {/* Three Lanes Section */}
-      <section className="container mx-auto px-6 py-32">
+      <section className="container mx-auto px-6 py-32 bg-gradient-to-b from-background to-[#005bff] from-75% to-100% rounded-3xl">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-bold mb-4">
+            <h2 className="text-4xl md:text-6xl font-semibold mb-4">
               Three Lanes. That's it.
             </h2>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-2xl text-muted-foreground">
               To do, doing, and it's done.
             </p>
           </div>
-          
-          <div className="grid md:grid-cols-3 gap-6 relative">
-            {/* Arrow between columns on desktop */}
-            <div className="hidden md:block absolute top-1/2 left-1/3 -translate-y-1/2 translate-x-1/2 text-muted-foreground/30">
-              <ArrowRight className="h-8 w-8" />
-            </div>
-            <div className="hidden md:block absolute top-1/2 left-2/3 -translate-y-1/2 translate-x-1/2 text-muted-foreground/30">
-              <ArrowRight className="h-8 w-8" />
-            </div>
 
+          <div className="grid md:grid-cols-3 gap-16 relative mt-24">
             {/* To Do */}
             <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-blue-600/10 rounded-2xl blur-xl opacity-50 group-hover:opacity-100 transition-opacity" />
-              <div className="relative bg-card border-2 border-blue-500/30 rounded-2xl p-8 hover:border-blue-500/50 transition-all">
-                <div className="flex items-center justify-center mb-6">
-                  <Circle className="h-16 w-16 text-blue-500" strokeWidth={2.5} />
-                </div>
-                <h3 className="text-2xl font-bold text-center mb-4">To Do</h3>
-                <p className="text-center text-muted-foreground">
+              <div className="">
+                <img src="/mesh-shape.png" alt="To Do" className="w-auto h-40 mx-auto" />
+                <h3 className="text-3xl font-bold text-center mt-8">To Do</h3>
+                <p className="text-center text-xl text-muted-foreground mt-4">
                   Your backlog of tasks waiting to be started. Simple and organized.
                 </p>
               </div>
@@ -137,13 +126,10 @@ export default function Home() {
 
             {/* Doing */}
             <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-primary/10 rounded-2xl blur-xl opacity-50 group-hover:opacity-100 transition-opacity" />
-              <div className="relative bg-card border-2 border-primary/50 rounded-2xl p-8 hover:border-primary transition-all shadow-lg shadow-primary/10">
-                <div className="flex items-center justify-center mb-6">
-                  <PlayCircle className="h-16 w-16 text-primary" strokeWidth={2.5} />
-                </div>
-                <h3 className="text-2xl font-bold text-center mb-4">Doing</h3>
-                <p className="text-center text-muted-foreground">
+              <div className="">
+                <img src="/mesh-shape-3.png" alt="To Do" className="w-auto h-40 mx-auto" />
+                <h3 className="text-3xl font-bold text-center mt-8">Doing</h3>
+                <p className="text-center text-xl text-muted-foreground mt-4">
                   Active work in progress. Stay focused on what matters now.
                 </p>
               </div>
@@ -151,13 +137,10 @@ export default function Home() {
 
             {/* Done */}
             <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 rounded-2xl blur-xl opacity-50 group-hover:opacity-100 transition-opacity" />
-              <div className="relative bg-card border-2 border-emerald-500/30 rounded-2xl p-8 hover:border-emerald-500/50 transition-all">
-                <div className="flex items-center justify-center mb-6">
-                  <CheckCircle2 className="h-16 w-16 text-emerald-500" strokeWidth={2.5} />
-                </div>
-                <h3 className="text-2xl font-bold text-center mb-4">Done</h3>
-                <p className="text-center text-muted-foreground">
+              <div className="">
+                <img src="/mesh-shape-4.png" alt="To Do" className="w-auto h-40 mx-auto" />
+                <h3 className="text-3xl font-bold text-center mt-8">Done</h3>
+                <p className="text-center text-xl text-muted-foreground mt-4">
                   Completed tasks. Feel the satisfaction of progress.
                 </p>
               </div>
@@ -165,7 +148,7 @@ export default function Home() {
           </div>
 
           <div className="mt-16 text-center">
-            <p className="text-lg text-muted-foreground mb-6">
+            <p className="text-2xl text-white mb-6">
               No overwhelming workflows. No complicated boards. Just three lanes to keep you flowing.
             </p>
             <Button size="lg" onClick={() => openAuth('signup')} className="text-lg px-8">
@@ -173,11 +156,11 @@ export default function Home() {
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
-        </div>
-      </section>
+        </div >
+      </section >
 
       {/* Features */}
-      <section className="container mx-auto px-6 mt-16 py-20 bg-muted/30 rounded-3xl">
+      <section section className="container mx-auto px-6 mt-16 py-20 bg-muted/30 rounded-3xl" >
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">
             Simple. Powerful. Focused.
@@ -212,10 +195,10 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* CTA Section */}
-      <section className="container mx-auto px-6 py-20">
+      <section section className="container mx-auto px-6 py-20" >
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             Ready to declutter your workflow?
@@ -228,24 +211,24 @@ export default function Home() {
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>
-      </section>
+      </section >
 
       {/* Footer */}
-      <footer className="border-t py-8">
+      <footer footer className="border-t py-8" >
         <div className="container mx-auto px-6 text-center text-muted-foreground">
           <p>&copy; 2025 ThreeLanes. Kanban without the clutter.</p>
         </div>
-      </footer>
+      </footer >
 
       {/* Auth Dialog */}
-      <Dialog open={authDialogOpen} onOpenChange={setAuthDialogOpen}>
+      <Dialog Dialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} >
         <DialogContent className="sm:max-w-[500px] p-0">
           <DialogTitle className="sr-only">
             {authMode === 'signin' ? 'Sign In' : 'Sign Up'}
           </DialogTitle>
           <AuthForm initialMode={authMode} />
         </DialogContent>
-      </Dialog>
-    </div>
+      </Dialog >
+    </div >
   )
 }
