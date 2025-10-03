@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { DndContext, type DragEndEvent, DragOverlay, type DragStartEvent, type DragOverEvent, closestCorners } from "@dnd-kit/core"
+import { DndContext, type DragEndEvent, DragOverlay, type DragStartEvent, type DragOverEvent, pointerWithin } from "@dnd-kit/core"
 import { KanbanColumn } from "./kanban-column"
 import { KanbanCard } from "./kanban-card"
 import { AddTaskDialog } from "./add-task-dialog"
@@ -662,7 +662,7 @@ export function SupabaseKanbanBoard() {
       </div>
 
       <DndContext 
-        collisionDetection={closestCorners} 
+        collisionDetection={pointerWithin} 
         onDragStart={handleDragStart} 
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
@@ -681,9 +681,9 @@ export function SupabaseKanbanBoard() {
           ))}
         </div>
 
-        <DragOverlay>
+        <DragOverlay dropAnimation={null}>
           {activeTask && (
-            <div className="opacity-90 scale-105">
+            <div className="rotate-3 opacity-90 pointer-events-none">
               <KanbanCard task={activeTask} categoryColors={categoryColors} />
             </div>
           )}

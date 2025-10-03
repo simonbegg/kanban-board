@@ -43,7 +43,7 @@ export function KanbanCard({ task, onEdit, onDelete, categoryColors }: KanbanCar
     <div
       ref={setNodeRef}
       style={style}
-      className={`cursor-grab active:cursor-grabbing ${isDragging ? "opacity-50 scale-105" : ""}`}
+      className={`cursor-grab active:cursor-grabbing ${isDragging ? "opacity-50 rotate-3 scale-105" : ""}`}
       {...attributes}
       {...listeners}
     >
