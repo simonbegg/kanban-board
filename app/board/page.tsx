@@ -6,6 +6,7 @@ import { useEffect } from "react"
 import { UserMenu } from "@/components/auth/user-menu"
 import { SupabaseKanbanBoard } from "@/components/supabase-kanban-board"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { Layers } from "lucide-react"
 
 export default function BoardPage() {
   const { user, loading } = useAuth()
@@ -33,20 +34,27 @@ export default function BoardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background p-6">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground mb-1">ThreeLanes</h1>
-            <p className="text-muted-foreground">Kanban without the clutter</p>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Layers className="h-8 w-8 text-primary rotate-90" />
+            <span className="text-2xl font-display tracking-wider font-semibold">ThreeLanes</span>
           </div>
           <div className="flex items-center gap-4">
             <ThemeToggle />
             <UserMenu />
           </div>
         </div>
-        <SupabaseKanbanBoard />
-      </div>
-    </main>
+      </header>
+
+      {/* Main Content */}
+      <main className="p-6">
+        <div className="mx-auto max-w-7xl">
+          <SupabaseKanbanBoard />
+        </div>
+      </main>
+    </div>
   )
 }
