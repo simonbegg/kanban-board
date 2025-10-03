@@ -48,10 +48,10 @@ export function KanbanCard({ task, onEdit, onDelete, categoryColors }: KanbanCar
       {...listeners}
     >
       <Card className="transition-all duration-200 hover:shadow-lg group">
-        <CardHeader className="pb-3">
+        <CardHeader className="">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1">
-              <h4 className="font-medium text-card-foreground text-sm leading-tight">{task.title}</h4>
+              <h4 className="font-medium text-card-foreground text-lg leading-tight">{task.title}</h4>
             </div>
             <div className="flex items-center gap-1" onPointerDown={(e) => e.stopPropagation()}>
               <Button
@@ -81,10 +81,10 @@ export function KanbanCard({ task, onEdit, onDelete, categoryColors }: KanbanCar
             style={
               categoryColors?.[task.category]
                 ? {
-                    backgroundColor: `${categoryColors[task.category]}20`,
-                    color: categoryColors[task.category],
-                    borderColor: `${categoryColors[task.category]}50`,
-                  }
+                  backgroundColor: `${categoryColors[task.category]}20`,
+                  color: categoryColors[task.category],
+                  borderColor: `${categoryColors[task.category]}50`,
+                }
                 : undefined
             }
           >
