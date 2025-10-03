@@ -54,7 +54,10 @@ export function AddTaskDialog({ onAddTask, availableCategories, onAddCategory, c
       onAddCategory(finalCategory, newCategoryColor)
     }
 
-    if (!finalCategory) return
+    // Convert special "none" value to empty string
+    if (finalCategory === '__none__') {
+      finalCategory = ''
+    }
 
     onAddTask({
       title: title.trim(),
@@ -117,14 +120,15 @@ export function AddTaskDialog({ onAddTask, availableCategories, onAddCategory, c
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="category">Category</Label>
+              <Label htmlFor="category">Category (optional)</Label>
               {!showNewCategory && availableCategories.length > 0 ? (
                 <div className="flex gap-2">
                   <Select value={category} onValueChange={setCategory}>
                     <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Select a category" />
+                      <SelectValue placeholder="Select a category (optional)" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="__none__">None</SelectItem>
                       {availableCategories.map((cat) => (
                         <SelectItem key={cat} value={cat}>
                           {cat.charAt(0).toUpperCase() + cat.slice(1)}

@@ -75,21 +75,23 @@ export function KanbanCard({ task, onEdit, onDelete, categoryColors }: KanbanCar
         </CardHeader>
         <CardContent className="pt-0">
           <p className="text-sm text-muted-foreground mb-3 leading-relaxed">{task.description}</p>
-          <Badge
-            variant="outline"
-            className="text-xs border"
-            style={
-              categoryColors?.[task.category]
-                ? {
-                  backgroundColor: `${categoryColors[task.category]}20`,
-                  color: categoryColors[task.category],
-                  borderColor: `${categoryColors[task.category]}50`,
-                }
-                : undefined
-            }
-          >
-            {task.category}
-          </Badge>
+          {task.category && (
+            <Badge
+              variant="outline"
+              className="text-xs border"
+              style={
+                categoryColors?.[task.category]
+                  ? {
+                    backgroundColor: `${categoryColors[task.category]}20`,
+                    color: categoryColors[task.category],
+                    borderColor: `${categoryColors[task.category]}50`,
+                  }
+                  : undefined
+              }
+            >
+              {task.category}
+            </Badge>
+          )}
         </CardContent>
       </Card>
     </div>
