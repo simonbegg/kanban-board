@@ -282,10 +282,10 @@ export function SupabaseKanbanBoard() {
         // The newIndex already accounts for what we want visually
         // After removing the task, we just insert at newIndex directly
         const insertIndex = newIndex
-        
+
         console.log('Insert index calculation: currentIndex:', currentIndex, 'newIndex:', newIndex)
         console.log('Final insert index:', insertIndex)
-        
+
         tasks.splice(insertIndex, 0, taskToMove)
         console.log('After insertion:', tasks.map(t => ({ id: t.id, title: t.title, position: t.position })))
 
@@ -548,6 +548,15 @@ export function SupabaseKanbanBoard() {
     }
   }
 
+  const handleDeleteCategory = (category: string) => {
+    setAvailableCategories(prev => prev.filter(cat => cat !== category))
+    setCategoryColors(prev => {
+      const updated = { ...prev }
+      delete updated[category]
+      return updated
+    })
+  }
+
   if (!selectedBoardId) {
     return (
       <div className="space-y-6">
@@ -635,35 +644,41 @@ export function SupabaseKanbanBoard() {
             availableCategories={availableCategories}
             categoryColors={categoryColors}
             onAddCategory={handleAddCategory}
+            onDeleteCategory={handleDeleteCategory}
           />
         </div>
       </div>
 
-      <div className="mb-4 flex items-start justify-between">
-        <div>
-          <h2 className="text-xl font-semibold">{boardData.title}</h2>
-          {boardData.description && (
-            <p className="text-muted-foreground">{boardData.description}</p>
-          )}
+      <div className="my-12 px-6 py-2 bg-card/50 border rounded-xl backdrop-blur-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-display font-bold">{boardData.title}</h2>
+            {boardData.description && (
+              <p className="text-muted-foreground">{boardData.description}</p>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Board Settings</span>
+            <BoardActions
+              board={boardData}
+              onBoardUpdated={loadBoardData}
+              onBoardDeleted={() => {
+                console.log('Board deleted, clearing selection and refreshing list')
+                setBoardData(null)
+                setSelectedBoardId(null)
+                // Use setTimeout to ensure state updates before triggering refresh
+                setTimeout(() => {
+                  setBoardRefreshTrigger(prev => prev + 1)
+                }, 0)
+              }}
+            />
+          </div>
         </div>
-        <BoardActions
-          board={boardData}
-          onBoardUpdated={loadBoardData}
-          onBoardDeleted={() => {
-            console.log('Board deleted, clearing selection and refreshing list')
-            setBoardData(null)
-            setSelectedBoardId(null)
-            // Use setTimeout to ensure state updates before triggering refresh
-            setTimeout(() => {
-              setBoardRefreshTrigger(prev => prev + 1)
-            }, 0)
-          }}
-        />
       </div>
 
-      <DndContext 
-        collisionDetection={pointerWithin} 
-        onDragStart={handleDragStart} 
+      <DndContext
+        collisionDetection={pointerWithin}
+        onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
@@ -698,6 +713,7 @@ export function SupabaseKanbanBoard() {
         availableCategories={availableCategories}
         categoryColors={categoryColors}
         onAddCategory={handleAddCategory}
+        onDeleteCategory={handleDeleteCategory}
       />
     </div>
   )

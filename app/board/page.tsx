@@ -50,7 +50,7 @@ export default function BoardPage() {
       </header>
 
       {/* Main Content */}
-      <main className="p-6">
+      <main className="pt-12">
         <div className="mx-auto max-w-7xl">
           <SupabaseKanbanBoard />
         </div>

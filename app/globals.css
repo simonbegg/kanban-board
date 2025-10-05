@@ -133,4 +133,7 @@
   .font-display {
     font-family: var(--font-urbanist), sans-serif;
   }
+  .font-special {
+    font-family: var(--font-funnel-display), sans-serif;
+  }
 }

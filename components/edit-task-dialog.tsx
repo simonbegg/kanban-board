@@ -8,6 +8,7 @@ import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Textarea } from "./ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { X } from "lucide-react"
 import type { Task } from "./kanban-board"
 
 interface EditTaskDialogProps {
@@ -17,6 +18,7 @@ interface EditTaskDialogProps {
   onEditTask: (taskId: string, updates: Partial<Task>) => void
   availableCategories: string[]
   onAddCategory: (category: string, color?: string) => void
+  onDeleteCategory: (category: string) => void
   categoryColors?: Record<string, string>
 }
 
@@ -27,7 +29,10 @@ const DEFAULT_COLORS = [
   '#ec4899', '#f43f5e'
 ]
 
-export function EditTaskDialog({ task, open, onOpenChange, onEditTask, availableCategories, onAddCategory, categoryColors }: EditTaskDialogProps) {
+const TITLE_MAX_LENGTH = 100
+const DESCRIPTION_MAX_LENGTH = 500
+
+export function EditTaskDialog({ task, open, onOpenChange, onEditTask, availableCategories, onAddCategory, onDeleteCategory, categoryColors }: EditTaskDialogProps) {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [category, setCategory] = useState("")
@@ -94,45 +99,76 @@ export function EditTaskDialog({ task, open, onOpenChange, onEditTask, available
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="edit-title">Title</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="edit-title">Title</Label>
+                <span className={`text-xs ${title.length > TITLE_MAX_LENGTH ? 'text-destructive' : 'text-muted-foreground'}`}>
+                  {title.length}/{TITLE_MAX_LENGTH}
+                </span>
+              </div>
               <Input
                 id="edit-title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Enter task title..."
+                maxLength={TITLE_MAX_LENGTH}
                 required
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="edit-description">Description</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="edit-description">Description</Label>
+                <span className={`text-xs ${description.length > DESCRIPTION_MAX_LENGTH ? 'text-destructive' : 'text-muted-foreground'}`}>
+                  {description.length}/{DESCRIPTION_MAX_LENGTH}
+                </span>
+              </div>
               <Textarea
                 id="edit-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Enter task description..."
+                maxLength={DESCRIPTION_MAX_LENGTH}
                 rows={3}
               />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="edit-category">Category (optional)</Label>
               {!showNewCategory && availableCategories.length > 0 ? (
-                <div className="flex gap-2">
-                  <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Select a category (optional)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__none__">None</SelectItem>
-                      {availableCategories.map((cat) => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button type="button" variant="outline" size="sm" onClick={() => setShowNewCategory(true)}>
-                    New
-                  </Button>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Select value={category} onValueChange={setCategory}>
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Select a category (optional)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">None</SelectItem>
+                        {availableCategories.map((cat) => (
+                          <SelectItem key={cat} value={cat}>
+                            {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button type="button" variant="outline" size="sm" onClick={() => setShowNewCategory(true)}>
+                      New
+                    </Button>
+                  </div>
+                  {category && category !== '__none__' && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => {
+                        if (confirm(`Delete category "${category}"? This will not affect existing tasks with this category.`)) {
+                          onDeleteCategory(category)
+                          setCategory('__none__')
+                        }
+                      }}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Delete Category
+                    </Button>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-3">

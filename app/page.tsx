@@ -81,7 +81,7 @@ export default function Home() {
         {/* Content */}
         <div className="container mx-auto px-6 relative z-10 w-full">
           <div className="max-w-5xl mx-auto text-center">
-            <h1 className="text-5xl md:text-9xl font-medium mb-6 text-white">
+            <h1 className="text-5xl md:text-9xl font-special mb-6 text-white">
               Kanban without the Clutter
             </h1>
             <p className="text-xl md:text-3xl text-white/90 mb-12 max-w-2xl mx-auto">
@@ -117,7 +117,7 @@ export default function Home() {
             <div className="relative group">
               <div className="">
                 <img src="/mesh-shape.png" alt="To Do" className="w-auto h-40 mx-auto" />
-                <h3 className="text-3xl font-bold text-center mt-8">To Do</h3>
+                <h3 className="text-3xl font-bold tracking-wider text-center mt-8">To Do</h3>
                 <p className="text-center text-xl text-muted-foreground mt-4">
                   Your backlog of tasks waiting to be started. Simple and organized.
                 </p>
@@ -128,7 +128,7 @@ export default function Home() {
             <div className="relative group">
               <div className="">
                 <img src="/mesh-shape-3.png" alt="To Do" className="w-auto h-40 mx-auto" />
-                <h3 className="text-3xl font-bold text-center mt-8">Doing</h3>
+                <h3 className="text-3xl font-bold tracking-wider text-center mt-8">Doing</h3>
                 <p className="text-center text-xl text-muted-foreground mt-4">
                   Active work in progress. Stay focused on what matters now.
                 </p>
@@ -139,7 +139,7 @@ export default function Home() {
             <div className="relative group">
               <div className="">
                 <img src="/mesh-shape-4.png" alt="To Do" className="w-auto h-40 mx-auto" />
-                <h3 className="text-3xl font-bold text-center mt-8">Done</h3>
+                <h3 className="text-3xl font-bold tracking-wider text-center mt-8">Done</h3>
                 <p className="text-center text-xl text-muted-foreground mt-4">
                   Completed tasks. Feel the satisfaction of progress.
                 </p>
@@ -148,10 +148,11 @@ export default function Home() {
           </div>
 
           <div className="mt-16 text-center">
-            <p className="text-2xl text-white mb-6">
+            <p className="text-2xl text-muted-foreground mb-6">
               No overwhelming workflows. No complicated boards. Just three lanes to keep you flowing.
             </p>
-            <Button size="lg" onClick={() => openAuth('signup')} className="text-lg px-8">
+            <p className="text-white/90 text-8xl font-special font-semibold mt-8">Your tasks are waiting, lets get them done.</p>
+            <Button size="lg" onClick={() => openAuth('signup')} className="text-lg px-8 mt-16">
               Try It Now
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
@@ -160,7 +161,7 @@ export default function Home() {
       </section >
 
       {/* Features */}
-      <section section className="container mx-auto px-6 mt-16 py-20 bg-muted/30 rounded-3xl" >
+      <section className="container mx-auto px-6 mt-16 py-20 bg-muted/30 rounded-3xl">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">
             Simple. Powerful. Focused.
@@ -198,7 +199,7 @@ export default function Home() {
       </section >
 
       {/* CTA Section */}
-      <section section className="container mx-auto px-6 py-20" >
+      <section className="container mx-auto px-6 py-20">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             Ready to declutter your workflow?
@@ -214,14 +215,14 @@ export default function Home() {
       </section >
 
       {/* Footer */}
-      <footer footer className="border-t py-8" >
+      <footer className="border-t py-8">
         <div className="container mx-auto px-6 text-center text-muted-foreground">
           <p>&copy; 2025 ThreeLanes. Kanban without the clutter.</p>
         </div>
       </footer >
 
       {/* Auth Dialog */}
-      <Dialog Dialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} >
+      <Dialog open={authDialogOpen} onOpenChange={setAuthDialogOpen}>
         <DialogContent className="sm:max-w-[500px] p-0">
           <DialogTitle className="sr-only">
             {authMode === 'signin' ? 'Sign In' : 'Sign Up'}

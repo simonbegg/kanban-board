@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
-import { Urbanist } from 'next/font/google'
+import { Urbanist, Funnel_Display } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/contexts/auth-context'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -10,6 +10,12 @@ import './globals.css'
 const urbanist = Urbanist({
   subsets: ['latin'],
   variable: '--font-urbanist',
+  display: 'swap',
+})
+
+const funnelDisplay = Funnel_Display({
+  subsets: ['latin'],
+  variable: '--font-funnel-display',
   display: 'swap',
 })
 
@@ -26,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} ${urbanist.variable}`}>
+      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} ${urbanist.variable} ${funnelDisplay.variable}`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
