@@ -6,7 +6,7 @@ import { useEffect } from "react"
 import { UserMenu } from "@/components/auth/user-menu"
 import { SupabaseKanbanBoard } from "@/components/supabase-kanban-board"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Layers } from "lucide-react"
+import { Layers, SquareKanban } from "lucide-react"
 
 export default function BoardPage() {
   const { user, loading } = useAuth()
@@ -39,7 +39,7 @@ export default function BoardPage() {
       <header className="border-b">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Layers className="h-8 w-8 text-primary rotate-90" />
+            <SquareKanban className="h-8 w-8 text-primary rotate-90" />
             <span className="text-2xl font-display tracking-wider font-semibold">ThreeLanes</span>
           </div>
           <div className="flex items-center gap-4">

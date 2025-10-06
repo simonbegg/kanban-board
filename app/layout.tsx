@@ -23,6 +23,26 @@ export const metadata: Metadata = {
   title: 'ThreeLanes - Kanban without the clutter',
   description: 'ThreeLanes - Kanban without the clutter. Simple, focused task management.',
   generator: 'v0.app',
+  icons: {
+    icon: '/icon',
+    apple: '/apple-icon',
+  },
+  manifest: '/manifest.json',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: 'white' },
+    { media: '(prefers-color-scheme: dark)', color: 'black' },
+  ],
+  openGraph: {
+    title: 'ThreeLanes - Kanban without the clutter',
+    description: 'Simple, focused task management with three essential lanes: To Do, Doing, Done.',
+    type: 'website',
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ThreeLanes - Kanban without the clutter',
+    description: 'Simple, focused task management with three essential lanes: To Do, Doing, Done.',
+  },
 }
 
 export default function RootLayout({
