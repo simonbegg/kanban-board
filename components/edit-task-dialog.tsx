@@ -141,7 +141,7 @@ export function EditTaskDialog({ task, open, onOpenChange, onEditTask, available
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="__none__">None</SelectItem>
-                        {availableCategories.map((cat) => (
+                        {availableCategories.filter(cat => cat && cat.trim()).map((cat) => (
                           <SelectItem key={cat} value={cat}>
                             {cat.charAt(0).toUpperCase() + cat.slice(1)}
                           </SelectItem>
@@ -184,11 +184,10 @@ export function EditTaskDialog({ task, open, onOpenChange, onEditTask, available
                         <button
                           key={color}
                           type="button"
-                          className={`w-8 h-8 rounded-md border-2 transition-all ${
-                            newCategoryColor === color
-                              ? 'border-foreground scale-110'
-                              : 'border-transparent hover:scale-105'
-                          }`}
+                          className={`w-8 h-8 rounded-md border-2 transition-all ${newCategoryColor === color
+                            ? 'border-foreground scale-110'
+                            : 'border-transparent hover:scale-105'
+                            }`}
                           style={{ backgroundColor: color }}
                           onClick={() => setNewCategoryColor(color)}
                         />

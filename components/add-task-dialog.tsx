@@ -146,7 +146,7 @@ export function AddTaskDialog({ onAddTask, availableCategories, onAddCategory, o
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="__none__">None</SelectItem>
-                        {availableCategories.map((cat) => (
+                        {availableCategories.filter(cat => cat && cat.trim()).map((cat) => (
                           <SelectItem key={cat} value={cat}>
                             {cat.charAt(0).toUpperCase() + cat.slice(1)}
                           </SelectItem>

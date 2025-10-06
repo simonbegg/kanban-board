@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Layers, Palette, Zap, Circle, PlayCircle, CheckCircle2 } from "lucide-react"
 import { AuthForm } from "@/components/auth/auth-form"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 export default function Home() {
   const { user, loading } = useAuth()
@@ -212,7 +213,83 @@ export default function Home() {
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>
-      </section >
+      </section>
+
+      {/* FAQ Section */}
+      <section className="container mx-auto px-6 py-20">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+            Frequently Asked Questions
+          </h2>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger className="text-left text-lg">
+                What makes ThreeLanes different from other kanban tools?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                ThreeLanes focuses on simplicity. No overwhelming features, no complex workflows. 
+                Just three essential lanes (To Do, Doing, Done) to keep you focused and productive. 
+                We believe less is more when it comes to task management.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-2">
+              <AccordionTrigger className="text-left text-lg">
+                Is ThreeLanes free to use?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Yes! ThreeLanes is completely free to use. Create unlimited boards, add unlimited tasks, 
+                and organize your work without any cost. We believe everyone deserves access to simple, 
+                effective task management.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-3">
+              <AccordionTrigger className="text-left text-lg">
+                Can I customize the board columns?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                ThreeLanes is designed around the classic three-column workflow (To Do, Doing, Done). 
+                This simplicity is intentional—it helps you focus without getting lost in configuration. 
+                However, you can create multiple boards and use custom categories to organize tasks your way.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-4">
+              <AccordionTrigger className="text-left text-lg">
+                How do I add categories to my tasks?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                When creating or editing a task, you can select or create a custom category with a color. 
+                Categories help you visually organize and filter your tasks. You can also delete categories 
+                if you no longer need them—don't worry, your existing tasks won't be affected.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-5">
+              <AccordionTrigger className="text-left text-lg">
+                Can I collaborate with my team?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Currently, ThreeLanes is designed for personal productivity. Each user has their own boards 
+                and tasks. We're focused on making the best individual task management experience possible. 
+                Team collaboration features may be considered in the future based on user feedback.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-6">
+              <AccordionTrigger className="text-left text-lg">
+                Is my data secure?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Absolutely. Your data is stored securely using Supabase, an enterprise-grade database platform. 
+                All connections are encrypted, and your tasks are private to your account. We take your privacy 
+                seriously and will never share your data with third parties.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      </section>
 
       {/* Footer */}
       <footer className="border-t py-8">
