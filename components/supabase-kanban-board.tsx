@@ -40,7 +40,14 @@ export function SupabaseKanbanBoard() {
   const [editingTask, setEditingTask] = useState<LegacyTask | null>(null)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [availableCategories, setAvailableCategories] = useState<string[]>([])
-  const [categoryColors, setCategoryColors] = useState<Record<string, string>>({})
+  const [categoryColors, setCategoryColors] = useState<Record<string, string>>(() => {
+    // Load category colors from localStorage on mount
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('kanban-category-colors')
+      return stored ? JSON.parse(stored) : {}
+    }
+    return {}
+  })
   const [isDragging, setIsDragging] = useState(false)
   const [overId, setOverId] = useState<string | null>(null)
   const [boardRefreshTrigger, setBoardRefreshTrigger] = useState(0)
@@ -543,7 +550,14 @@ export function SupabaseKanbanBoard() {
     if (!availableCategories.includes(category)) {
       setAvailableCategories(prev => [...prev, category])
       if (color) {
-        setCategoryColors(prev => ({ ...prev, [category]: color }))
+        setCategoryColors(prev => {
+          const updated = { ...prev, [category]: color }
+          // Persist to localStorage
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('kanban-category-colors', JSON.stringify(updated))
+          }
+          return updated
+        })
       }
     }
   }
@@ -553,6 +567,10 @@ export function SupabaseKanbanBoard() {
     setCategoryColors(prev => {
       const updated = { ...prev }
       delete updated[category]
+      // Persist to localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('kanban-category-colors', JSON.stringify(updated))
+      }
       return updated
     })
   }
