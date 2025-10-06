@@ -51,12 +51,15 @@ export async function getBoardWithData(boardId: string): Promise<BoardWithColumn
   if (error) throw error
   
   // Sort columns by position and tasks by position within each column
+  // Filter out archived tasks
   if (data) {
     data.columns = data.columns
       .sort((a: Column, b: Column) => a.position - b.position)
       .map((column: Column & { tasks: Task[] }) => ({
         ...column,
-        tasks: column.tasks.sort((a: Task, b: Task) => a.position - b.position)
+        tasks: column.tasks
+          .filter((task: Task) => !task.archived)
+          .sort((a: Task, b: Task) => a.position - b.position)
       }))
   }
   
@@ -342,4 +345,66 @@ export async function moveTask(
   }
   
   logger.debug('moveTask completed successfully')
+}
+
+export async function archiveTask(taskId: string): Promise<void> {
+  const supabase = createClient()
+  
+  // Get user for rate limiting
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  
+  // Rate limiting
+  if (isRateLimited(`archiveTask:${user.id}`, RATE_LIMITS.WRITE)) {
+    throw new RateLimitError('Too many actions. Please wait a moment.', Date.now() + 60000)
+  }
+  
+  const { error } = await supabase
+    .from('tasks')
+    .update({ 
+      archived: true,
+      archived_at: new Date().toISOString()
+    })
+    .eq('id', taskId)
+
+  if (error) throw error
+  logger.debug('Task archived successfully')
+}
+
+export async function unarchiveTask(taskId: string): Promise<void> {
+  const supabase = createClient()
+  
+  // Get user for rate limiting
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  
+  // Rate limiting
+  if (isRateLimited(`unarchiveTask:${user.id}`, RATE_LIMITS.WRITE)) {
+    throw new RateLimitError('Too many actions. Please wait a moment.', Date.now() + 60000)
+  }
+  
+  const { error } = await supabase
+    .from('tasks')
+    .update({ 
+      archived: false,
+      archived_at: null
+    })
+    .eq('id', taskId)
+
+  if (error) throw error
+  logger.debug('Task unarchived successfully')
+}
+
+export async function getArchivedTasks(boardId: string): Promise<Task[]> {
+  const supabase = createClient()
+  
+  const { data, error } = await supabase
+    .from('tasks')
+    .select('*')
+    .eq('board_id', boardId)
+    .eq('archived', true)
+    .order('archived_at', { ascending: false })
+
+  if (error) throw error
+  return data || []
 }

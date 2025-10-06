@@ -8,7 +8,7 @@ import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Textarea } from "./ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
-import { X } from "lucide-react"
+import { X, Archive } from "lucide-react"
 import type { Task } from "./kanban-board"
 
 interface EditTaskDialogProps {
@@ -16,6 +16,7 @@ interface EditTaskDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onEditTask: (taskId: string, updates: Partial<Task>) => void
+  onArchiveTask?: (taskId: string) => void
   availableCategories: string[]
   onAddCategory: (category: string, color?: string) => void
   onDeleteCategory: (category: string) => void
@@ -32,7 +33,7 @@ const DEFAULT_COLORS = [
 const TITLE_MAX_LENGTH = 100
 const DESCRIPTION_MAX_LENGTH = 500
 
-export function EditTaskDialog({ task, open, onOpenChange, onEditTask, availableCategories, onAddCategory, onDeleteCategory, categoryColors }: EditTaskDialogProps) {
+export function EditTaskDialog({ task, open, onOpenChange, onEditTask, onArchiveTask, availableCategories, onAddCategory, onDeleteCategory, categoryColors }: EditTaskDialogProps) {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [category, setCategory] = useState("")
@@ -87,6 +88,15 @@ export function EditTaskDialog({ task, open, onOpenChange, onEditTask, available
     setNewCategory("")
     setNewCategoryColor(DEFAULT_COLORS[0])
     onOpenChange(false)
+  }
+
+  const handleArchive = () => {
+    if (!task || !onArchiveTask) return
+    
+    if (confirm('Archive this task? You can restore it later from the archived tasks view.')) {
+      onArchiveTask(task.id)
+      onOpenChange(false)
+    }
   }
 
   return (
@@ -213,11 +223,26 @@ export function EditTaskDialog({ task, open, onOpenChange, onEditTask, available
               )}
             </div>
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleCancel}>
-              Cancel
-            </Button>
-            <Button type="submit">Save Changes</Button>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <div className="flex gap-2 flex-1">
+              {onArchiveTask && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleArchive}
+                  className="gap-2"
+                >
+                  <Archive className="h-4 w-4" />
+                  Archive
+                </Button>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" onClick={handleCancel}>
+                Cancel
+              </Button>
+              <Button type="submit">Save Changes</Button>
+            </div>
           </DialogFooter>
         </form>
       </DialogContent>

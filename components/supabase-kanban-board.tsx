@@ -6,10 +6,11 @@ import { KanbanColumn } from "./kanban-column"
 import { KanbanCard } from "./kanban-card"
 import { AddTaskDialog } from "./add-task-dialog"
 import { EditTaskDialog } from "./edit-task-dialog"
+import { ArchivedTasksDialog } from "./archived-tasks-dialog"
 import { Button } from "./ui/button"
 import { BoardSelector } from "./boards/board-selector"
 import { BoardActions } from "./boards/board-actions"
-import { getBoardWithData, createTask, updateTask, deleteTask, moveTask, BoardWithColumnsAndTasks } from "@/lib/api/boards"
+import { getBoardWithData, createTask, updateTask, deleteTask, moveTask, archiveTask, BoardWithColumnsAndTasks } from "@/lib/api/boards"
 import { Database } from "@/lib/supabase"
 import { logger } from "@/lib/logger"
 import { ValidationError } from "@/lib/validation"
@@ -543,7 +544,58 @@ export function SupabaseKanbanBoard() {
     try {
       await deleteTask(taskId)
     } catch (error) {
-      console.error('Error deleting task:', error)
+      logger.error('Error deleting task:', error)
+      // Revert optimistic update on error
+      setBoardData(originalData)
+    }
+  }
+
+  const handleArchiveTask = async (taskId: string) => {
+    // Store original data for potential revert
+    const originalData = boardData
+
+    // Optimistic update - remove task from UI immediately (archived tasks are hidden)
+    setBoardData(prevData => {
+      if (!prevData) return prevData
+
+      const newColumns = [...prevData.columns]
+
+      for (let i = 0; i < newColumns.length; i++) {
+        const column = { ...newColumns[i] }
+        const taskIndex = column.tasks.findIndex(t => t.id === taskId)
+
+        if (taskIndex !== -1) {
+          column.tasks = column.tasks.filter(t => t.id !== taskId)
+          // Update positions
+          column.tasks = column.tasks.map((task, index) => ({
+            ...task,
+            position: index
+          }))
+          newColumns[i] = column
+          break
+        }
+      }
+
+      return {
+        ...prevData,
+        columns: newColumns
+      }
+    })
+
+    try {
+      await archiveTask(taskId)
+      logger.debug('Task archived successfully')
+    } catch (error) {
+      logger.error('Error archiving task:', error)
+      
+      let errorMessage = 'Failed to archive task'
+      if (error instanceof RateLimitError) {
+        errorMessage = error.message
+      } else if (error instanceof Error) {
+        errorMessage = error.message
+      }
+      
+      alert(errorMessage)
       // Revert optimistic update on error
       setBoardData(originalData)
     }
@@ -667,6 +719,12 @@ export function SupabaseKanbanBoard() {
             onAddCategory={handleAddCategory}
             onDeleteCategory={handleDeleteCategory}
           />
+          {boardData && (
+            <ArchivedTasksDialog
+              boardId={boardData.id}
+              onTaskRestored={loadBoardData}
+            />
+          )}
         </div>
       </div>
 
@@ -731,6 +789,7 @@ export function SupabaseKanbanBoard() {
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
         onEditTask={handleUpdateTask}
+        onArchiveTask={handleArchiveTask}
         availableCategories={availableCategories}
         categoryColors={categoryColors}
         onAddCategory={handleAddCategory}
