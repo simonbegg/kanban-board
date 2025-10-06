@@ -24,14 +24,8 @@ export const metadata: Metadata = {
   description: 'ThreeLanes - Kanban without the clutter. Simple, focused task management.',
   generator: 'v0.app',
   icons: {
-    icon: '/icon',
-    apple: '/apple-icon',
+    icon: '/icon.svg',
   },
-  manifest: '/manifest.json',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
-  ],
   openGraph: {
     title: 'ThreeLanes - Kanban without the clutter',
     description: 'Simple, focused task management with three essential lanes: To Do, Doing, Done.',
@@ -43,6 +37,13 @@ export const metadata: Metadata = {
     title: 'ThreeLanes - Kanban without the clutter',
     description: 'Simple, focused task management with three essential lanes: To Do, Doing, Done.',
   },
+}
+
+export const viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: 'white' },
+    { media: '(prefers-color-scheme: dark)', color: 'black' },
+  ],
 }
 
 export default function RootLayout({
