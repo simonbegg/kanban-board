@@ -1,0 +1,23 @@
+{
+  "name": "ThreeLanes - Kanban without the clutter",
+  "short_name": "ThreeLanes",
+  "description": "Simple, focused task management with three essential lanes",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/icon",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-icon",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

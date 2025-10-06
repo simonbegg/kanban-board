@@ -32,6 +32,9 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { updateBoard, deleteBoard } from '@/lib/api/boards'
 import { Database } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
+import { ValidationError } from '@/lib/validation'
+import { RateLimitError } from '@/lib/rate-limit'
 
 type Board = Database['public']['Tables']['boards']['Row']
 
@@ -62,8 +65,18 @@ export function BoardActions({ board, onBoardUpdated, onBoardDeleted }: BoardAct
       setEditDialogOpen(false)
       onBoardUpdated()
     } catch (error) {
-      console.error('Error updating board:', error)
-      alert('Failed to update board')
+      logger.error('Error updating board:', error)
+      
+      let errorMessage = 'Failed to update board'
+      if (error instanceof ValidationError) {
+        errorMessage = error.message
+      } else if (error instanceof RateLimitError) {
+        errorMessage = error.message
+      } else if (error instanceof Error) {
+        errorMessage = error.message
+      }
+      
+      alert(errorMessage)
     } finally {
       setUpdating(false)
     }
@@ -76,8 +89,14 @@ export function BoardActions({ board, onBoardUpdated, onBoardDeleted }: BoardAct
       setDeleteDialogOpen(false)
       onBoardDeleted()
     } catch (error) {
-      console.error('Error deleting board:', error)
-      alert('Failed to delete board')
+      logger.error('Error deleting board:', error)
+      
+      let errorMessage = 'Failed to delete board'
+      if (error instanceof Error) {
+        errorMessage = error.message
+      }
+      
+      alert(errorMessage)
     } finally {
       setDeleting(false)
     }

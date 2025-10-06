@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Layers, Palette, Zap, Circle, PlayCircle, CheckCircle2 } from "lucide-react"
+import { ArrowRight, Layers, Palette, Zap, SquareKanban } from "lucide-react"
 import { AuthForm } from "@/components/auth/auth-form"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -48,7 +48,7 @@ export default function Home() {
       <header className="border-b">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Layers className="h-8 w-8 text-primary rotate-90" />
+            <SquareKanban className="h-8 w-8 text-primary rotate-90" />
             <span className="text-2xl font-display tracking-wider font-semibold">ThreeLanes</span>
           </div>
           <div className="flex items-center gap-4">
@@ -227,8 +227,8 @@ export default function Home() {
                 What makes ThreeLanes different from other kanban tools?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                ThreeLanes focuses on simplicity. No overwhelming features, no complex workflows. 
-                Just three essential lanes (To Do, Doing, Done) to keep you focused and productive. 
+                ThreeLanes focuses on simplicity. No overwhelming features, no complex workflows.
+                Just three essential lanes (To Do, Doing, Done) to keep you focused and productive.
                 We believe less is more when it comes to task management.
               </AccordionContent>
             </AccordionItem>
@@ -238,8 +238,8 @@ export default function Home() {
                 Is ThreeLanes free to use?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Yes! ThreeLanes is completely free to use. Create unlimited boards, add unlimited tasks, 
-                and organize your work without any cost. We believe everyone deserves access to simple, 
+                Yes! ThreeLanes is completely free to use. Create unlimited boards, add unlimited tasks,
+                and organize your work without any cost. We believe everyone deserves access to simple,
                 effective task management.
               </AccordionContent>
             </AccordionItem>
@@ -249,8 +249,8 @@ export default function Home() {
                 Can I customize the board columns?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                ThreeLanes is designed around the classic three-column workflow (To Do, Doing, Done). 
-                This simplicity is intentional—it helps you focus without getting lost in configuration. 
+                ThreeLanes is designed around the classic three-column workflow (To Do, Doing, Done).
+                This simplicity is intentional—it helps you focus without getting lost in configuration.
                 However, you can create multiple boards and use custom categories to organize tasks your way.
               </AccordionContent>
             </AccordionItem>
@@ -260,8 +260,8 @@ export default function Home() {
                 How do I add categories to my tasks?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                When creating or editing a task, you can select or create a custom category with a color. 
-                Categories help you visually organize and filter your tasks. You can also delete categories 
+                When creating or editing a task, you can select or create a custom category with a color.
+                Categories help you visually organize and filter your tasks. You can also delete categories
                 if you no longer need them—don't worry, your existing tasks won't be affected.
               </AccordionContent>
             </AccordionItem>
@@ -271,8 +271,8 @@ export default function Home() {
                 Can I collaborate with my team?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Currently, ThreeLanes is designed for personal productivity. Each user has their own boards 
-                and tasks. We're focused on making the best individual task management experience possible. 
+                Currently, ThreeLanes is designed for personal productivity. Each user has their own boards
+                and tasks. We're focused on making the best individual task management experience possible.
                 Team collaboration features may be considered in the future based on user feedback.
               </AccordionContent>
             </AccordionItem>
@@ -282,8 +282,8 @@ export default function Home() {
                 Is my data secure?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Absolutely. Your data is stored securely using Supabase, an enterprise-grade database platform. 
-                All connections are encrypted, and your tasks are private to your account. We take your privacy 
+                Absolutely. Your data is stored securely using Supabase, an enterprise-grade database platform.
+                All connections are encrypted, and your tasks are private to your account. We take your privacy
                 seriously and will never share your data with third parties.
               </AccordionContent>
             </AccordionItem>

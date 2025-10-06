@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { User } from '@supabase/auth-helpers-nextjs'
 import { createClient } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 
 type AuthContextType = {
   user: User | null
@@ -24,8 +25,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Get initial session
     const getSession = async () => {
       const { data: { session }, error } = await supabase.auth.getSession()
-      console.log('Initial session:', session)
-      console.log('Session error:', error)
+      logger.debug('Initial session loaded')
+      if (error) logger.error('Session error:', error)
       setUser(session?.user ?? null)
       setLoading(false)
     }
@@ -35,7 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state change:', event, session)
+        logger.debug('Auth state change:', event)
         setUser(session?.user ?? null)
         setLoading(false)
       }

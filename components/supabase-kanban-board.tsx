@@ -11,6 +11,9 @@ import { BoardSelector } from "./boards/board-selector"
 import { BoardActions } from "./boards/board-actions"
 import { getBoardWithData, createTask, updateTask, deleteTask, moveTask, BoardWithColumnsAndTasks } from "@/lib/api/boards"
 import { Database } from "@/lib/supabase"
+import { logger } from "@/lib/logger"
+import { ValidationError } from "@/lib/validation"
+import { RateLimitError } from "@/lib/rate-limit"
 
 type Task = Database['public']['Tables']['tasks']['Row']
 type Column = Database['public']['Tables']['columns']['Row'] & { tasks: Task[] }

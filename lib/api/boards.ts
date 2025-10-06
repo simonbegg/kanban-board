@@ -1,5 +1,8 @@
 import { createClient } from '@/lib/supabase'
 import { Database } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
+import { validateBoardTitle, validateBoardDescription, validateTaskTitle, validateTaskDescription, validateCategory, ValidationError } from '@/lib/validation'
+import { isRateLimited, RATE_LIMITS, RateLimitError } from '@/lib/rate-limit'
 
 type Board = Database['public']['Tables']['boards']['Row']
 type BoardInsert = Database['public']['Tables']['boards']['Insert']
@@ -63,20 +66,26 @@ export async function getBoardWithData(boardId: string): Promise<BoardWithColumn
 export async function createBoard(board: Omit<BoardInsert, 'user_id'>): Promise<Board> {
   const supabase = createClient()
   
-  console.log('Getting user session...')
   const { data: { user }, error: userError } = await supabase.auth.getUser()
   
   if (userError) {
-    console.error('Error getting user:', userError)
+    logger.error('Error getting user:', userError)
     throw new Error(`Authentication error: ${userError.message}`)
   }
   
   if (!user) {
-    console.error('No user found in session')
+    logger.error('No user found in session')
     throw new Error('Not authenticated')
   }
 
-  console.log('User found:', user.id)
+  // Rate limiting
+  if (isRateLimited(`createBoard:${user.id}`, RATE_LIMITS.WRITE)) {
+    throw new RateLimitError('Too many boards created. Please wait before creating another.', Date.now() + 60000)
+  }
+
+  // Input validation
+  const validTitle = validateBoardTitle(board.title)
+  const validDescription = board.description ? validateBoardDescription(board.description) : null
   
   // Check if profile exists, create if not
   const { data: profile, error: profileError } = await supabase
@@ -87,7 +96,7 @@ export async function createBoard(board: Omit<BoardInsert, 'user_id'>): Promise<
   
   if (profileError && profileError.code === 'PGRST116') {
     // Profile doesn't exist, create it
-    console.log('Profile not found, creating profile for user:', user.id)
+    logger.debug('Profile not found, creating profile for user')
     const { error: createProfileError } = await supabase
       .from('profiles')
       .insert({
@@ -97,28 +106,24 @@ export async function createBoard(board: Omit<BoardInsert, 'user_id'>): Promise<
       })
     
     if (createProfileError) {
-      console.error('Error creating profile:', createProfileError)
+      logger.error('Error creating profile:', createProfileError)
       throw new Error(`Failed to create user profile: ${createProfileError.message}`)
     }
   } else if (profileError) {
-    console.error('Error checking profile:', profileError)
+    logger.error('Error checking profile:', profileError)
     throw new Error(`Profile check failed: ${profileError.message}`)
   }
 
-  console.log('Creating board with data:', { ...board, user_id: user.id })
-
   const { data, error } = await supabase
     .from('boards')
-    .insert({ ...board, user_id: user.id })
+    .insert({ title: validTitle, description: validDescription, user_id: user.id })
     .select()
     .single()
 
   if (error) {
-    console.error('Error inserting board:', error)
+    logger.error('Error inserting board:', error)
     throw new Error(`Failed to create board: ${error.message}`)
   }
-
-  console.log('Board created:', data)
 
   // Create default columns
   const defaultColumns = [
@@ -126,8 +131,6 @@ export async function createBoard(board: Omit<BoardInsert, 'user_id'>): Promise<
     { title: 'Doing', position: 1 },
     { title: 'Done', position: 2 }
   ]
-
-  console.log('Creating default columns for board:', data.id)
 
   const { error: columnsError } = await supabase
     .from('columns')
@@ -139,11 +142,11 @@ export async function createBoard(board: Omit<BoardInsert, 'user_id'>): Promise<
     )
 
   if (columnsError) {
-    console.error('Error creating columns:', columnsError)
+    logger.error('Error creating columns:', columnsError)
     throw new Error(`Failed to create board columns: ${columnsError.message}`)
   }
 
-  console.log('Default columns created successfully')
+  logger.debug('Default columns created successfully')
   return data
 }
 
@@ -175,6 +178,20 @@ export async function deleteBoard(boardId: string): Promise<void> {
 export async function createTask(task: Omit<TaskInsert, 'position'>): Promise<Task> {
   const supabase = createClient()
   
+  // Get user for rate limiting
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  
+  // Rate limiting
+  if (isRateLimited(`createTask:${user.id}`, RATE_LIMITS.WRITE)) {
+    throw new RateLimitError('Too many tasks created. Please wait a moment.', Date.now() + 60000)
+  }
+  
+  // Input validation
+  const validTitle = validateTaskTitle(task.title)
+  const validDescription = task.description ? validateTaskDescription(task.description) : null
+  const validCategory = validateCategory(task.category)
+  
   // Get the next position in the column
   const { data: existingTasks } = await supabase
     .from('tasks')
@@ -189,7 +206,14 @@ export async function createTask(task: Omit<TaskInsert, 'position'>): Promise<Ta
 
   const { data, error } = await supabase
     .from('tasks')
-    .insert({ ...task, position: nextPosition })
+    .insert({ 
+      title: validTitle, 
+      description: validDescription,
+      category: validCategory,
+      column_id: task.column_id,
+      board_id: task.board_id,
+      position: nextPosition 
+    })
     .select()
     .single()
 
@@ -200,9 +224,36 @@ export async function createTask(task: Omit<TaskInsert, 'position'>): Promise<Ta
 export async function updateTask(taskId: string, updates: TaskUpdate): Promise<Task> {
   const supabase = createClient()
   
+  // Get user for rate limiting
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  
+  // Rate limiting
+  if (isRateLimited(`updateTask:${user.id}`, RATE_LIMITS.WRITE)) {
+    throw new RateLimitError('Too many updates. Please wait a moment.', Date.now() + 60000)
+  }
+  
+  // Input validation
+  const validatedUpdates: TaskUpdate = {}
+  if (updates.title !== undefined) {
+    validatedUpdates.title = validateTaskTitle(updates.title)
+  }
+  if (updates.description !== undefined) {
+    validatedUpdates.description = updates.description ? validateTaskDescription(updates.description) : null
+  }
+  if (updates.category !== undefined) {
+    validatedUpdates.category = validateCategory(updates.category)
+  }
+  if (updates.position !== undefined) {
+    validatedUpdates.position = updates.position
+  }
+  if (updates.column_id !== undefined) {
+    validatedUpdates.column_id = updates.column_id
+  }
+  
   const { data, error } = await supabase
     .from('tasks')
-    .update(updates)
+    .update(validatedUpdates)
     .eq('id', taskId)
     .select()
     .single()
@@ -227,8 +278,7 @@ export async function moveTask(
   newColumnId: string, 
   newPosition: number
 ): Promise<void> {
-  console.log('=== MOVE TASK API CALLED ===')
-  console.log('Parameters:', { taskId, newColumnId, newPosition })
+  logger.debug('moveTask called:', { taskId, newColumnId, newPosition })
   
   const supabase = createClient()
   
@@ -243,12 +293,9 @@ export async function moveTask(
 
   const oldColumnId = task.column_id
   const boardId = task.board_id
-  
-  console.log('Task found:', { oldColumnId, boardId })
 
   // Get all tasks in affected columns
   const columnsToUpdate = oldColumnId === newColumnId ? [oldColumnId] : [oldColumnId, newColumnId]
-  console.log('Columns to update:', columnsToUpdate)
   
   const { data: allTasks } = await supabase
     .from('tasks')
@@ -259,29 +306,20 @@ export async function moveTask(
 
   if (!allTasks) return
 
-  console.log('All tasks before update:', allTasks)
-
   // Separate tasks by column
   const oldColumnTasks = allTasks.filter(t => t.column_id === oldColumnId && t.id !== taskId)
   const newColumnTasks = oldColumnId === newColumnId 
     ? oldColumnTasks 
     : allTasks.filter(t => t.column_id === newColumnId)
 
-  console.log('Old column tasks (excluding moved):', oldColumnTasks)
-  console.log('New column tasks (before insertion):', newColumnTasks)
-
   // Insert the moved task at the new position
   const movedTask = { id: taskId, column_id: newColumnId, position: 0 }
   newColumnTasks.splice(newPosition, 0, movedTask)
-  
-  console.log('New column tasks (after insertion):', newColumnTasks)
 
   // Update old column tasks (if different from new column)
   if (oldColumnId !== newColumnId) {
-    console.log('Updating old column tasks...')
     for (let i = 0; i < oldColumnTasks.length; i++) {
       const task = oldColumnTasks[i]
-      console.log(`Updating task ${task.id} to position ${i}`)
       await supabase
         .from('tasks')
         .update({ position: i })
@@ -290,15 +328,11 @@ export async function moveTask(
   }
 
   // Update new column tasks (including the moved task)
-  console.log('Updating new column tasks...')
   for (let i = 0; i < newColumnTasks.length; i++) {
     const task = newColumnTasks[i]
     const updateData: any = { position: i }
     if (task.id === taskId) {
       updateData.column_id = newColumnId
-      console.log(`Updating MOVED task ${task.id} to position ${i} and column ${newColumnId}`)
-    } else {
-      console.log(`Updating task ${task.id} to position ${i}`)
     }
     
     await supabase
@@ -307,5 +341,5 @@ export async function moveTask(
       .eq('id', task.id)
   }
   
-  console.log('=== MOVE TASK API COMPLETE ===')
+  logger.debug('moveTask completed successfully')
 }

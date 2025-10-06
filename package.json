@@ -9,7 +9,8 @@
     "start": "next start",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "security:check": "node scripts/check-security.js"
   },
   "dependencies": {
     "@dnd-kit/core": "latest",

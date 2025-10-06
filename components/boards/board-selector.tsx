@@ -24,6 +24,9 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { getBoards, createBoard } from '@/lib/api/boards'
 import { Database } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
+import { ValidationError } from '@/lib/validation'
+import { RateLimitError } from '@/lib/rate-limit'
 
 type Board = Database['public']['Tables']['boards']['Row']
 
@@ -43,26 +46,25 @@ export function BoardSelector({ selectedBoardId, onBoardSelect, onBoardsChange, 
   const [creating, setCreating] = useState(false)
 
   const loadBoards = useCallback(async () => {
-    console.log('loadBoards called with selectedBoardId:', selectedBoardId)
+    logger.debug('Loading boards')
     try {
       const boardsData = await getBoards()
-      console.log('Loaded boards:', boardsData.map(b => ({ id: b.id, title: b.title })))
       setBoards(boardsData)
       
       // If currently selected board no longer exists, clear selection
       if (selectedBoardId && !boardsData.some(b => b.id === selectedBoardId)) {
-        console.log('Selected board no longer exists, clearing selection')
+        logger.debug('Selected board no longer exists, clearing selection')
         onBoardSelect('')
         return
       }
       
       // If no board is selected and we have boards, select the first one
       if (!selectedBoardId && boardsData.length > 0) {
-        console.log('Auto-selecting first board:', boardsData[0].title)
+        logger.debug('Auto-selecting first board')
         onBoardSelect(boardsData[0].id)
       }
     } catch (error) {
-      console.error('Error loading boards:', error)
+      logger.error('Error loading boards:', error)
     } finally {
       setLoading(false)
     }
@@ -75,7 +77,7 @@ export function BoardSelector({ selectedBoardId, onBoardSelect, onBoardsChange, 
   // Reload boards when refreshTrigger changes (but not on initial mount when it's 0)
   useEffect(() => {
     if (refreshTrigger !== undefined && refreshTrigger > 0) {
-      console.log('Reloading boards due to refresh trigger:', refreshTrigger, 'Current selectedBoardId:', selectedBoardId)
+      logger.debug('Reloading boards due to refresh trigger')
       loadBoards()
     }
   }, [refreshTrigger, loadBoards])
@@ -86,17 +88,10 @@ export function BoardSelector({ selectedBoardId, onBoardSelect, onBoardsChange, 
 
     setCreating(true)
     try {
-      console.log('Creating board with data:', {
-        title: newBoardTitle.trim(),
-        description: newBoardDescription.trim() || null,
-      })
-      
       const newBoard = await createBoard({
         title: newBoardTitle.trim(),
         description: newBoardDescription.trim() || null,
       })
-      
-      console.log('Board created successfully:', newBoard)
       
       setBoards(prev => [newBoard, ...prev])
       onBoardSelect(newBoard.id)
@@ -107,10 +102,19 @@ export function BoardSelector({ selectedBoardId, onBoardSelect, onBoardsChange, 
       setNewBoardDescription('')
       setCreateDialogOpen(false)
     } catch (error) {
-      console.error('Error creating board:', error)
-      console.error('Error details:', JSON.stringify(error, null, 2))
-      // Show user-friendly error
-      alert(`Failed to create board: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      logger.error('Error creating board:', error)
+      
+      // Show user-friendly error messages
+      let errorMessage = 'Failed to create board'
+      if (error instanceof ValidationError) {
+        errorMessage = error.message
+      } else if (error instanceof RateLimitError) {
+        errorMessage = error.message
+      } else if (error instanceof Error) {
+        errorMessage = error.message
+      }
+      
+      alert(errorMessage)
     } finally {
       setCreating(false)
     }
