@@ -133,7 +133,7 @@ export function BoardSelector({ selectedBoardId, onBoardSelect, onBoardsChange, 
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm" className="gap-2 hover:bg-primary/10 hover:border-primary/50 hover:text-primary">
             <Folder className="h-4 w-4" />
-            <span className="flex items-center gap-2">
+            <span className="hidden md:flex items-center gap-2">
               {selectedBoard && <span className="font-semibold">{selectedBoard.title}</span>}
               {selectedBoard && <span className="text-muted-foreground">|</span>}
               <span className={selectedBoard ? 'text-muted-foreground text-xs' : ''}>

@@ -716,30 +716,39 @@ export function SupabaseKanbanBoard() {
 
   return (
     <div className="space-y-12">
-      <div className="flex items-center justify-between gap-4 px-4 py-2 bg-card/50 border rounded-xl backdrop-blur-sm">
-        <div className="flex items-center gap-6 flex-1 min-w-0">
+      <div className="flex items-center justify-between gap-2 md:gap-4 px-3 md:px-4 py-2 bg-card/50 border rounded-xl backdrop-blur-sm">
+        <div className="flex items-center gap-3 md:gap-6 flex-1 min-w-0">
           {boardData && (
             <div className="flex-1 min-w-0">
-              <h2 className="text-xl font-display font-bold truncate">{boardData.title}</h2>
+              <h2 className="text-lg md:text-xl font-display font-bold truncate">{boardData.title}</h2>
               {boardData.description && (
-                <p className="text-sm text-muted-foreground truncate">{boardData.description}</p>
+                <p className="text-xs md:text-sm text-muted-foreground truncate">{boardData.description}</p>
               )}
             </div>
           )}
 
-          <BoardSelector
-            selectedBoardId={selectedBoardId}
-            onBoardSelect={setSelectedBoardId}
-            refreshTrigger={boardRefreshTrigger}
-          />
+          <div className="hidden md:block">
+            <BoardSelector
+              selectedBoardId={selectedBoardId}
+              onBoardSelect={setSelectedBoardId}
+              refreshTrigger={boardRefreshTrigger}
+            />
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1 md:gap-2 shrink-0">
+          <div className="md:hidden">
+            <BoardSelector
+              selectedBoardId={selectedBoardId}
+              onBoardSelect={setSelectedBoardId}
+              refreshTrigger={boardRefreshTrigger}
+            />
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2 hover:bg-primary/10 hover:border-primary/50 hover:text-primary">
                 <ArrowUpDown className="h-4 w-4" />
-                Sort
+                <span className="hidden md:inline">Sort</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
