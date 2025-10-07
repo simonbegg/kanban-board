@@ -71,7 +71,7 @@ describe('AddTaskDialog', () => {
         title: 'New Task',
         description: 'Task Description',
         category: '',
-      })
+      }, undefined)
     })
   })
 
@@ -240,5 +240,47 @@ describe('AddTaskDialog', () => {
     
     // Component should render with categories (empty ones filtered)
     expect(screen.getByText(/select a category/i)).toBeInTheDocument()
+  })
+
+  it('passes columnId to onAddTask when provided', async () => {
+    const user = userEvent.setup()
+    const columnId = 'column-123'
+    const propsWithColumnId = {
+      ...defaultProps,
+      columnId,
+    }
+    
+    render(<AddTaskDialog {...propsWithColumnId} />)
+    
+    fireEvent.click(screen.getByRole('button', { name: /add task/i }))
+    
+    await waitFor(() => {
+      expect(screen.getByLabelText(/title/i)).toBeInTheDocument()
+    })
+    
+    await user.type(screen.getByLabelText(/title/i), 'Column-specific Task')
+    
+    fireEvent.click(screen.getByRole('button', { name: /^add task$/i }))
+    
+    await waitFor(() => {
+      expect(mockOnAddTask).toHaveBeenCalledWith({
+        title: 'Column-specific Task',
+        description: '',
+        category: '',
+      }, columnId)
+    })
+  })
+
+  it('renders custom trigger button when provided', () => {
+    const customTrigger = <button>Custom Add Button</button>
+    const propsWithCustomTrigger = {
+      ...defaultProps,
+      triggerButton: customTrigger,
+    }
+    
+    render(<AddTaskDialog {...propsWithCustomTrigger} />)
+    
+    expect(screen.getByRole('button', { name: /custom add button/i })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^add task$/i })).not.toBeInTheDocument()
   })
 })

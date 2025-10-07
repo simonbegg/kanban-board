@@ -20,11 +20,13 @@ import { Plus, X } from "lucide-react"
 import type { Task } from "./kanban-board"
 
 interface AddTaskDialogProps {
-  onAddTask: (task: Omit<Task, "id" | "columnId">) => void
+  onAddTask: (task: Omit<Task, "id" | "columnId">, columnId?: string) => void
   availableCategories: string[]
   onAddCategory: (category: string, color?: string) => void
   onDeleteCategory: (category: string) => void
   categoryColors?: Record<string, string>
+  columnId?: string
+  triggerButton?: React.ReactNode
 }
 
 const DEFAULT_COLORS = [
@@ -37,7 +39,7 @@ const DEFAULT_COLORS = [
 const TITLE_MAX_LENGTH = 100
 const DESCRIPTION_MAX_LENGTH = 500
 
-export function AddTaskDialog({ onAddTask, availableCategories, onAddCategory, onDeleteCategory, categoryColors }: AddTaskDialogProps) {
+export function AddTaskDialog({ onAddTask, availableCategories, onAddCategory, onDeleteCategory, categoryColors, columnId, triggerButton }: AddTaskDialogProps) {
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
@@ -67,7 +69,7 @@ export function AddTaskDialog({ onAddTask, availableCategories, onAddCategory, o
       title: title.trim(),
       description: description.trim(),
       category: finalCategory,
-    })
+    }, columnId)
 
     // Reset form and close dialog
     setTitle("")
@@ -91,10 +93,12 @@ export function AddTaskDialog({ onAddTask, availableCategories, onAddCategory, o
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Task
-        </Button>
+        {triggerButton || (
+          <Button size="sm" className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Task
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>

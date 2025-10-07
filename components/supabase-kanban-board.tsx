@@ -8,6 +8,13 @@ import { AddTaskDialog } from "./add-task-dialog"
 import { EditTaskDialog } from "./edit-task-dialog"
 import { ArchivedTasksDialog } from "./archived-tasks-dialog"
 import { Button } from "./ui/button"
+import { Plus, ArrowUpDown, Check } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu"
 import { BoardSelector } from "./boards/board-selector"
 import { BoardActions } from "./boards/board-actions"
 import { getBoardWithData, createTask, updateTask, deleteTask, moveTask, archiveTask, BoardWithColumnsAndTasks } from "@/lib/api/boards"
@@ -374,23 +381,26 @@ export function SupabaseKanbanBoard() {
     setIsDragging(false)
   }
 
-  const addNewTask = async (taskData: Omit<LegacyTask, "id" | "columnId">) => {
+  const addNewTask = async (taskData: Omit<LegacyTask, "id" | "columnId">, columnId?: string) => {
     if (!boardData || !selectedBoardId) return
 
-    // Default to first column (To Do)
-    const firstColumn = boardData.columns[0]
-    if (!firstColumn) return
+    // Use provided columnId or default to first column (To Do)
+    const targetColumn = columnId 
+      ? boardData.columns.find(col => col.id === columnId)
+      : boardData.columns[0]
+    
+    if (!targetColumn) return
 
     // Generate temporary ID for optimistic update
     const tempId = `temp-${Date.now()}`
-    const newPosition = firstColumn.tasks.length
+    const newPosition = targetColumn.tasks.length
 
     // Optimistic update - add task to UI immediately
     setBoardData(prevData => {
       if (!prevData) return prevData
 
       const newColumns = [...prevData.columns]
-      const columnIndex = newColumns.findIndex(col => col.id === firstColumn.id)
+      const columnIndex = newColumns.findIndex(col => col.id === targetColumn.id)
       const column = { ...newColumns[columnIndex] }
 
       const newTask = {
@@ -398,7 +408,7 @@ export function SupabaseKanbanBoard() {
         title: taskData.title,
         description: taskData.description || '',
         category: taskData.category,
-        column_id: firstColumn.id,
+        column_id: targetColumn.id,
         board_id: selectedBoardId,
         position: newPosition,
         created_at: new Date().toISOString(),
@@ -419,7 +429,7 @@ export function SupabaseKanbanBoard() {
         title: taskData.title,
         description: taskData.description || null,
         category: taskData.category,
-        column_id: firstColumn.id,
+        column_id: targetColumn.id,
         board_id: selectedBoardId,
       })
 
@@ -428,7 +438,7 @@ export function SupabaseKanbanBoard() {
         if (!prevData) return prevData
 
         const newColumns = [...prevData.columns]
-        const columnIndex = newColumns.findIndex(col => col.id === firstColumn.id)
+        const columnIndex = newColumns.findIndex(col => col.id === targetColumn.id)
         const column = { ...newColumns[columnIndex] }
 
         column.tasks = column.tasks.map(task =>
@@ -448,7 +458,7 @@ export function SupabaseKanbanBoard() {
         if (!prevData) return prevData
 
         const newColumns = [...prevData.columns]
-        const columnIndex = newColumns.findIndex(col => col.id === firstColumn.id)
+        const columnIndex = newColumns.findIndex(col => col.id === targetColumn.id)
         const column = { ...newColumns[columnIndex] }
 
         column.tasks = column.tasks.filter(task => task.id !== tempId)
@@ -694,50 +704,54 @@ export function SupabaseKanbanBoard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <BoardSelector
-          selectedBoardId={selectedBoardId}
-          onBoardSelect={setSelectedBoardId}
-          refreshTrigger={boardRefreshTrigger}
-        />
-
-        <div className="flex items-center gap-4">
-          <Button variant={sortBy === "none" ? "default" : "outline"} size="sm" onClick={() => setSortBy("none")}>
-            Default Order
-          </Button>
-          <Button
-            variant={sortBy === "category" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setSortBy("category")}
-          >
-            Sort by Category
-          </Button>
-          <AddTaskDialog
-            onAddTask={addNewTask}
-            availableCategories={availableCategories}
-            categoryColors={categoryColors}
-            onAddCategory={handleAddCategory}
-            onDeleteCategory={handleDeleteCategory}
+      <div className="flex items-center justify-between gap-4 px-6 py-4 bg-card/50 border rounded-xl backdrop-blur-sm">
+        <div className="flex items-center gap-6 flex-1 min-w-0">
+          {boardData && (
+            <div className="flex-1 min-w-0">
+              <h2 className="text-xl font-display font-bold truncate">{boardData.title}</h2>
+              {boardData.description && (
+                <p className="text-sm text-muted-foreground truncate">{boardData.description}</p>
+              )}
+            </div>
+          )}
+          
+          <BoardSelector
+            selectedBoardId={selectedBoardId}
+            onBoardSelect={setSelectedBoardId}
+            refreshTrigger={boardRefreshTrigger}
           />
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <ArrowUpDown className="h-4 w-4" />
+                Sort
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setSortBy("none")}>
+                <div className="flex items-center justify-between w-full">
+                  <span>Default Order</span>
+                  {sortBy === "none" && <Check className="h-4 w-4 ml-2" />}
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortBy("category")}>
+                <div className="flex items-center justify-between w-full">
+                  <span>Sort by Category</span>
+                  {sortBy === "category" && <Check className="h-4 w-4 ml-2" />}
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           {boardData && (
             <ArchivedTasksDialog
               boardId={boardData.id}
               onTaskRestored={loadBoardData}
             />
           )}
-        </div>
-      </div>
-
-      <div className="my-12 px-6 py-2 bg-card/50 border rounded-xl backdrop-blur-sm">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-display font-bold">{boardData.title}</h2>
-            {boardData.description && (
-              <p className="text-muted-foreground">{boardData.description}</p>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Board Settings</span>
+          {boardData && (
             <BoardActions
               board={boardData}
               onBoardUpdated={loadBoardData}
@@ -751,7 +765,7 @@ export function SupabaseKanbanBoard() {
                 }, 0)
               }}
             />
-          </div>
+          )}
         </div>
       </div>
 
@@ -768,6 +782,27 @@ export function SupabaseKanbanBoard() {
               column={column}
               onEditTask={handleEditTask}
               onDeleteTask={handleDeleteTask}
+              onAddTask={
+                <AddTaskDialog
+                  onAddTask={addNewTask}
+                  availableCategories={availableCategories}
+                  categoryColors={categoryColors}
+                  onAddCategory={handleAddCategory}
+                  onDeleteCategory={handleDeleteCategory}
+                  columnId={column.id}
+                  triggerButton={
+                    <Button 
+                      variant="ghost" 
+                      className="h-7 rounded-full group overflow-hidden transition-all duration-300 ease-in-out hover:pl-3 hover:pr-3 w-7 hover:w-auto"
+                    >
+                      <Plus className="h-4 w-4 shrink-0" />
+                      <span className="max-w-0 overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out group-hover:max-w-[100px] group-hover:ml-1 text-sm">
+                        Add Card
+                      </span>
+                    </Button>
+                  }
+                />
+              }
               activeId={activeTask?.id || null}
               overId={overId}
               categoryColors={categoryColors}

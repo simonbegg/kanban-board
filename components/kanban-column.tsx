@@ -9,12 +9,13 @@ interface KanbanColumnProps {
   column: Column
   onEditTask?: (task: Task) => void
   onDeleteTask?: (taskId: string) => void
+  onAddTask?: React.ReactNode
   activeId?: string | null
   overId?: string | null
   categoryColors?: Record<string, string>
 }
 
-export function KanbanColumn({ column, onEditTask, onDeleteTask, activeId, overId, categoryColors }: KanbanColumnProps) {
+export function KanbanColumn({ column, onEditTask, onDeleteTask, onAddTask, activeId, overId, categoryColors }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
   })
@@ -31,8 +32,11 @@ export function KanbanColumn({ column, onEditTask, onDeleteTask, activeId, overI
   return (
     <div className="flex flex-col">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-foreground">{column.title}</h3>
-        <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded-full">{column.tasks.length}</span>
+        <div className="flex items-center gap-2">
+          <h3 className="font-semibold text-foreground">{column.title}</h3>
+          <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded-full">{column.tasks.length}</span>
+        </div>
+        {onAddTask}
       </div>
 
       <div
