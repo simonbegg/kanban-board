@@ -385,10 +385,10 @@ export function SupabaseKanbanBoard() {
     if (!boardData || !selectedBoardId) return
 
     // Use provided columnId or default to first column (To Do)
-    const targetColumn = columnId 
+    const targetColumn = columnId
       ? boardData.columns.find(col => col.id === columnId)
       : boardData.columns[0]
-    
+
     if (!targetColumn) return
 
     // Generate temporary ID for optimistic update
@@ -597,14 +597,14 @@ export function SupabaseKanbanBoard() {
       logger.debug('Task archived successfully')
     } catch (error) {
       logger.error('Error archiving task:', error)
-      
+
       let errorMessage = 'Failed to archive task'
       if (error instanceof RateLimitError) {
         errorMessage = error.message
       } else if (error instanceof Error) {
         errorMessage = error.message
       }
-      
+
       alert(errorMessage)
       // Revert optimistic update on error
       setBoardData(originalData)
@@ -703,8 +703,8 @@ export function SupabaseKanbanBoard() {
   }))
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4 px-6 py-4 bg-card/50 border rounded-xl backdrop-blur-sm">
+    <div className="space-y-12">
+      <div className="flex items-center justify-between gap-4 px-4 py-2 bg-card/50 border rounded-xl backdrop-blur-sm">
         <div className="flex items-center gap-6 flex-1 min-w-0">
           {boardData && (
             <div className="flex-1 min-w-0">
@@ -714,7 +714,7 @@ export function SupabaseKanbanBoard() {
               )}
             </div>
           )}
-          
+
           <BoardSelector
             selectedBoardId={selectedBoardId}
             onBoardSelect={setSelectedBoardId}
@@ -791,8 +791,8 @@ export function SupabaseKanbanBoard() {
                   onDeleteCategory={handleDeleteCategory}
                   columnId={column.id}
                   triggerButton={
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       className="h-7 rounded-full group overflow-hidden transition-all duration-300 ease-in-out hover:pl-3 hover:pr-3 w-7 hover:w-auto hover:bg-primary/10 hover:text-primary"
                     >
                       <Plus className="h-4 w-4 shrink-0" />

@@ -33,7 +33,7 @@ export function ArchivedTasksDialog({ boardId, onTaskRestored }: ArchivedTasksDi
 
   const loadArchivedTasks = async () => {
     if (!boardId) return
-    
+
     setLoading(true)
     try {
       const tasks = await getArchivedTasks(boardId)
@@ -59,14 +59,14 @@ export function ArchivedTasksDialog({ boardId, onTaskRestored }: ArchivedTasksDi
       onTaskRestored()
     } catch (error) {
       logger.error('Error unarchiving task:', error)
-      
+
       let errorMessage = 'Failed to restore task'
       if (error instanceof RateLimitError) {
         errorMessage = error.message
       } else if (error instanceof Error) {
         errorMessage = error.message
       }
-      
+
       alert(errorMessage)
     } finally {
       setProcessingTaskId(null)
@@ -92,7 +92,7 @@ export function ArchivedTasksDialog({ boardId, onTaskRestored }: ArchivedTasksDi
 
   const getCategoryColor = (category: string): string => {
     if (!category) return '#6b7280'
-    
+
     // Try to get color from localStorage (for consistency with board)
     try {
       const stored = localStorage.getItem('kanban-category-colors')
@@ -103,16 +103,16 @@ export function ArchivedTasksDialog({ boardId, onTaskRestored }: ArchivedTasksDi
     } catch (e) {
       // Fallback color
     }
-    
+
     return '#6b7280'
   }
 
   const formatDate = (dateString: string | null): string => {
     if (!dateString) return 'Unknown'
     const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
