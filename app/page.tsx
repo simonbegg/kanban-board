@@ -48,7 +48,7 @@ export default function Home() {
       <header className="border-b">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <SquareKanban className="h-8 w-8 text-primary rotate-90" />
+            <SquareKanban className="h-8 w-8 text-primary rotate-90 hover:rotate-0 transition-all duration-300" />
             <span className="text-2xl font-display tracking-wider font-semibold">ThreeLanes</span>
           </div>
           <div className="flex items-center gap-4">
