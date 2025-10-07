@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { DndContext, type DragEndEvent, DragOverlay, type DragStartEvent, type DragOverEvent, pointerWithin } from "@dnd-kit/core"
+import { DndContext, type DragEndEvent, DragOverlay, type DragStartEvent, type DragOverEvent, pointerWithin, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { KanbanColumn } from "./kanban-column"
 import { KanbanCard } from "./kanban-card"
 import { AddTaskDialog } from "./add-task-dialog"
@@ -62,6 +62,18 @@ export function SupabaseKanbanBoard() {
   const [isDragging, setIsDragging] = useState(false)
   const [overId, setOverId] = useState<string | null>(null)
   const [boardRefreshTrigger, setBoardRefreshTrigger] = useState(0)
+
+  // Configure sensors for better mobile support
+  const mouseSensor = useSensor(MouseSensor)
+  
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: {
+      delay: 250, // 250ms hold before drag starts
+      tolerance: 5, // Allow 5px of movement during the delay
+    },
+  })
+
+  const sensors = useSensors(mouseSensor, touchSensor)
 
   useEffect(() => {
     if (selectedBoardId) {
@@ -770,6 +782,7 @@ export function SupabaseKanbanBoard() {
       </div>
 
       <DndContext
+        sensors={sensors}
         collisionDetection={pointerWithin}
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
