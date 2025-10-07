@@ -725,7 +725,7 @@ export function SupabaseKanbanBoard() {
         <div className="flex items-center gap-2 shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2 hover:bg-primary/10 hover:border-primary/50 hover:text-primary">
                 <ArrowUpDown className="h-4 w-4" />
                 Sort
               </Button>
@@ -793,7 +793,7 @@ export function SupabaseKanbanBoard() {
                   triggerButton={
                     <Button 
                       variant="ghost" 
-                      className="h-7 rounded-full group overflow-hidden transition-all duration-300 ease-in-out hover:pl-3 hover:pr-3 w-7 hover:w-auto"
+                      className="h-7 rounded-full group overflow-hidden transition-all duration-300 ease-in-out hover:pl-3 hover:pr-3 w-7 hover:w-auto hover:bg-primary/10 hover:text-primary"
                     >
                       <Plus className="h-4 w-4 shrink-0" />
                       <span className="max-w-0 overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out group-hover:max-w-[100px] group-hover:ml-1 text-sm">

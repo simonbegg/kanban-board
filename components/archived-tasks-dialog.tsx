@@ -122,7 +122,7 @@ export function ArchivedTasksDialog({ boardId, onTaskRestored }: ArchivedTasksDi
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
+        <Button variant="outline" size="sm" className="gap-2 hover:bg-primary/10 hover:border-primary/50 hover:text-primary">
           <Archive className="h-4 w-4" />
           Archived
           {archivedTasks.length > 0 && (
