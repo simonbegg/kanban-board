@@ -1,15 +1,15 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Plus, Folder } from 'lucide-react'
+import { Plus, Folder, Check, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -122,45 +121,56 @@ export function BoardSelector({ selectedBoardId, onBoardSelect, onBoardsChange, 
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2">
-        <div className="animate-pulse bg-muted h-10 w-48 rounded-md"></div>
-        <div className="animate-pulse bg-muted h-10 w-10 rounded-md"></div>
-      </div>
+      <div className="animate-pulse bg-muted h-10 w-48 rounded-md"></div>
     )
   }
 
+  const selectedBoard = boards.find(b => b.id === selectedBoardId)
+
   return (
-    <div className="flex items-center gap-2">
-      <Select value={selectedBoardId || ''} onValueChange={onBoardSelect}>
-        <SelectTrigger className="w-48">
-          <SelectValue placeholder="Select a board">
-            {selectedBoardId && (
-              <div className="flex items-center gap-2">
-                <Folder className="h-4 w-4" />
-                {boards.find(b => b.id === selectedBoardId)?.title}
-              </div>
-            )}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm" className="gap-2 hover:bg-primary/10 hover:border-primary/50 hover:text-primary">
+            <Folder className="h-4 w-4" />
+            <span className="flex items-center gap-2">
+              {selectedBoard && <span className="font-semibold">{selectedBoard.title}</span>}
+              {selectedBoard && <span className="text-muted-foreground">|</span>}
+              <span className={selectedBoard ? 'text-muted-foreground text-xs' : ''}>
+                Switch or add boards
+              </span>
+            </span>
+            <ChevronDown className="h-4 w-4 opacity-50" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-56">
           {boards.map((board) => (
-            <SelectItem key={board.id} value={board.id}>
-              <div className="flex items-center gap-2">
-                <Folder className="h-4 w-4" />
-                {board.title}
+            <DropdownMenuItem
+              key={board.id}
+              onClick={() => onBoardSelect(board.id)}
+            >
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <Folder className="h-4 w-4" />
+                  <span className="truncate">{board.title}</span>
+                </div>
+                {board.id === selectedBoardId && (
+                  <Check className="h-4 w-4 ml-2 shrink-0" />
+                )}
               </div>
-            </SelectItem>
+            </DropdownMenuItem>
           ))}
-        </SelectContent>
-      </Select>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setCreateDialogOpen(true)}>
+            <div className="flex items-center gap-2 w-full">
+              <Plus className="h-4 w-4" />
+              <span>Add new board</span>
+            </div>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogTrigger asChild>
-          <Button size="sm" className="gap-2">
-            <Plus className="h-4 w-4" />
-            New Board
-          </Button>
-        </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <form onSubmit={handleCreateBoard}>
             <DialogHeader>
@@ -206,6 +216,6 @@ export function BoardSelector({ selectedBoardId, onBoardSelect, onBoardsChange, 
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   )
 }
