@@ -61,25 +61,30 @@ const sensors = useSensors(mouseSensor, touchSensor)
 
 ---
 
-### 3. **Prevented Touch Scrolling on Cards**
+### 3. **Prevented Touch Scrolling on Draggable Areas**
 **File:** `components/kanban-card.tsx`
 
 ```typescript
-<div
-  ref={setNodeRef}
-  style={style}
-  className={`cursor-grab active:cursor-grabbing touch-none ${...}`}
-  //                                                ^^^^^^^^^^
-  //                                          Added touch-none
-  {...attributes}
-  {...listeners}
->
+<div className="flex-1 touch-none">
+  {/* Card title - draggable */}
+  <h4>{task.title}</h4>
+</div>
+<div className="flex items-center gap-1 touch-auto" onPointerDown={(e) => e.stopPropagation()}>
+  {/* Edit/Delete buttons - clickable */}
+  <Button onClick={handleEdit}>...</Button>
+  <Button onClick={handleDelete}>...</Button>
+</div>
+
+<CardContent className="pt-0 touch-none">
+  {/* Card content - draggable */}
+  <p>{task.description}</p>
+</CardContent>
 ```
 
-**What `touch-none` does:**
-- CSS: `touch-action: none`
-- Prevents ALL touch gestures (scroll, zoom, pan) on this element
-- Allows the drag sensor to capture touch events without interference
+**What `touch-none` and `touch-auto` do:**
+- `touch-none` (CSS: `touch-action: none`) - Prevents scrolling on draggable areas
+- `touch-auto` (CSS: `touch-action: auto`) - Allows normal touch interactions on buttons
+- This selective approach allows drag on card while keeping buttons clickable
 
 ---
 
@@ -256,8 +261,11 @@ We use `touch-none` for complete control during drag.
 
 ## Troubleshooting
 
+### Issue: Buttons inside cards not clickable
+**Solution:** Use `touch-auto` on interactive elements and `touch-none` only on draggable areas. Don't apply `touch-none` to entire card.
+
 ### Issue: Drag still scrolls page on mobile
-**Solution:** Ensure `touch-none` is applied to card wrapper
+**Solution:** Ensure `touch-none` is applied to draggable card areas (title, description)
 
 ### Issue: Mobile drag takes too long to activate
 **Solution:** Reduce `delay` from 250ms to 150ms in TouchSensor

@@ -64,7 +64,11 @@ export function SupabaseKanbanBoard() {
   const [boardRefreshTrigger, setBoardRefreshTrigger] = useState(0)
 
   // Configure sensors for better mobile support
-  const mouseSensor = useSensor(MouseSensor)
+  const mouseSensor = useSensor(MouseSensor, {
+    activationConstraint: {
+      distance: 5, // Require 5px movement to prevent accidental drags
+    },
+  })
   
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: {

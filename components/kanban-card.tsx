@@ -43,7 +43,7 @@ export function KanbanCard({ task, onEdit, onDelete, categoryColors }: KanbanCar
     <div
       ref={setNodeRef}
       style={style}
-      className={`cursor-grab active:cursor-grabbing touch-none ${isDragging ? "opacity-50 rotate-3 scale-105" : ""}`}
+      className={`cursor-grab active:cursor-grabbing ${isDragging ? "opacity-50 rotate-3 scale-105" : ""}`}
       {...attributes}
       {...listeners}
     >
@@ -53,12 +53,13 @@ export function KanbanCard({ task, onEdit, onDelete, categoryColors }: KanbanCar
             <div className="flex-1">
               <h4 className="font-medium text-card-foreground text-lg leading-tight">{task.title}</h4>
             </div>
-            <div className="flex items-center gap-1" onPointerDown={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-1" data-no-dnd="true" onPointerDown={(e) => e.stopPropagation()}>
               <Button
                 variant="ghost"
                 size="sm"
                 className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-accent cursor-pointer"
                 onClick={handleEdit}
+                data-no-dnd="true"
               >
                 <Edit className="h-3 w-3" />
               </Button>
@@ -67,6 +68,7 @@ export function KanbanCard({ task, onEdit, onDelete, categoryColors }: KanbanCar
                 size="sm"
                 className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer"
                 onClick={handleDelete}
+                data-no-dnd="true"
               >
                 <Trash2 className="h-3 w-3" />
               </Button>
