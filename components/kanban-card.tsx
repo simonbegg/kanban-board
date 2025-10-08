@@ -51,7 +51,7 @@ export function KanbanCard({ task, onEdit, onDelete, categoryColors }: KanbanCar
         <CardHeader className="">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1">
-              <h4 className="font-medium text-card-foreground text-lg leading-tight">{task.title}</h4>
+              <h4 className="font-medium text-card-foreground text-base leading-tight">{task.title}</h4>
             </div>
             <div
               className="flex items-center gap-1"

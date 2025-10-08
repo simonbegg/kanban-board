@@ -44,7 +44,14 @@ export interface LegacyColumn {
 
 export function SupabaseKanbanBoard() {
   const [boardData, setBoardData] = useState<BoardWithColumnsAndTasks | null>(null)
-  const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null)
+  const [selectedBoardId, setSelectedBoardId] = useState<string | null>(() => {
+    // Load selected board ID from localStorage on mount
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('kanban-selected-board-id')
+      return stored || null
+    }
+    return null
+  })
   const [loading, setLoading] = useState(false)
   const [activeTask, setActiveTask] = useState<LegacyTask | null>(null)
   const [sortBy, setSortBy] = useState<"none" | "category">("none")
@@ -79,9 +86,13 @@ export function SupabaseKanbanBoard() {
 
   const sensors = useSensors(mouseSensor, touchSensor)
 
+  // Persist selected board ID to localStorage
   useEffect(() => {
     if (selectedBoardId) {
+      localStorage.setItem('kanban-selected-board-id', selectedBoardId)
       loadBoardData()
+    } else {
+      localStorage.removeItem('kanban-selected-board-id')
     }
   }, [selectedBoardId])
 
@@ -784,6 +795,7 @@ export function SupabaseKanbanBoard() {
                 console.log('Board deleted, clearing selection and refreshing list')
                 setBoardData(null)
                 setSelectedBoardId(null)
+                localStorage.removeItem('kanban-selected-board-id')
                 // Use setTimeout to ensure state updates before triggering refresh
                 setTimeout(() => {
                   setBoardRefreshTrigger(prev => prev + 1)
