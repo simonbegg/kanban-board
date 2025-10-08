@@ -420,9 +420,8 @@ export function SupabaseKanbanBoard() {
 
     // Generate temporary ID for optimistic update
     const tempId = `temp-${Date.now()}`
-    const newPosition = targetColumn.tasks.length
 
-    // Optimistic update - add task to UI immediately
+    // Optimistic update - add task to UI immediately at position 0 (top)
     setBoardData(prevData => {
       if (!prevData) return prevData
 
@@ -437,12 +436,17 @@ export function SupabaseKanbanBoard() {
         category: taskData.category,
         column_id: targetColumn.id,
         board_id: selectedBoardId,
-        position: newPosition,
+        position: 0,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       }
 
-      column.tasks = [...column.tasks, newTask]
+      // Add new task at the beginning and increment other positions
+      const updatedTasks = column.tasks.map(task => ({
+        ...task,
+        position: task.position + 1
+      }))
+      column.tasks = [newTask, ...updatedTasks]
       newColumns[columnIndex] = column
 
       return {

@@ -195,18 +195,31 @@ export async function createTask(task: Omit<TaskInsert, 'position'>): Promise<Ta
   const validDescription = task.description ? validateTaskDescription(task.description) : null
   const validCategory = validateCategory(task.category)
   
-  // Get the next position in the column
-  const { data: existingTasks } = await supabase
-    .from('tasks')
-    .select('position')
-    .eq('column_id', task.column_id)
-    .order('position', { ascending: false })
-    .limit(1)
+  // Increment all existing task positions in the column to make room at position 0
+  const { error: updateError } = await supabase.rpc('increment_task_positions', {
+    p_column_id: task.column_id
+  })
+  
+  // If the RPC doesn't exist, fall back to manual update
+  if (updateError?.code === '42883') {
+    const { data: existingTasks } = await supabase
+      .from('tasks')
+      .select('id, position')
+      .eq('column_id', task.column_id)
+      .order('position', { ascending: true })
+    
+    if (existingTasks && existingTasks.length > 0) {
+      // Update positions in batch (increment each by 1)
+      for (const existingTask of existingTasks) {
+        await supabase
+          .from('tasks')
+          .update({ position: existingTask.position + 1 })
+          .eq('id', existingTask.id)
+      }
+    }
+  }
 
-  const nextPosition = existingTasks && existingTasks.length > 0 
-    ? existingTasks[0].position + 1 
-    : 0
-
+  // Insert new task at position 0 (top of column)
   const { data, error } = await supabase
     .from('tasks')
     .insert({ 
@@ -215,7 +228,7 @@ export async function createTask(task: Omit<TaskInsert, 'position'>): Promise<Ta
       category: validCategory,
       column_id: task.column_id,
       board_id: task.board_id,
-      position: nextPosition 
+      position: 0
     })
     .select()
     .single()
