@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import { Urbanist, Funnel_Display } from 'next/font/google'
@@ -54,6 +55,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <Script
+          async
+          src="https://cdn.seline.com/seline.js"
+          data-token="af3c77a854e3110"
+          strategy="afterInteractive"
+        />
+      </head>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} ${urbanist.variable} ${funnelDisplay.variable}`}>
         <ThemeProvider
           attribute="class"
