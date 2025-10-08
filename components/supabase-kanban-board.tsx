@@ -730,8 +730,8 @@ export function SupabaseKanbanBoard() {
   }))
 
   return (
-    <div className="space-y-12">
-      <div className="flex items-center justify-between gap-2 md:gap-4 px-3 md:px-4 py-2 bg-card/50 border rounded-xl backdrop-blur-sm">
+    <div className="flex flex-col h-full">
+      <div className="flex items-center justify-between gap-2 md:gap-4 px-3 md:px-4 py-2 bg-card/50 border rounded-xl backdrop-blur-sm mb-6 shrink-0">
         <div className="flex items-center gap-3 md:gap-6 flex-1 min-w-0">
           {boardData && (
             <div className="flex-1 min-w-0">
@@ -813,7 +813,7 @@ export function SupabaseKanbanBoard() {
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 min-h-0 pb-6">
           {sortedColumns.map((column) => (
             <KanbanColumn
               key={column.id}

@@ -34,9 +34,9 @@ export default function BoardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Header */}
-      <header className="border-b">
+      <header className="border-b shrink-0">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <SquareKanban className="h-8 w-8 text-primary rotate-90 hover:rotate-0 transition-all duration-300" />
@@ -50,8 +50,8 @@ export default function BoardPage() {
       </header>
 
       {/* Main Content */}
-      <main className="pt-4">
-        <div className="mx-auto max-w-7xl">
+      <main className="flex-1 overflow-hidden pt-4">
+        <div className="mx-auto max-w-7xl h-full px-6">
           <SupabaseKanbanBoard />
         </div>
       </main>
