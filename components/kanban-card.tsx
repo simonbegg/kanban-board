@@ -53,23 +53,23 @@ export function KanbanCard({ task, onEdit, onDelete, categoryColors }: KanbanCar
             <div className="flex-1">
               <h4 className="font-medium text-card-foreground text-lg leading-tight">{task.title}</h4>
             </div>
-            <div 
-              className="flex items-center gap-1" 
+            <div
+              className="flex items-center gap-1"
               onPointerDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
             >
               <Button
-                variant="ghost"
+                variant="ghost-icon"
                 size="sm"
-                className="h-6 w-6 p-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity hover:bg-accent cursor-pointer"
+                className="h-6 w-6 p-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                 onClick={handleEdit}
               >
                 <Edit className="h-3 w-3" />
               </Button>
               <Button
-                variant="ghost"
+                variant="ghost-icon"
                 size="sm"
-                className="h-6 w-6 p-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+                className="h-6 w-6 p-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                 onClick={handleDelete}
               >
                 <Trash2 className="h-3 w-3" />
