@@ -30,7 +30,7 @@ export function KanbanColumn({ column, onEditTask, onDeleteTask, onAddTask, acti
   const isActiveFromDifferentColumn = activeId && !column.tasks.some(task => task.id === activeId)
 
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col md:h-full md:min-h-0">
       <div className="flex items-center justify-between mb-4 shrink-0">
         <div className="flex items-center gap-2">
           <h3 className="font-semibold text-foreground">{column.title}</h3>
@@ -41,7 +41,7 @@ export function KanbanColumn({ column, onEditTask, onDeleteTask, onAddTask, acti
 
       <div
         ref={setNodeRef}
-        className={`flex-1 min-h-0 overflow-y-auto p-4 rounded-lg border-2 border-dashed transition-colors ${
+        className={`md:flex-1 md:min-h-0 md:overflow-y-auto p-4 rounded-lg border-2 border-dashed transition-colors min-h-[400px] ${
           isDraggingOver ? "border-primary bg-primary/5" : "border-border bg-card/50"
         }`}
       >
