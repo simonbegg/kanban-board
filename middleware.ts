@@ -33,11 +33,11 @@ export function middleware(request: NextRequest) {
     'Content-Security-Policy',
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Next.js requires unsafe-eval
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.seline.com https://va.vercel-scripts.com", // Next.js requires unsafe-eval, Seline and Vercel analytics
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https:",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.supabase.co",
+      "connect-src 'self' https://*.supabase.co https://*.seline.so https://*.seline.com https://vitals.vercel-insights.com", // Supabase, Seline, and Vercel analytics
       "frame-ancestors 'none'",
     ].join('; ')
   )
