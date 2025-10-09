@@ -235,49 +235,38 @@ export default function Home() {
 
             <AccordionItem value="item-2">
               <AccordionTrigger className="text-left text-lg">
-                Is ThreeLanes free to use?
+                Can I customize the board columns?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Yes! ThreeLanes is completely free to use. Create unlimited boards, add unlimited tasks,
-                and organize your work without any cost. We believe everyone deserves access to simple,
-                effective task management.
+                ThreeLanes is designed around the classic three-column workflow (To Do, Doing, Done).
+                This simplicity is the backbone of ThreeLanes, it helps you focus without getting lost in configuration.
+                However, you can create multiple boards and use custom categories to organise tasks your way.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-3">
               <AccordionTrigger className="text-left text-lg">
-                Can I customize the board columns?
+                How do I add categories to my tasks?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                ThreeLanes is designed around the classic three-column workflow (To Do, Doing, Done).
-                This simplicity is intentional—it helps you focus without getting lost in configuration.
-                However, you can create multiple boards and use custom categories to organize tasks your way.
+                When creating or editing a task, you can select or create a custom category .
+                Categories help you visually organise and filter your tasks. You can also delete categories
+                if you no longer need them, don't worry, your existing tasks won't be affected.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-4">
               <AccordionTrigger className="text-left text-lg">
-                How do I add categories to my tasks?
-              </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground">
-                When creating or editing a task, you can select or create a custom category with a color.
-                Categories help you visually organize and filter your tasks. You can also delete categories
-                if you no longer need them—don't worry, your existing tasks won't be affected.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-5">
-              <AccordionTrigger className="text-left text-lg">
                 Can I collaborate with my team?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Currently, ThreeLanes is designed for personal productivity. Each user has their own boards
+                ThreeLanes is designed for personal productivity. Each user has their own boards
                 and tasks. We're focused on making the best individual task management experience possible.
                 Team collaboration features may be considered in the future based on user feedback.
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-6">
+            <AccordionItem value="item-5">
               <AccordionTrigger className="text-left text-lg">
                 Is my data secure?
               </AccordionTrigger>
