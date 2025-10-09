@@ -55,6 +55,32 @@ export type Database = {
           updated_at?: string
         }
       }
+      categories: {
+        Row: {
+          id: string
+          name: string
+          color: string
+          user_id: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          color: string
+          user_id: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          color?: string
+          user_id?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
       columns: {
         Row: {
           id: string

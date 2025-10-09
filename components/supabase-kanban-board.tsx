@@ -18,7 +18,8 @@ import {
 import { BoardSelector } from "./boards/board-selector"
 import { BoardActions } from "./boards/board-actions"
 import { getBoardWithData, createTask, updateTask, deleteTask, moveTask, archiveTask, BoardWithColumnsAndTasks } from "@/lib/api/boards"
-import { Database } from "@/lib/supabase"
+import { getCategories, upsertCategory, deleteCategory, syncCategoriesFromTasks } from "@/lib/api/categories"
+import { Database, createClient } from "@/lib/supabase"
 import { logger } from "@/lib/logger"
 import { ValidationError } from "@/lib/validation"
 import { RateLimitError } from "@/lib/rate-limit"
@@ -33,6 +34,8 @@ export interface LegacyTask {
   description: string
   category: string
   columnId: string
+  created_at: string
+  updated_at: string
 }
 
 // Legacy column interface for compatibility
@@ -54,18 +57,10 @@ export function SupabaseKanbanBoard() {
   })
   const [loading, setLoading] = useState(false)
   const [activeTask, setActiveTask] = useState<LegacyTask | null>(null)
-  const [sortBy, setSortBy] = useState<"none" | "category">("none")
   const [editingTask, setEditingTask] = useState<LegacyTask | null>(null)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [availableCategories, setAvailableCategories] = useState<string[]>([])
-  const [categoryColors, setCategoryColors] = useState<Record<string, string>>(() => {
-    // Load category colors from localStorage on mount
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('kanban-category-colors')
-      return stored ? JSON.parse(stored) : {}
-    }
-    return {}
-  })
+  const [categoryColors, setCategoryColors] = useState<Record<string, string>>({})
   const [isDragging, setIsDragging] = useState(false)
   const [overId, setOverId] = useState<string | null>(null)
   const [boardRefreshTrigger, setBoardRefreshTrigger] = useState(0)
@@ -104,6 +99,10 @@ export function SupabaseKanbanBoard() {
       const data = await getBoardWithData(selectedBoardId)
       setBoardData(data)
 
+      // Load category colors from database
+      const colors = await getCategories()
+      setCategoryColors(colors)
+
       // Extract unique categories from tasks
       if (data) {
         const categories = new Set<string>()
@@ -112,10 +111,15 @@ export function SupabaseKanbanBoard() {
             categories.add(task.category)
           })
         })
-        setAvailableCategories(prev => {
-          const newCategories = Array.from(categories)
-          return [...new Set([...prev, ...newCategories])]
-        })
+        const categoryArray = Array.from(categories)
+        setAvailableCategories(categoryArray)
+        
+        // Sync any missing categories to database
+        await syncCategoriesFromTasks(categoryArray)
+        
+        // Reload colors in case new categories were created
+        const updatedColors = await getCategories()
+        setCategoryColors(updatedColors)
       }
     } catch (error) {
       console.error('Error loading board data:', error)
@@ -134,7 +138,9 @@ export function SupabaseKanbanBoard() {
         title: task.title,
         description: task.description || '',
         category: task.category,
-        columnId: column.id
+        columnId: column.id,
+        created_at: task.created_at,
+        updated_at: task.updated_at
       }))
     }))
   }
@@ -153,7 +159,9 @@ export function SupabaseKanbanBoard() {
         title: task.title,
         description: task.description || '',
         category: task.category,
-        columnId: column?.id || ''
+        columnId: column?.id || '',
+        created_at: task.created_at,
+        updated_at: task.updated_at
       })
     }
   }
@@ -642,33 +650,43 @@ export function SupabaseKanbanBoard() {
     }
   }
 
-  const handleAddCategory = (category: string, color?: string) => {
+  const handleAddCategory = async (category: string, color?: string) => {
     if (!availableCategories.includes(category)) {
       setAvailableCategories(prev => [...prev, category])
-      if (color) {
-        setCategoryColors(prev => {
-          const updated = { ...prev, [category]: color }
-          // Persist to localStorage
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('kanban-category-colors', JSON.stringify(updated))
-          }
-          return updated
-        })
+    }
+    
+    if (color) {
+      try {
+        // Save to database
+        await upsertCategory(category, color)
+        
+        // Update local state
+        setCategoryColors(prev => ({
+          ...prev,
+          [category]: color
+        }))
+      } catch (error) {
+        console.error('Error adding category:', error)
       }
     }
   }
 
-  const handleDeleteCategory = (category: string) => {
+  const handleDeleteCategory = async (category: string) => {
     setAvailableCategories(prev => prev.filter(cat => cat !== category))
-    setCategoryColors(prev => {
-      const updated = { ...prev }
-      delete updated[category]
-      // Persist to localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('kanban-category-colors', JSON.stringify(updated))
-      }
-      return updated
-    })
+    
+    try {
+      // Delete from database
+      await deleteCategory(category)
+      
+      // Update local state
+      setCategoryColors(prev => {
+        const updated = { ...prev }
+        delete updated[category]
+        return updated
+      })
+    } catch (error) {
+      console.error('Error deleting category:', error)
+    }
   }
 
   if (!selectedBoardId) {
@@ -725,13 +743,53 @@ export function SupabaseKanbanBoard() {
   }
 
   const legacyColumns = convertToLegacyFormat(boardData.columns)
-  const sortedColumns = legacyColumns.map((column) => ({
-    ...column,
-    tasks:
-      sortBy === "category"
-        ? [...column.tasks].sort((a, b) => a.category.localeCompare(b.category))
-        : column.tasks,
-  }))
+
+  const handleApplySort = async (sortType: "category" | "date") => {
+    if (!boardData) return
+
+    try {
+      const supabase = createClient()
+
+      // Sort tasks in each column and prepare bulk update
+      for (const column of boardData.columns) {
+        const sortedTasks = [...column.tasks].sort((a, b) => {
+          if (sortType === "category") {
+            return a.category.localeCompare(b.category)
+          } else {
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          }
+        })
+
+        // Prepare bulk update data
+        const taskUpdates = sortedTasks.map((task, index) => ({
+          id: task.id,
+          position: index
+        }))
+
+        // Try using RPC for bulk update
+        const { error: rpcError } = await supabase.rpc('bulk_update_task_positions', {
+          task_updates: taskUpdates
+        })
+
+        if (rpcError) {
+          // If RPC doesn't exist (PGRST202 or 42883), fall back to direct updates
+          if (rpcError.code === 'PGRST202' || rpcError.code === '42883') {
+            for (let i = 0; i < sortedTasks.length; i++) {
+              await supabase
+                .from('tasks')
+                .update({ position: i })
+                .eq('id', sortedTasks[i].id)
+            }
+          }
+        }
+      }
+
+      // Reload board data to get updated positions
+      await loadBoardData()
+    } catch (error) {
+      console.error('Error sorting tasks:', error)
+    }
+  }
 
   return (
     <div className="flex flex-col md:h-full">
@@ -771,16 +829,14 @@ export function SupabaseKanbanBoard() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setSortBy("none")}>
-                <div className="flex items-center justify-between w-full">
-                  <span>Default Order</span>
-                  {sortBy === "none" && <Check className="h-4 w-4 ml-2" />}
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSortBy("category")}>
+              <DropdownMenuItem onClick={() => handleApplySort("category")}>
                 <div className="flex items-center justify-between w-full">
                   <span>Sort by Category</span>
-                  {sortBy === "category" && <Check className="h-4 w-4 ml-2" />}
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleApplySort("date")}>
+                <div className="flex items-center justify-between w-full">
+                  <span>Sort by Date Added (Newest)</span>
                 </div>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -818,7 +874,7 @@ export function SupabaseKanbanBoard() {
         onDragEnd={handleDragEnd}
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:flex-1 md:min-h-0 pb-6">
-          {sortedColumns.map((column) => (
+          {legacyColumns.map((column) => (
             <KanbanColumn
               key={column.id}
               column={column}

@@ -15,6 +15,8 @@ export interface Task {
   description: string
   category: string
   columnId: string
+  created_at: string
+  updated_at: string
 }
 
 export interface Column {
@@ -30,6 +32,8 @@ const initialTasks: Task[] = [
     description: "Create wireframes and mockups for the login and signup process",
     category: "feature",
     columnId: "todo",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
   {
     id: "2",
@@ -37,6 +41,8 @@ const initialTasks: Task[] = [
     description: "Address mobile viewport problems on the dashboard page",
     category: "bug",
     columnId: "todo",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
   {
     id: "3",
@@ -44,6 +50,8 @@ const initialTasks: Task[] = [
     description: "Add smooth drag and drop functionality to the kanban board",
     category: "feature",
     columnId: "doing",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
   {
     id: "4",
@@ -51,6 +59,8 @@ const initialTasks: Task[] = [
     description: "Improve performance by optimizing slow database queries",
     category: "improvement",
     columnId: "doing",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
   {
     id: "5",
@@ -58,6 +68,8 @@ const initialTasks: Task[] = [
     description: "Configure automated testing and deployment workflows",
     category: "improvement",
     columnId: "done",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
 ]
 
