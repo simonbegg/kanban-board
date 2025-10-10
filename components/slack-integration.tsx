@@ -19,7 +19,7 @@ export function SlackIntegration() {
     // Check for OAuth callback params
     const params = new URLSearchParams(window.location.search)
     if (params.get('slack_connected') === 'true') {
-      setSuccess('Slack connected successfully! You'll receive notifications for cards older than 5 days.')
+      setSuccess('Slack connected successfully! You will receive notifications for cards older than 5 days.')
       // Clean up URL
       window.history.replaceState({}, '', window.location.pathname)
       checkConnection()
@@ -109,12 +109,12 @@ export function SlackIntegration() {
           <p className="text-sm text-muted-foreground">
             {isConnected ? (
               <>
-                ✅ Slack is connected. You'll receive a DM when a card has been sitting for more than 5 days.
+                ✅ Slack is connected. You will receive a DM when a card has been sitting for more than 5 days.
               </>
             ) : (
               <>
                 Connect your Slack account to receive notifications when cards need attention.
-                You'll get a message when a card is older than 5 days.
+                You will get a message when a card is older than 5 days.
               </>
             )}
           </p>
@@ -146,8 +146,8 @@ export function SlackIntegration() {
             <p className="font-medium mb-2">How it works:</p>
             <ul className="list-disc list-inside space-y-1">
               <li>Notifications are checked once per day</li>
-              <li>You'll receive a DM for each card older than 5 days</li>
-              <li>You won't be spammed - each card is notified once per 24 hours</li>
+              <li>You will receive a DM for each card older than 5 days</li>
+              <li>You will not be spammed - each card is notified once per 24 hours</li>
               <li>Archived cards are not included</li>
             </ul>
           </div>
