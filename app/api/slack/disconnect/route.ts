@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase'
+import { createServerClient } from '@/lib/supabase-server'
 import { disconnectSlack } from '@/lib/slack'
 
 export async function POST(request: NextRequest) {
-  const supabase = createClient()
+  const supabase = createServerClient()
 
   // Get authenticated user
   const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    await disconnectSlack(user.id)
+    await disconnectSlack(supabase, user.id)
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('Error disconnecting Slack:', err)

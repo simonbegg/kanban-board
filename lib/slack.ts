@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase'
+import type { Database } from '@/lib/supabase'
 
 const SLACK_CLIENT_ID = process.env.NEXT_PUBLIC_SLACK_CLIENT_ID
 const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET
@@ -64,9 +64,11 @@ export async function exchangeSlackCode(code: string): Promise<SlackProfile> {
 /**
  * Save Slack credentials to user profile
  */
-export async function saveSlackCredentials(userId: string, profile: SlackProfile): Promise<void> {
-  const supabase = createClient()
-
+export async function saveSlackCredentials(
+  supabase: any,
+  userId: string,
+  profile: SlackProfile
+): Promise<void> {
   const { error } = await supabase
     .from('profiles')
     .update({
@@ -86,9 +88,10 @@ export async function saveSlackCredentials(userId: string, profile: SlackProfile
 /**
  * Disconnect Slack integration
  */
-export async function disconnectSlack(userId: string): Promise<void> {
-  const supabase = createClient()
-
+export async function disconnectSlack(
+  supabase: any,
+  userId: string
+): Promise<void> {
   const { error } = await supabase
     .from('profiles')
     .update({

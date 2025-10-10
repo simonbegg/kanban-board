@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase'
+import { createServerClient } from '@/lib/supabase-server'
 import { sendSlackMessage, formatTaskNotification } from '@/lib/slack'
 
 // This should be called by a cron job (e.g., once per day)
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const supabase = createClient()
+  const supabase = createServerClient()
 
   try {
     // Get all users with Slack connected
