@@ -27,6 +27,17 @@ export function KanbanCard({ task, onEdit, onDelete, categoryColors }: KanbanCar
     transition,
   }
 
+  // Calculate age in days
+  const getAgeInDays = () => {
+    const createdDate = new Date(task.created_at)
+    const now = new Date()
+    const diffTime = Math.abs(now.getTime() - createdDate.getTime())
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+    return diffDays
+  }
+
+  const ageInDays = getAgeInDays()
+
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation()
     e.preventDefault()
@@ -79,23 +90,28 @@ export function KanbanCard({ task, onEdit, onDelete, categoryColors }: KanbanCar
         </CardHeader>
         <CardContent className="pt-0">
           <p className="text-sm text-muted-foreground mb-3 leading-relaxed">{task.description}</p>
-          {task.category && (
-            <Badge
-              variant="outline"
-              className="text-xs border"
-              style={
-                categoryColors?.[task.category]
-                  ? {
-                    backgroundColor: `${categoryColors[task.category]}20`,
-                    color: categoryColors[task.category],
-                    borderColor: `${categoryColors[task.category]}50`,
-                  }
-                  : undefined
-              }
-            >
-              {task.category}
-            </Badge>
-          )}
+          <div className="flex items-center justify-between gap-2">
+            {task.category && (
+              <Badge
+                variant="outline"
+                className="text-xs border"
+                style={
+                  categoryColors?.[task.category]
+                    ? {
+                      backgroundColor: `${categoryColors[task.category]}20`,
+                      color: categoryColors[task.category],
+                      borderColor: `${categoryColors[task.category]}50`,
+                    }
+                    : undefined
+                }
+              >
+                {task.category}
+              </Badge>
+            )}
+            <span className="text-xs text-muted-foreground ml-auto">
+              {ageInDays === 0 ? 'Today' : `${ageInDays}d`}
+            </span>
+          </div>
         </CardContent>
       </Card>
     </div>

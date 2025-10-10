@@ -29,9 +29,7 @@ describe('KanbanCard', () => {
     title: 'Test Task',
     description: 'Test Description',
     category: 'development',
-    position: 0,
-    column_id: 'col-1',
-    board_id: 'board-1',
+    columnId: 'col-1',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   }
@@ -130,5 +128,22 @@ describe('KanbanCard', () => {
     
     // Category is displayed as-is (lowercase)
     expect(screen.getByText('development')).toBeInTheDocument()
+  })
+
+  it('displays "Today" for tasks created today', () => {
+    const todayTask = { ...mockTask, created_at: new Date().toISOString() }
+    render(<KanbanCard task={todayTask} />)
+    
+    expect(screen.getByText('Today')).toBeInTheDocument()
+  })
+
+  it('displays age in days for older tasks', () => {
+    const threeDaysAgo = new Date()
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
+    const oldTask = { ...mockTask, created_at: threeDaysAgo.toISOString() }
+    
+    render(<KanbanCard task={oldTask} />)
+    
+    expect(screen.getByText('3d')).toBeInTheDocument()
   })
 })
