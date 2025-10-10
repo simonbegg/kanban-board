@@ -101,15 +101,38 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="container mx-auto px-6 py-32">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
+          <div className="bg-gradient-to-br from-background to-[#005bff] rounded-3xl p-6">
+            <h3 className="text-3xl font-bold tracking-wider text-center mt-8">To Do</h3>
+            <p className="text-center text-xl text-muted-foreground mt-4">
+              Your backlog of tasks waiting to be started. Simple and organized.
+            </p>
+          </div>
+          <div className="">
+            <h3 className="text-3xl font-bold tracking-wider text-center mt-8">To Do</h3>
+            <p className="text-center text-xl text-muted-foreground mt-4">
+              Your backlog of tasks waiting to be started. Simple and organized.
+            </p>
+          </div>
+          <div className="">
+            <h3 className="text-3xl font-bold tracking-wider text-center mt-8">To Do</h3>
+            <p className="text-center text-xl text-muted-foreground mt-4">
+              Your backlog of tasks waiting to be started. Simple and organized.
+            </p>
+          </div>
+        </div>
+
+
+      </section>
+
       {/* Three Lanes Section */}
       <section className="container mx-auto px-6 py-32 bg-gradient-to-b from-background to-[#005bff] from-75% to-100% rounded-3xl">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-semibold mb-4">
-              Three Lanes. That's it.
-            </h2>
-            <p className="text-2xl text-muted-foreground">
-              To do, doing, and it's done.
+            <h3 className="text-3xl font-bold tracking-wider text-center mt-8">To Do</h3>
+            <p className="text-center text-xl text-muted-foreground mt-4">
+              Your backlog of tasks waiting to be started. Simple and organized.
             </p>
           </div>
 

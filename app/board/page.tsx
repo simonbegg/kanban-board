@@ -2,15 +2,23 @@
 
 import { useAuth } from "@/contexts/auth-context"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { UserMenu } from "@/components/auth/user-menu"
 import { SupabaseKanbanBoard } from "@/components/supabase-kanban-board"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Layers, SquareKanban } from "lucide-react"
+import { SlackIntegration } from "@/components/slack-integration"
+import { Layers, SquareKanban, Settings } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 export default function BoardPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -43,6 +51,16 @@ export default function BoardPage() {
             <span className="text-2xl font-display tracking-wider font-semibold">ThreeLanes</span>
           </div>
           <div className="flex items-center gap-4">
+            <Popover open={settingsOpen} onOpenChange={setSettingsOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" title="Settings">
+                  <Settings className="h-5 w-5" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-96" align="end">
+                <SlackIntegration />
+              </PopoverContent>
+            </Popover>
             <ThemeToggle />
             <UserMenu />
           </div>

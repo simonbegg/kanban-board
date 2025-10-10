@@ -9,6 +9,11 @@ export type Database = {
           email: string
           full_name: string | null
           avatar_url: string | null
+          slack_access_token: string | null
+          slack_user_id: string | null
+          slack_team_id: string | null
+          slack_channel_id: string | null
+          slack_connected_at: string | null
           created_at: string
           updated_at: string
         }
@@ -17,6 +22,11 @@ export type Database = {
           email: string
           full_name?: string | null
           avatar_url?: string | null
+          slack_access_token?: string | null
+          slack_user_id?: string | null
+          slack_team_id?: string | null
+          slack_channel_id?: string | null
+          slack_connected_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -25,6 +35,11 @@ export type Database = {
           email?: string
           full_name?: string | null
           avatar_url?: string | null
+          slack_access_token?: string | null
+          slack_user_id?: string | null
+          slack_team_id?: string | null
+          slack_channel_id?: string | null
+          slack_connected_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -140,6 +155,32 @@ export type Database = {
           position?: number
           created_at?: string
           updated_at?: string
+        }
+      }
+      notifications_log: {
+        Row: {
+          id: string
+          user_id: string
+          task_id: string
+          notification_type: string
+          sent_at: string
+          metadata: any
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          task_id: string
+          notification_type: string
+          sent_at?: string
+          metadata?: any
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          task_id?: string
+          notification_type?: string
+          sent_at?: string
+          metadata?: any
         }
       }
     }
