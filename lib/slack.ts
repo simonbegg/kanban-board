@@ -16,9 +16,7 @@ export interface SlackProfile {
  */
 export function getSlackAuthUrl(userId: string): string {
   const scopes = [
-    'chat:write',
-    'channels:read',
-    'users:read',
+    'chat:write', // Only need chat:write to send DMs
   ].join(',')
 
   const params = new URLSearchParams({
@@ -138,28 +136,10 @@ export async function sendSlackMessage(
 }
 
 /**
- * Get user's DM channel ID
+ * Note: We no longer need to open DM channels explicitly.
+ * With chat:write scope, we can send DMs directly to user IDs.
+ * The user_id is stored as channel_id in the database.
  */
-export async function getSlackDMChannel(accessToken: string, userId: string): Promise<string> {
-  const response = await fetch('https://slack.com/api/conversations.open', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify({
-      users: userId,
-    }),
-  })
-
-  const data = await response.json()
-
-  if (!data.ok) {
-    throw new Error(`Failed to open DM channel: ${data.error}`)
-  }
-
-  return data.channel.id
-}
 
 /**
  * Format task notification for Slack

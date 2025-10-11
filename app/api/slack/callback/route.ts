@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { exchangeSlackCode, saveSlackCredentials, getSlackDMChannel } from '@/lib/slack'
+import { exchangeSlackCode, saveSlackCredentials } from '@/lib/slack'
 import { createServerClient } from '@/lib/supabase-server'
 
 export async function GET(request: NextRequest) {
@@ -27,9 +27,9 @@ export async function GET(request: NextRequest) {
     // Exchange code for access token
     const slackProfile = await exchangeSlackCode(code)
 
-    // Get DM channel ID for notifications
-    const dmChannelId = await getSlackDMChannel(slackProfile.access_token, slackProfile.user_id)
-    slackProfile.channel_id = dmChannelId
+    // Use the Slack user ID directly as the channel for DMs
+    // With chat:write scope, we can send DMs directly to user IDs
+    slackProfile.channel_id = slackProfile.user_id
 
     // Save to database
     await saveSlackCredentials(supabase, state, slackProfile)

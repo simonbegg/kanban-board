@@ -24,10 +24,15 @@ The Slack integration sends DM notifications to users when their cards have been
 
 1. In your Slack app settings, go to **"OAuth & Permissions"** in the sidebar
 2. Scroll down to **"Scopes"** → **"Bot Token Scopes"**
-3. Add the following scopes:
-   - `chat:write` - To send messages
-   - `channels:read` - To read channel information
-   - `users:read` - To read user information
+3. Add the following scope:
+   - `chat:write` - To send direct messages to users
+
+**Scope Justification (required for distribution):**
+```
+This app sends direct messages to users when their kanban cards have been 
+waiting for more than 5 days, helping them stay on top of stale tasks and 
+keep their workflow moving.
+```
 
 ### 3. Set Redirect URLs
 
