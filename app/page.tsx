@@ -101,88 +101,192 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="container mx-auto px-6 py-32">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
-          <div className="bg-gradient-to-br from-background to-[#005bff] rounded-3xl p-6">
-            <h3 className="text-3xl font-bold tracking-wider text-center mt-8">To Do</h3>
-            <p className="text-center text-xl text-muted-foreground mt-4">
-              Your backlog of tasks waiting to be started. Simple and organized.
-            </p>
+      <section className="container py-32 mx-auto">
+        <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center">No overwhelming workflows.</h3>
+        <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center mt-4">No complicated boards.</h3>
+        <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center mt-4">Just three lanes to keep you flowing.</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-16 mt-16">
+          <div>
+            <p className="text-2xl font-bold text-center">To-do</p>
+            <p className="text-center text-xl text-muted-foreground mt-4">Your backlog of tasks waiting to be started. Simple and organized.</p>
+            <div className="p-8 bg-background rounded-2xl border-border border-2 border-dashed space-y-4">
+              <div id="card-1" className="p-4 group bg-card text-card-foreground flex flex-col rounded-xl border cursor-grab py-4 shadow-sm transition-all duration-200 hover:shadow-lg group">
+                <div className="">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-card-foreground text-base leading-tight">My task</h4>
+                    </div>
+
+                  </div>
+                </div>
+                <div className="pt-0">
+                  <p className="text-sm text-muted-foreground mb-3 leading-relaxed">this is my task</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground text-xs border">Marketing</span>
+                    <span className="text-xs text-muted-foreground ml-auto">Today</span>
+                  </div>
+                </div>
+              </div>
+              <div id="card-2" className="p-4 group bg-card text-card-foreground flex flex-col rounded-xl border cursor-grab py-4 shadow-sm transition-all duration-200 hover:shadow-lg group">
+                <div className="">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-card-foreground text-base leading-tight">My task</h4>
+                    </div>
+                  </div>
+                </div>
+                <div className="pt-0">
+                  <p className="text-sm text-muted-foreground mb-3 leading-relaxed">this is my task</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground text-xs border">Marketing</span>
+                    <span className="text-xs text-muted-foreground ml-auto">Today</span>
+                  </div>
+                </div>
+              </div>
+              <div id="card-3" className="p-4 group bg-card text-card-foreground flex flex-col rounded-xl border cursor-grab py-4 shadow-sm transition-all duration-200 hover:shadow-lg group">
+                <div className="">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-card-foreground text-base leading-tight">My task</h4>
+                    </div>
+
+                  </div>
+                </div>
+                <div className="pt-0">
+                  <p className="text-sm text-muted-foreground mb-3 leading-relaxed">this is my task</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground text-xs border">Marketing</span>
+                    <span className="text-xs text-muted-foreground ml-auto">Today</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="">
-            <h3 className="text-3xl font-bold tracking-wider text-center mt-8">To Do</h3>
-            <p className="text-center text-xl text-muted-foreground mt-4">
-              Your backlog of tasks waiting to be started. Simple and organized.
-            </p>
+
+          <div>
+            <p className="text-2xl font-bold text-center">Doing</p>
+            <p className="text-center text-xl text-muted-foreground mt-4">Active work in progress. Stay focused on what matters now.</p>
+            <div className="p-8 bg-background rounded-2xl border-border border-2 border-dashed space-y-4">
+              <div id="card-1" className="p-4 group bg-card text-card-foreground flex flex-col rounded-xl border py-4 shadow-sm transition-all duration-200 cursor-grab hover:shadow-lg group">
+                <div className="">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-card-foreground text-base leading-tight">My task</h4>
+                    </div>
+
+                  </div>
+                </div>
+                <div className="pt-0">
+                  <p className="text-sm text-muted-foreground mb-3 leading-relaxed">this is my task</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground text-xs border">Marketing</span>
+                    <span className="text-xs text-muted-foreground ml-auto">Today</span>
+                  </div>
+                </div>
+              </div>
+              <div id="card-2" className="p-4 group bg-card text-card-foreground flex flex-col rounded-xl border cursor-grab py-4 shadow-sm transition-all duration-200 hover:shadow-lg group">
+                <div className="">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-card-foreground text-base leading-tight">My task</h4>
+                    </div>
+                  </div>
+                </div>
+                <div className="pt-0">
+                  <p className="text-sm text-muted-foreground mb-3 leading-relaxed">this is my task</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground text-xs border">Marketing</span>
+                    <span className="text-xs text-muted-foreground ml-auto">Today</span>
+                  </div>
+                </div>
+              </div>
+              <div id="card-3" className="p-4 group bg-card text-card-foreground flex flex-col rounded-xl border cursor-grab py-4 shadow-sm transition-all duration-200 hover:shadow-lg group">
+                <div className="">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-card-foreground text-base leading-tight">My task</h4>
+                    </div>
+
+                  </div>
+                </div>
+                <div className="pt-0">
+                  <p className="text-sm text-muted-foreground mb-3 leading-relaxed">this is my task</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground text-xs border">Marketing</span>
+                    <span className="text-xs text-muted-foreground ml-auto">Today</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="">
-            <h3 className="text-3xl font-bold tracking-wider text-center mt-8">To Do</h3>
-            <p className="text-center text-xl text-muted-foreground mt-4">
-              Your backlog of tasks waiting to be started. Simple and organized.
-            </p>
+
+          <div>
+            <p className="text-2xl font-bold text-center">Done</p>
+            <p className="text-center text-xl text-muted-foreground mt-4">Completed tasks. Feel the satisfaction of progress.</p>
+            <div className="p-8 bg-background rounded-2xl border-border border-2 border-dashed space-y-4">
+              <div id="card-1" className="p-4 group bg-card text-card-foreground flex flex-col rounded-xl border cursor-grab py-4 shadow-sm transition-all duration-200 hover:shadow-lg group">
+                <div className="">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-card-foreground text-base leading-tight">My task</h4>
+                    </div>
+
+                  </div>
+                </div>
+                <div className="pt-0">
+                  <p className="text-sm text-muted-foreground mb-3 leading-relaxed">this is my task</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground text-xs border">Marketing</span>
+                    <span className="text-xs text-muted-foreground ml-auto">Today</span>
+                  </div>
+                </div>
+              </div>
+              <div id="card-2" className="p-4 group bg-card text-card-foreground flex flex-col rounded-xl border cursor-grab hover:py-4 shadow-sm transition-all duration-200 hover:shadow-lg group">
+                <div className="">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-card-foreground text-base leading-tight">My task</h4>
+                    </div>
+                  </div>
+                </div>
+                <div className="pt-0">
+                  <p className="text-sm text-muted-foreground mb-3 leading-relaxed">this is my task</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground text-xs border">Marketing</span>
+                    <span className="text-xs text-muted-foreground ml-auto">Today</span>
+                  </div>
+                </div>
+              </div>
+              <div id="card-3" className="p-4 group bg-card text-card-foreground flex flex-col rounded-xl border cursor-grab hover:py-4 shadow-sm transition-all duration-200 hover:shadow-lg group">
+                <div className="">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-card-foreground text-base leading-tight">My task</h4>
+                    </div>
+
+                  </div>
+                </div>
+                <div className="pt-0">
+                  <p className="text-sm text-muted-foreground mb-3 leading-relaxed">this is my task</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground text-xs border">Marketing</span>
+                    <span className="text-xs text-muted-foreground ml-auto">Today</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-
-
-      </section>
-
-      {/* Three Lanes Section */}
-      <section className="container mx-auto px-6 py-32 bg-gradient-to-b from-background to-[#005bff] from-75% to-100% rounded-3xl">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h3 className="text-3xl font-bold tracking-wider text-center mt-8">To Do</h3>
-            <p className="text-center text-xl text-muted-foreground mt-4">
-              Your backlog of tasks waiting to be started. Simple and organized.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-16 relative mt-24">
-            {/* To Do */}
-            <div className="relative group">
-              <div className="">
-                <img src="/mesh-shape.png" alt="To Do" className="w-auto h-40 mx-auto" />
-                <h3 className="text-3xl font-bold tracking-wider text-center mt-8">To Do</h3>
-                <p className="text-center text-xl text-muted-foreground mt-4">
-                  Your backlog of tasks waiting to be started. Simple and organized.
-                </p>
-              </div>
-            </div>
-
-            {/* Doing */}
-            <div className="relative group">
-              <div className="">
-                <img src="/mesh-shape-3.png" alt="To Do" className="w-auto h-40 mx-auto" />
-                <h3 className="text-3xl font-bold tracking-wider text-center mt-8">Doing</h3>
-                <p className="text-center text-xl text-muted-foreground mt-4">
-                  Active work in progress. Stay focused on what matters now.
-                </p>
-              </div>
-            </div>
-
-            {/* Done */}
-            <div className="relative group">
-              <div className="">
-                <img src="/mesh-shape-4.png" alt="To Do" className="w-auto h-40 mx-auto" />
-                <h3 className="text-3xl font-bold tracking-wider text-center mt-8">Done</h3>
-                <p className="text-center text-xl text-muted-foreground mt-4">
-                  Completed tasks. Feel the satisfaction of progress.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-16 text-center">
-            <p className="text-2xl text-muted-foreground mb-6">
-              No overwhelming workflows. No complicated boards. Just three lanes to keep you flowing.
-            </p>
-            <p className="text-white/90 text-8xl font-special font-semibold mt-8">Your tasks are waiting, lets get them done.</p>
-            <Button size="lg" onClick={() => openAuth('signup')} className="text-lg px-8 mt-16">
+        <div className="max-w-3xl mx-auto text-center">
+          <p className="text-center text-8xl font-special font-semibold mt-8">Your tasks are waiting, lets get them done.</p>
+          <div className="flex mt-16 mx-auto justify-center">
+            <Button size="lg" onClick={() => openAuth('signup')} className="text-lg px-8">
               Try It Now
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
-        </div >
-      </section >
+        </div>
+      </section>
 
       {/* Features */}
       <section className="container mx-auto px-6 mt-16 py-20 bg-muted/30 rounded-3xl">
