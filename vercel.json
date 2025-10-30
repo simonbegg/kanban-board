@@ -1,10 +1,6 @@
 {
   "crons": [
     {
-      "path": "/api/slack/check-old-cards",
-      "schedule": "0 9 * * *"
-    },
-    {
       "path": "/api/email/send-task-summary",
       "schedule": "0 8 * * *"
     },
