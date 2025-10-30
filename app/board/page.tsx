@@ -60,7 +60,7 @@ export default function BoardPage() {
               </PopoverTrigger>
               <PopoverContent className="w-96" align="end">
                 <div className="space-y-4">
-                  <SlackIntegration />
+                  {/* SlackIntegration disabled for production */}
                   <EmailSettings />
                 </div>
               </PopoverContent>
