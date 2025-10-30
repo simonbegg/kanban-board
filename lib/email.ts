@@ -177,8 +177,11 @@ export function formatTaskSummaryEmail(tasks: TaskSummary[], frequency: 'daily' 
         <p style="color: #6b7280; font-size: 14px; margin: 0;">
           <a href="${process.env.NEXT_PUBLIC_APP_URL}/board" style="color: #3b82f6; text-decoration: none;">Open ThreeLanes</a> to manage your tasks
         </p>
+        <p style="color: #6b7280; font-size: 12px; margin: 10px 0 0 0;">
+          💡 <strong>Want to change email frequency?</strong> Go to Settings (⚙️) → Email Notifications to switch between daily and weekly emails.
+        </p>
         <p style="color: #9ca3af; font-size: 12px; margin: 10px 0 0 0;">
-          You're receiving this because you enabled email notifications in ThreeLanes.
+          You're receiving this ${frequency} email because you enabled email notifications in ThreeLanes.
         </p>
       </div>
     </div>
@@ -199,7 +202,7 @@ export function formatTaskSummaryEmail(tasks: TaskSummary[], frequency: 'daily' 
     text += '\n'
   })
 
-  text += `\nOpen ThreeLanes to manage your tasks: ${process.env.NEXT_PUBLIC_APP_URL}/board\n\nYou're receiving this because you enabled email notifications in ThreeLanes.`
+  text += `\nOpen ThreeLanes to manage your tasks: ${process.env.NEXT_PUBLIC_APP_URL}/board\n\n💡 Want to change email frequency? Go to Settings (⚙️) → Email Notifications to switch between daily and weekly emails.\n\nYou're receiving this ${frequency} email because you enabled email notifications in ThreeLanes.`
 
   return { subject, html, text }
 }
