@@ -7,6 +7,7 @@ import { UserMenu } from "@/components/auth/user-menu"
 import { SupabaseKanbanBoard } from "@/components/supabase-kanban-board"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { SlackIntegration } from "@/components/slack-integration"
+import { EmailSettings } from "@/components/email-settings"
 import { Layers, SquareKanban, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -58,7 +59,10 @@ export default function BoardPage() {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-96" align="end">
-                <SlackIntegration />
+                <div className="space-y-4">
+                  <SlackIntegration />
+                  <EmailSettings />
+                </div>
               </PopoverContent>
             </Popover>
             <ThemeToggle />

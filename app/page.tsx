@@ -94,17 +94,17 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <SquareKanban className="h-8 w-8 text-primary rotate-90 hover:rotate-0 transition-all duration-300" />
-            <span className="text-2xl font-display tracking-wider font-semibold">ThreeLanes</span>
+            <SquareKanban className="h-6 w-6 sm:h-8 sm:w-8 text-primary rotate-90 hover:rotate-0 transition-all duration-300" />
+            <span className="text-xl sm:text-2xl font-display tracking-wider font-semibold">ThreeLanes</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <ThemeToggle />
-            <Button variant="ghost" onClick={() => openAuth('signin')}>
+            <Button variant="ghost" onClick={() => openAuth('signin')} className="hidden sm:inline-flex">
               Sign In
             </Button>
-            <Button onClick={() => openAuth('signup')}>
+            <Button onClick={() => openAuth('signup')} className="text-xs px-3 py-2 sm:text-sm sm:px-4 sm:py-2">
               Get Started
             </Button>
           </div>
@@ -128,7 +128,7 @@ export default function Home() {
         </div>
 
         {/* Content */}
-        <div className="container mx-auto px-6 relative z-10 w-full">
+        <div className="container mx-auto px-4 sm:px-6 relative z-10 w-full">
           <div className="max-w-5xl mx-auto text-center">
             <h1 className="text-5xl md:text-9xl font-special mb-6 text-white">
               Kanban without the Clutter
@@ -136,12 +136,12 @@ export default function Home() {
             <p className="text-xl md:text-3xl text-white/90 mb-12 max-w-2xl mx-auto">
               Focus on what matters. Three lanes to organize your work. No complexity, just clarity.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" onClick={() => openAuth('signup')} className="text-lg px-8">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center px-4 sm:px-0">
+              <Button size="lg" onClick={() => openAuth('signup')} className="text-base sm:text-lg px-6 sm:px-8">
                 Start for Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline" onClick={() => openAuth('signin')} className="text-lg px-8 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20">
+              <Button size="lg" variant="outline" onClick={() => openAuth('signin')} className="text-base sm:text-lg px-6 sm:px-8 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20">
                 Sign In
               </Button>
             </div>
@@ -149,75 +149,75 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="container py-32 mx-auto">
+      <section className="container py-16 sm:py-32 mx-auto px-4 sm:px-6">
         <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center">No overwhelming workflows.</h3>
-        <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center mt-4">No complicated boards.</h3>
-        <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center mt-4">Just <span className="text-primary">three lanes</span> to keep you flowing.</h3>
-        <p className="text-xl max-w-2xl mx-auto mt-16 text-center">Three lanes but endless boards.</p>
-        <p className="text-xl max-w-2xl mx-auto mt-2 text-center">Organise whatever you need to organise.</p>
+        <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center sm:mt-4">No complicated boards.</h3>
+        <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center sm:mt-4">Just <span className="text-primary">three lanes</span> to keep you flowing.</h3>
+        <p className="text-lg sm:text-xl md:text-2xl max-w-2xl mx-auto mt-8 sm:mt-16 text-center px-4">Three lanes but endless boards.</p>
+        <p className="text-lg sm:text-xl md:text-2xl max-w-2xl mx-auto sm:mt-2 text-center px-4">Organise whatever you need to organise.</p>
         {/* Board Switcher */}
-        <div className="flex justify-center gap-4 mt-4">
+        <div className="flex justify-center gap-2 sm:gap-4 mt-8 sm:mt-12">
           <Button
             variant={activeBoard === 'home' ? 'default' : 'outline'}
             onClick={() => setActiveBoard('home')}
-            className="px-6"
+            className="px-4 sm:px-6"
           >
             Home
           </Button>
           <Button
             variant={activeBoard === 'work' ? 'default' : 'outline'}
             onClick={() => setActiveBoard('work')}
-            className="px-6"
+            className="px-4 sm:px-6"
           >
             Work
           </Button>
           <Button
             variant={activeBoard === 'life' ? 'default' : 'outline'}
             onClick={() => setActiveBoard('life')}
-            className="px-6"
+            className="px-4 sm:px-6"
           >
             Life
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-16 mt-16 sm:mt-24">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-16 mt-12 sm:mt-16 md:mt-24">
           <div>
-            <p className="text-2xl font-bold text-center">To-do</p>
-            <p className="text-center text-xl text-muted-foreground mt-4">Your backlog of tasks waiting to be started. Simple and organized.</p>
-            <div className="p-8 bg-background rounded-2xl border-border border-2 border-dashed space-y-4 mt-8">
+            <p className="text-xl sm:text-2xl font-bold text-center">To-do</p>
+            <p className="text-center text-base sm:text-lg md:text-xl text-muted-foreground mt-4 px-2">Your backlog of tasks waiting to be started. Simple and organized.</p>
+            <div className="p-4 sm:p-8 bg-background rounded-2xl border-border border-2 border-dashed space-y-4 mt-8">
               {demoTasks.filter(task => task.board === activeBoard && task.column === 'To-do').map((task, index) => renderTaskCard(task, index))}
             </div>
           </div>
 
           <div>
-            <p className="text-2xl font-bold text-center">Doing</p>
-            <p className="text-center text-xl text-muted-foreground mt-4">Active work in progress. Stay focused on what matters now.</p>
-            <div className="p-8 bg-background rounded-2xl border-border border-2 border-dashed space-y-4 mt-8">
+            <p className="text-xl sm:text-2xl font-bold text-center">Doing</p>
+            <p className="text-center text-base sm:text-lg md:text-xl text-muted-foreground mt-4 px-2">Active work in progress. Stay focused on what matters now.</p>
+            <div className="p-4 sm:p-8 bg-background rounded-2xl border-border border-2 border-dashed space-y-4 mt-8">
               {demoTasks.filter(task => task.board === activeBoard && task.column === 'Doing').map((task, index) => renderTaskCard(task, index))}
             </div>
           </div>
 
           <div>
-            <p className="text-2xl font-bold text-center">Done</p>
-            <p className="text-center text-xl text-muted-foreground mt-4">Completed tasks. Feel the satisfaction of progress.</p>
-            <div className="p-8 bg-background rounded-2xl border-border border-2 border-dashed space-y-4 mt-8">
+            <p className="text-xl sm:text-2xl font-bold text-center">Done</p>
+            <p className="text-center text-base sm:text-lg md:text-xl text-muted-foreground mt-4 px-2">Completed tasks. Feel the satisfaction of progress.</p>
+            <div className="p-4 sm:p-8 bg-background rounded-2xl border-border border-2 border-dashed space-y-4 mt-8">
               {demoTasks.filter(task => task.board === activeBoard && task.column === 'Done').map((task, index) => renderTaskCard(task, index))}
             </div>
           </div>
         </div>
-        <div className="max-w-3xl mx-auto text-center mt-16 sm:mt-24">
-          <p className="text-center text-8xl font-special font-semibold mt-8">Your tasks are waiting, lets get them done.</p>
-          <div className="flex mt-16 mx-auto justify-center">
-            <Button size="lg" onClick={() => openAuth('signup')} className="text-lg px-8">
+        <div className="max-w-3xl mx-auto text-center mt-16 sm:mt-24 px-4">
+          <p className="text-center text-4xl sm:text-6xl md:text-8xl font-special font-semibold mt-8">Your tasks are waiting, lets get them done.</p>
+          <div className="flex mt-12 sm:mt-16 mx-auto justify-center">
+            <Button size="lg" onClick={() => openAuth('signup')} className="text-base sm:text-lg px-6 sm:px-8">
               Try It Now
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
           </div>
         </div>
       </section>
 
       {/* Features */}
-      <section className="container mx-auto px-6 mt-16 py-20 bg-muted/30 rounded-3xl">
+      <section className="container mx-auto px-4 sm:px-6 mt-16 py-12 sm:py-20 bg-muted/30 rounded-3xl">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">
             Simple. Powerful. Focused.

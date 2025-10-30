@@ -14,6 +14,10 @@ export type Database = {
           slack_team_id: string | null
           slack_channel_id: string | null
           slack_connected_at: string | null
+          email_notifications_enabled: boolean
+          notification_email: string | null
+          notification_frequency: 'daily' | 'weekly'
+          last_notification_sent: string | null
           created_at: string
           updated_at: string
         }
@@ -27,6 +31,10 @@ export type Database = {
           slack_team_id?: string | null
           slack_channel_id?: string | null
           slack_connected_at?: string | null
+          email_notifications_enabled?: boolean
+          notification_email?: string | null
+          notification_frequency?: 'daily' | 'weekly'
+          last_notification_sent?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -40,6 +48,10 @@ export type Database = {
           slack_team_id?: string | null
           slack_channel_id?: string | null
           slack_connected_at?: string | null
+          email_notifications_enabled?: boolean
+          notification_email?: string | null
+          notification_frequency?: 'daily' | 'weekly'
+          last_notification_sent?: string | null
           created_at?: string
           updated_at?: string
         }
