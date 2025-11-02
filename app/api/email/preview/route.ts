@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-server'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
+import type { Database } from '@/lib/supabase'
 import { getTodoTasks, formatTaskSummaryEmail } from '@/lib/email'
 
 export async function POST() {
-  const supabase = createServerClient()
+  const supabase = createRouteHandlerClient<Database>({ cookies: () => cookies() })
   
   // Get authenticated user
   const { data: { user }, error: authError } = await supabase.auth.getUser()

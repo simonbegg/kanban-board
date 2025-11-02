@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-server'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
+import type { Database } from '@/lib/supabase'
 import { updateEmailSettings, getEmailSettings } from '@/lib/email'
 
 export async function GET(request: NextRequest) {
-  const supabase = createServerClient()
+  const supabase = createRouteHandlerClient<Database>({ cookies: () => cookies() })
 
   // Get authenticated user
   const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -25,7 +27,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const supabase = createServerClient()
+  const supabase = createRouteHandlerClient<Database>({ cookies: () => cookies() })
 
   // Get authenticated user
   const { data: { user }, error: authError } = await supabase.auth.getUser()

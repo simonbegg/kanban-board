@@ -1,12 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase-server'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
+import type { Database } from '@/lib/supabase'
 import { getEmailSettings, getTodoTasks, formatTaskSummaryEmail, sendEmail } from '@/lib/email'
 
 // This should be called by a cron job (e.g., daily or weekly)
 // Protect with a secret key to prevent unauthorized access
 const CRON_SECRET = process.env.CRON_SECRET
 
+// Vercel cron jobs use GET by default
+export async function GET(request: NextRequest) {
+  return handleEmailSummary(request)
+}
+
+// Also support POST for manual triggers
 export async function POST(request: NextRequest) {
+  return handleEmailSummary(request)
+}
+
+async function handleEmailSummary(request: NextRequest) {
   // Verify cron secret
   const authHeader = request.headers.get('authorization')
   
@@ -14,7 +26,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const supabase = createServerClient()
+  const supabase = createRouteHandlerClient<Database>({ cookies: () => cookies() })
 
   try {
     // Get all users with email notifications enabled
