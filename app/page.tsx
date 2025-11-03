@@ -3,12 +3,13 @@
 import { useAuth } from "@/contexts/auth-context"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Layers, Palette, Zap, SquareKanban, Square } from "lucide-react"
+import { ArrowRight, Layers, Palette, Zap, Square, SquareKanban } from "lucide-react"
 import { AuthForm } from "@/components/auth/auth-form"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { SiteHeader } from "@/components/site-header"
+import { SiteFooter } from "@/components/site-footer"
 
 const demoTasks = [
   // Home Board
@@ -92,24 +93,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b">
-        <div className="container mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <SquareKanban className="h-6 w-6 sm:h-8 sm:w-8 text-primary rotate-90 hover:rotate-0 transition-all duration-300" />
-            <span className="text-xl sm:text-2xl font-display tracking-wider font-semibold">ThreeLanes</span>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-4">
-            <ThemeToggle />
-            <Button variant="ghost" onClick={() => openAuth('signin')} className="hidden sm:inline-flex">
-              Sign In
-            </Button>
-            <Button onClick={() => openAuth('signup')} className="text-xs px-3 py-2 sm:text-sm sm:px-4 sm:py-2">
-              Get Started
-            </Button>
-          </div>
-        </div>
-      </header>
+      <SiteHeader onSignIn={() => openAuth('signin')} onSignUp={() => openAuth('signup')} />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden min-h-[calc(100vh-5rem)] flex items-center">
@@ -335,12 +319,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t py-8">
-        <div className="container mx-auto px-6 text-center text-muted-foreground">
-          <p>&copy; 2025 ThreeLanes. Kanban without the clutter.</p>
-        </div>
-      </footer >
+      <SiteFooter />
 
       {/* Auth Dialog */}
       <Dialog open={authDialogOpen} onOpenChange={setAuthDialogOpen}>
