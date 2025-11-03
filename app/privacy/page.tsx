@@ -1,11 +1,16 @@
-import '../legal.css'
+import { SiteHeader } from '@/components/site-header'
+import { SiteFooter } from '@/components/site-footer'
 
 export default function Privacy() {
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto bg-white shadow-sm rounded-lg p-8 md:p-12">
-        <div className="legal-content">
-        <h1>ThreeLanes — Privacy Policy</h1>
+    <div className="min-h-screen bg-background flex flex-col">
+      <SiteHeader />
+
+      {/* Content */}
+      <div className="flex-1 bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 shadow-sm rounded-lg p-8 md:p-12">
+          <div className="text-gray-900 dark:text-gray-100 [&_h1]:text-4xl [&_h1]:font-extrabold [&_h1]:mb-2 [&_h1]:leading-tight [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-10 [&_h2]:mb-4 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mt-6 [&_h3]:mb-3 [&_p]:mb-4 [&_p]:leading-relaxed [&_ul]:mb-5 [&_ul]:pl-7 [&_ul]:list-disc [&_ul_ul]:mt-2 [&_ul_ul]:mb-2 [&_li]:mb-2 [&_li]:leading-relaxed [&_hr]:my-10 [&_hr]:border-gray-200 [&_hr]:dark:border-gray-700 [&_strong]:font-semibold [&_a]:text-blue-600 [&_a]:underline [&_a:hover]:text-blue-700">
+          <h1>ThreeLanes — Privacy Policy</h1>
         <p><strong>Last updated:</strong> November 03, 2025</p>
 
         <p>This Privacy Policy explains how <strong>Two Bees Consulting Ltd</strong> (Company No. 07750344), trading as <strong>ThreeLanes</strong> (&quot;<strong>ThreeLanes</strong>,&quot; &quot;<strong>we</strong>,&quot; &quot;<strong>us</strong>,&quot; or &quot;<strong>our</strong>&quot;), collects, uses, shares, and protects your information when you use our kanban web application and related services (the &quot;<strong>Service</strong>&quot;).</p>
@@ -179,8 +184,11 @@ export default function Privacy() {
         <p><strong>Data controller:</strong> Two Bees Consulting Ltd (trading as ThreeLanes)<br />
         27 Mortimer Street, London, England, W1T 3BL<br />
         <strong>Email:</strong> support@threelanes.app</p>
+          </div>
         </div>
       </div>
+
+      <SiteFooter />
     </div>
   )
 }
