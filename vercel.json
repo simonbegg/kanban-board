@@ -2,11 +2,17 @@
   "crons": [
     {
       "path": "/api/email/send-task-summary",
-      "schedule": "0 8 * * *"
+      "schedule": "0 8 * * *",
+      "description": "Daily task summary for users with daily frequency"
     },
     {
       "path": "/api/email/send-task-summary",
-      "schedule": "0 8 * * 1"
+      "schedule": "0 8 * * 1",
+      "description": "Weekly task summary for users with weekly frequency (Mondays)"
+    },
+    {
+      "path": "/api/cron/prune-archives",
+      "schedule": "0 2 * * *"
     }
   ]
 }
