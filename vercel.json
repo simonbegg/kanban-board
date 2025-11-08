@@ -5,10 +5,6 @@
       "schedule": "0 8 * * *"
     },
     {
-      "path": "/api/email/send-task-summary",
-      "schedule": "0 8 * * 1"
-    },
-    {
       "path": "/api/cron/prune-archives",
       "schedule": "0 2 * * *"
     }
