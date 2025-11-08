@@ -1,12 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/supabase'
 import { getEmailSettings, getTodoTasks, formatTaskSummaryEmail, sendEmail } from '@/lib/email'
 
 // This should be called by a cron job (e.g., daily or weekly)
 // Protect with a secret key to prevent unauthorized access
 const CRON_SECRET = process.env.CRON_SECRET
+
+// Create admin client for cron job (bypasses RLS)
+function createAdminClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+  
+  return createClient<Database>(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  })
+}
 
 // Vercel cron jobs use GET by default
 export async function GET(request: NextRequest) {
@@ -26,15 +38,23 @@ async function handleEmailSummary(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const supabase = createRouteHandlerClient<Database>({ cookies: () => cookies() })
+  // Use admin client for cron job (bypasses RLS to access all users)
+  const supabase = createAdminClient()
 
   try {
     // Get all users with email notifications enabled
     const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
-      .select('id, notification_email, notification_frequency, last_notification_sent')
+      .select('id, notification_email, notification_frequency, last_notification_sent, email_notifications_enabled')
       .eq('email_notifications_enabled', true)
       .not('notification_email', 'is', null)
+      .returns<Array<{
+        id: string
+        notification_email: string | null
+        notification_frequency: string | null
+        last_notification_sent: string | null
+        email_notifications_enabled: boolean | null
+      }>>()
 
     if (profilesError) {
       throw profilesError
@@ -53,7 +73,7 @@ async function handleEmailSummary(request: NextRequest) {
         // Check if we should send notification based on frequency
         const now = new Date()
         const lastSent = profile.last_notification_sent ? new Date(profile.last_notification_sent) : null
-        const frequency = profile.notification_frequency || 'daily'
+        const frequency = (profile.notification_frequency || 'daily') as 'daily' | 'weekly'
 
         let shouldSend = true
 
@@ -83,6 +103,7 @@ async function handleEmailSummary(request: NextRequest) {
         await sendEmail(profile.notification_email!, subject, html, text)
 
         // Update last notification sent timestamp
+        // @ts-expect-error - Supabase type inference issue
         await supabase
           .from('profiles')
           .update({ last_notification_sent: now.toISOString() })
