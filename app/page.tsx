@@ -96,28 +96,19 @@ export default function Home() {
       <SiteHeader onSignIn={() => openAuth('signin')} onSignUp={() => openAuth('signup')} />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden min-h-[calc(100vh-5rem)] flex items-center">
+      <section className="relative overflow-hidden flex items-center">
         {/* Background Image */}
-        <div
-          className="absolute inset-0 z-0"
-          style={{
-            backgroundImage: 'url(/hero-flow.jpg)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-          }}
-        >
-          {/* Dark overlay for better text readability */}
-          <div className="absolute inset-0 bg-black/50" />
+        <div>
+
         </div>
 
         {/* Content */}
-        <div className="container mx-auto px-4 sm:px-6 relative z-10 w-full">
+        <div className="container mx-auto px-4 sm:px-6 relative z-10 w-full mt-16">
           <div className="max-w-5xl mx-auto text-center">
-            <h1 className="text-5xl md:text-9xl font-special mb-6 text-white">
+            <h1 className="text-5xl md:text-6xl font-special mb-6 dark:text-white">
               Kanban without the Clutter
             </h1>
-            <p className="text-xl md:text-3xl text-white/90 mb-12 max-w-2xl mx-auto">
+            <p className="text-xl md:text-2xl dark:text-white/90 mb-12 max-w-2xl mx-auto">
               Focus on what matters. Three lanes to organize your work. No complexity, just clarity.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center px-4 sm:px-0">
@@ -128,6 +119,56 @@ export default function Home() {
               <Button size="lg" variant="outline" onClick={() => openAuth('signin')} className="text-base sm:text-lg px-6 sm:px-8 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20">
                 Sign In
               </Button>
+            </div>
+          </div>
+          {/* Board Switcher */}
+          <div className="flex justify-center gap-2 sm:gap-4 mt-8 sm:mt-12">
+            <Button
+              variant={activeBoard === 'home' ? 'default' : 'outline'}
+              onClick={() => setActiveBoard('home')}
+              className="px-4 sm:px-6"
+            >
+              Home
+            </Button>
+            <Button
+              variant={activeBoard === 'work' ? 'default' : 'outline'}
+              onClick={() => setActiveBoard('work')}
+              className="px-4 sm:px-6"
+            >
+              Work
+            </Button>
+            <Button
+              variant={activeBoard === 'life' ? 'default' : 'outline'}
+              onClick={() => setActiveBoard('life')}
+              className="px-4 sm:px-6"
+            >
+              Life
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-16 mt-12 sm:mt-16 md:mt-24">
+            <div>
+              <p className="text-xl sm:text-2xl font-bold text-center">To-do</p>
+              <p className="text-center text-base sm:text-lg md:text-xl text-muted-foreground mt-4 px-2">Your backlog of tasks waiting to be started. Simple and organized.</p>
+              <div className="p-4 sm:p-8 bg-background rounded-2xl border-border border-2 border-dashed space-y-4 mt-8">
+                {demoTasks.filter(task => task.board === activeBoard && task.column === 'To-do').map((task, index) => renderTaskCard(task, index))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xl sm:text-2xl font-bold text-center">Doing</p>
+              <p className="text-center text-base sm:text-lg md:text-xl text-muted-foreground mt-4 px-2">Active work in progress. Stay focused on what matters now.</p>
+              <div className="p-4 sm:p-8 bg-background rounded-2xl border-border border-2 border-dashed space-y-4 mt-8">
+                {demoTasks.filter(task => task.board === activeBoard && task.column === 'Doing').map((task, index) => renderTaskCard(task, index))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xl sm:text-2xl font-bold text-center">Done</p>
+              <p className="text-center text-base sm:text-lg md:text-xl text-muted-foreground mt-4 px-2">Completed tasks. Feel the satisfaction of progress.</p>
+              <div className="p-4 sm:p-8 bg-background rounded-2xl border-border border-2 border-dashed space-y-4 mt-8">
+                {demoTasks.filter(task => task.board === activeBoard && task.column === 'Done').map((task, index) => renderTaskCard(task, index))}
+              </div>
             </div>
           </div>
         </div>
@@ -231,7 +272,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold mb-2">Unlimited Boards</h3>
               <p className="text-muted-foreground">
-                Create as many boards as you need. Organise in the way that makes sense for you.
+                Create as many boards as you need. Organise your work, home or anything else in a way that makes sense for you.
               </p>
             </div>
           </div>

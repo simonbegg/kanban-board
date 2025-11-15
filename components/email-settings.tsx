@@ -20,6 +20,7 @@ export function EmailSettings() {
     email: null,
     frequency: 'daily'
   })
+  const [savedEmail, setSavedEmail] = useState<string | null>(null) // Track saved email state
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -46,6 +47,7 @@ export function EmailSettings() {
       
       const data = await response.json()
       setSettings(data)
+      setSavedEmail(data.email) // Store the saved email
     } catch (err) {
       console.error('Error fetching email settings:', err)
       setError('Failed to load email settings')
@@ -75,7 +77,11 @@ export function EmailSettings() {
 
       const data = await response.json()
       setSettings(data)
+      setSavedEmail(data.email) // Update saved email after save
       setSuccess('Email settings saved successfully')
+      
+      // Auto-hide success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000)
     } catch (err) {
       console.error('Error saving email settings:', err)
       setError((err as Error).message)
@@ -104,6 +110,7 @@ export function EmailSettings() {
     }
     saveSettings({ email: settings.email.trim() })
   }
+
 
   if (loading) {
     return (
@@ -172,18 +179,23 @@ export function EmailSettings() {
             <div className="space-y-2">
               <label className="text-sm font-medium">Email Address</label>
               <div className="flex gap-2">
-                <input
-                  type="email"
-                  value={settings.email || ''}
-                  onChange={(e) => handleEmailChange(e.target.value)}
-                  placeholder="your@email.com"
-                  className="flex-1 px-3 py-2 border rounded-md text-sm"
-                  disabled={saving}
-                />
+                <div className="flex-1 relative">
+                  <input
+                    type="email"
+                    value={settings.email || ''}
+                    onChange={(e) => handleEmailChange(e.target.value)}
+                    placeholder="your@email.com"
+                    className="w-full px-3 py-2 border rounded-md text-sm pr-10"
+                    disabled={saving}
+                  />
+                  {settings.email && settings.email === savedEmail && (
+                    <CheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
+                  )}
+                </div>
                 <Button
                   size="sm"
                   onClick={handleSaveEmail}
-                  disabled={saving || !settings.email?.trim()}
+                  disabled={saving || !settings.email?.trim() || settings.email === savedEmail}
                 >
                   Save
                 </Button>
@@ -191,6 +203,12 @@ export function EmailSettings() {
               {!settings.email && (
                 <p className="text-xs text-muted-foreground">
                   Add an email address to receive notifications
+                </p>
+              )}
+              {settings.email && settings.email === savedEmail && (
+                <p className="text-xs text-green-600 flex items-center gap-1">
+                  <CheckCircle className="h-3 w-3" />
+                  Email saved and ready to receive notifications
                 </p>
               )}
             </div>

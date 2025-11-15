@@ -56,6 +56,38 @@ export type Database = {
           updated_at?: string
         }
       }
+      entitlements: {
+        Row: {
+          user_id: string
+          plan: 'free' | 'pro'
+          board_cap: number
+          active_cap_per_board: number
+          archive_retention_days: number
+          archived_cap_per_user: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          plan?: 'free' | 'pro'
+          board_cap?: number
+          active_cap_per_board?: number
+          archive_retention_days?: number
+          archived_cap_per_user?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          plan?: 'free' | 'pro'
+          board_cap?: number
+          active_cap_per_board?: number
+          archive_retention_days?: number
+          archived_cap_per_user?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
       boards: {
         Row: {
           id: string
@@ -143,6 +175,8 @@ export type Database = {
           column_id: string
           board_id: string
           position: number
+          archived: boolean
+          archived_at: string | null
           created_at: string
           updated_at: string
         }
@@ -154,6 +188,8 @@ export type Database = {
           column_id: string
           board_id: string
           position: number
+          archived?: boolean
+          archived_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -165,6 +201,8 @@ export type Database = {
           column_id?: string
           board_id?: string
           position?: number
+          archived?: boolean
+          archived_at?: string | null
           created_at?: string
           updated_at?: string
         }

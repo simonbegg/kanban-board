@@ -1,8 +1,10 @@
 import { createClient } from '@/lib/supabase'
-import { Database } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
-import { validateBoardTitle, validateBoardDescription, validateTaskTitle, validateTaskDescription, validateCategory, ValidationError } from '@/lib/validation'
-import { isRateLimited, RATE_LIMITS, RateLimitError } from '@/lib/rate-limit'
+import { Database } from '@/lib/supabase'
+import { ValidationError, validateBoardTitle, validateBoardDescription, validateTaskTitle, validateTaskDescription, validateCategory } from '@/lib/validation'
+import { RateLimitError, isRateLimited, RATE_LIMITS } from '@/lib/rate-limit'
+import { withAdminAccess } from '@/lib/admin-access'
+import { PLAN_LIMITS } from '@/lib/constants/limits'
 
 type Board = Database['public']['Tables']['boards']['Row']
 type BoardInsert = Database['public']['Tables']['boards']['Insert']
@@ -31,6 +33,45 @@ export async function getBoards(): Promise<Board[]> {
 
   if (error) throw error
   return data || []
+}
+
+/**
+ * Get all boards with admin access logging (read-only)
+ * Only accessible to admin users and logs every access
+ */
+export async function getBoardsAsAdmin(adminEmail: string): Promise<BoardWithColumnsAndTasks[]> {
+  return withAdminAccess(adminEmail, {
+    action: 'view_board',
+    resourceType: 'board'
+  }, async () => {
+    const supabase = createClient()
+    
+    const { data, error } = await supabase
+      .from('boards')
+      .select(`
+        *,
+        columns (
+          *,
+          tasks (*)
+        )
+      `)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    
+    // Process the data to match BoardWithColumnsAndTasks interface
+    return (data || []).map(board => ({
+      ...board,
+      columns: (board.columns || [])
+        .sort((a: Column, b: Column) => a.position - b.position)
+        .map((column: Column & { tasks: Task[] }) => ({
+          ...column,
+          tasks: (column.tasks || [])
+            .filter((task: Task) => !task.archived)
+            .sort((a: Task, b: Task) => a.position - b.position)
+        }))
+    }))
+  })
 }
 
 export async function getBoardWithData(boardId: string): Promise<BoardWithColumnsAndTasks | null> {
@@ -64,6 +105,48 @@ export async function getBoardWithData(boardId: string): Promise<BoardWithColumn
   }
   
   return data
+}
+
+/**
+ * Get a single board with data as admin (read-only with logging)
+ */
+export async function getBoardWithDataAsAdmin(boardId: string, adminEmail: string): Promise<BoardWithColumnsAndTasks | null> {
+  return withAdminAccess(adminEmail, {
+    action: 'view_board',
+    resourceType: 'board',
+    resourceId: boardId
+  }, async () => {
+    const supabase = createClient()
+    
+    const { data, error } = await supabase
+      .from('boards')
+      .select(`
+        *,
+        columns (
+          *,
+          tasks (*)
+        )
+      `)
+      .eq('id', boardId)
+      .single()
+
+    if (error) throw error
+    
+    // Sort columns by position and tasks by position within each column
+    // Filter out archived tasks
+    if (data) {
+      data.columns = data.columns
+        .sort((a: Column, b: Column) => a.position - b.position)
+        .map((column: Column & { tasks: Task[] }) => ({
+          ...column,
+          tasks: column.tasks
+            .filter((task: Task) => !task.archived)
+            .sort((a: Task, b: Task) => a.position - b.position)
+        }))
+    }
+    
+    return data
+  })
 }
 
 export async function createBoard(board: Omit<BoardInsert, 'user_id'>): Promise<Board> {
@@ -188,6 +271,25 @@ export async function createTask(task: Omit<TaskInsert, 'position'>): Promise<Ta
   // Rate limiting
   if (isRateLimited(`createTask:${user.id}`, RATE_LIMITS.WRITE)) {
     throw new RateLimitError('Too many tasks created. Please wait a moment.', Date.now() + 60000)
+  }
+  
+  // Check task limit per board
+  const { count: activeTaskCount, error: countError } = await supabase
+    .from('tasks')
+    .select('*', { count: 'exact', head: true })
+    .eq('board_id', task.board_id)
+    .eq('archived', false)
+  
+  if (countError) {
+    logger.error('Error counting active tasks:', countError)
+    throw new Error('Failed to check task limit')
+  }
+  
+  // Both Free and Pro have the same active task limit per board
+  const taskLimit = PLAN_LIMITS.FREE.ACTIVE_TASKS_PER_BOARD
+  
+  if (activeTaskCount !== null && activeTaskCount >= taskLimit) {
+    throw new Error(`Task limit reached. This board has ${activeTaskCount} active tasks. Archive some tasks to make room, or upgrade to Pro for higher limits.`)
   }
   
   // Input validation

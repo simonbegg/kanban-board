@@ -11,10 +11,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { LogOut, User } from 'lucide-react'
+import { LogOut, User, Shield } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export function UserMenu() {
   const { user, signOut } = useAuth()
+  const router = useRouter()
 
   if (!user) return null
 
@@ -25,6 +27,14 @@ export function UserMenu() {
     .join('')
     .toUpperCase()
     .slice(0, 2) || 'U'
+
+  // Check if user is admin
+  const isAdmin = user.email && (
+    user.email.toLowerCase() === 'simon@teamtwobees.com' ||
+    user.email.toLowerCase() === 'simon@threelanes.app' ||
+    user.email.toLowerCase().endsWith('@threelanes.app') ||
+    user.email.toLowerCase().endsWith('@teamtwobees.com')
+  )
 
   return (
     <DropdownMenu>
@@ -52,6 +62,12 @@ export function UserMenu() {
           <User className="mr-2 h-4 w-4" />
           <span>Profile</span>
         </DropdownMenuItem>
+        {isAdmin && (
+          <DropdownMenuItem onClick={() => router.push('/admin')}>
+            <Shield className="mr-2 h-4 w-4" />
+            <span>Admin Panel</span>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut()}>
           <LogOut className="mr-2 h-4 w-4" />

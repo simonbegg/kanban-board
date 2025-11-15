@@ -27,6 +27,8 @@ interface AddTaskDialogProps {
   categoryColors?: Record<string, string>
   columnId?: string
   triggerButton?: React.ReactNode
+  disabled?: boolean
+  disabledReason?: string
 }
 
 const DEFAULT_COLORS = [
@@ -39,7 +41,7 @@ const DEFAULT_COLORS = [
 const TITLE_MAX_LENGTH = 100
 const DESCRIPTION_MAX_LENGTH = 500
 
-export function AddTaskDialog({ onAddTask, availableCategories, onAddCategory, onDeleteCategory, categoryColors, columnId, triggerButton }: AddTaskDialogProps) {
+export function AddTaskDialog({ onAddTask, availableCategories, onAddCategory, onDeleteCategory, categoryColors, columnId, triggerButton, disabled, disabledReason }: AddTaskDialogProps) {
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
@@ -92,9 +94,9 @@ export function AddTaskDialog({ onAddTask, availableCategories, onAddCategory, o
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger asChild disabled={disabled}>
         {triggerButton || (
-          <Button size="sm" className="gap-2">
+          <Button size="sm" className="gap-2" disabled={disabled} title={disabled ? disabledReason : undefined}>
             <Plus className="h-4 w-4" />
             Add Task
           </Button>

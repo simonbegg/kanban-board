@@ -14,6 +14,7 @@ import { UpgradeModal } from "@/components/upgrade-modal"
 import { CancellationBanner } from "@/components/cancellation-banner"
 import { CancelSubscriptionDialog } from "@/components/cancel-subscription-dialog"
 import { ExportDataButtons } from "@/components/export-data-buttons"
+import { ResolveOverlimitWizard } from "@/components/resolve-overlimit-wizard"
 import { Layers, SquareKanban, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Image from 'next/image'
@@ -30,6 +31,7 @@ export default function BoardPage() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false)
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
+  const [resolveWizardOpen, setResolveWizardOpen] = useState(false)
   const [selectedBoard, setSelectedBoard] = useState<string | null>(null)
 
   useEffect(() => {
@@ -84,7 +86,7 @@ export default function BoardPage() {
               className="hidden dark:block"
               priority
             />
-            <span className="text-xs border border-dashed border-gray-700 ml-auto mt-1 tracking-wider font-light px-2 py-0.5 rounded-full ">Beta</span>
+            <span className="text-xs border border-dashed border-gray-700 dark:border-white ml-auto mt-1 tracking-wider font-light px-2 py-0.5 rounded-full ">Beta</span>
 
           </div>
           <div className="flex items-center gap-4">
@@ -140,7 +142,7 @@ export default function BoardPage() {
           <CancellationBanner
             userId={user.id}
             onUndoClick={() => window.location.reload()}
-            onResolveClick={() => alert('Resolve wizard coming soon!')}
+            onResolveClick={() => setResolveWizardOpen(true)}
             onExportClick={() => setSettingsOpen(true)}
           />
         </div>
@@ -165,6 +167,12 @@ export default function BoardPage() {
             onOpenChange={setCancelDialogOpen}
             onSuccess={() => window.location.reload()}
             periodEnd={null}
+          />
+          <ResolveOverlimitWizard
+            open={resolveWizardOpen}
+            onOpenChange={setResolveWizardOpen}
+            userId={user.id}
+            onComplete={() => window.location.reload()}
           />
         </>
       )}

@@ -34,9 +34,10 @@ export function middleware(request: NextRequest) {
     [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.seline.com https://va.vercel-scripts.com", // Next.js requires unsafe-eval, Seline and Vercel analytics
-      "style-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com", // Google Fonts
+      "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com", // Google Fonts stylesheets
       "img-src 'self' data: https:",
-      "font-src 'self' data:",
+      "font-src 'self' data: https://fonts.gstatic.com", // Google Fonts
       "connect-src 'self' https://*.supabase.co https://*.seline.so https://*.seline.com https://vitals.vercel-insights.com", // Supabase, Seline, and Vercel analytics
       "frame-ancestors 'none'",
     ].join('; ')

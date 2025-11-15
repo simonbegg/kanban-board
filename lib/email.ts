@@ -1,4 +1,3 @@
-import { createServerClient } from '@/lib/supabase-server'
 import type { Database } from '@/lib/supabase'
 import type { SupabaseClient } from '@supabase/supabase-js'
 

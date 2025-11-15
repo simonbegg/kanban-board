@@ -31,12 +31,27 @@ export async function POST(request: NextRequest) {
 }
 
 async function handleEmailSummary(request: NextRequest) {
-  // Verify cron secret
+  // Verify request is authorized
+  // Option 1: Check for Bearer token (for manual triggers)
   const authHeader = request.headers.get('authorization')
+  const hasValidToken = authHeader === `Bearer ${CRON_SECRET}`
   
-  if (authHeader !== `Bearer ${CRON_SECRET}`) {
+  // Option 2: Check if request is from Vercel Cron (has specific header)
+  const isVercelCron = request.headers.get('user-agent')?.includes('vercel-cron')
+  
+  if (!hasValidToken && !isVercelCron) {
+    console.error('Unauthorized cron request:', {
+      hasAuthHeader: !!authHeader,
+      userAgent: request.headers.get('user-agent')
+    })
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  console.log('Email cron job triggered', {
+    isVercelCron,
+    hasValidToken,
+    timestamp: new Date().toISOString()
+  })
 
   // Use admin client for cron job (bypasses RLS to access all users)
   const supabase = createAdminClient()

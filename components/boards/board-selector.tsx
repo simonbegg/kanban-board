@@ -26,6 +26,8 @@ import { Database } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
 import { ValidationError } from '@/lib/validation'
 import { RateLimitError } from '@/lib/rate-limit'
+import { getUserUsageStats } from '@/lib/cap-enforcement'
+import { useAuth } from '@/contexts/auth-context'
 
 type Board = Database['public']['Tables']['boards']['Row']
 
@@ -37,6 +39,7 @@ interface BoardSelectorProps {
 }
 
 export function BoardSelector({ selectedBoardId, onBoardSelect, onBoardsChange, refreshTrigger }: BoardSelectorProps) {
+  const { user } = useAuth()
   const [boards, setBoards] = useState<Board[]>([])
   const [loading, setLoading] = useState(true)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
@@ -84,9 +87,18 @@ export function BoardSelector({ selectedBoardId, onBoardSelect, onBoardsChange, 
   const handleCreateBoard = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newBoardTitle.trim()) return
+    if (!user) return
 
     setCreating(true)
     try {
+      // Check if user can create more boards
+      const usage = await getUserUsageStats(user.id)
+      if (!usage || usage.boards >= usage.limits.boards) {
+        // User has reached board limit, show upgrade prompt
+        window.location.href = '/board?upgrade=true'
+        return
+      }
+
       const newBoard = await createBoard({
         title: newBoardTitle.trim(),
         description: newBoardDescription.trim() || null,

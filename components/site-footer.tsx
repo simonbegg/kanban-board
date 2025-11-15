@@ -6,6 +6,9 @@ export function SiteFooter() {
       <div className="container mx-auto px-6 text-center text-muted-foreground">
         <p>&copy; 2025 ThreeLanes. Kanban without the clutter.</p>
         <div className="flex justify-center gap-6 mt-4 text-sm">
+          <Link href="/pricing" className="hover:text-foreground transition-colors">
+            Pricing
+          </Link>
           <Link href="/privacy" className="hover:text-foreground transition-colors">
             Privacy Policy
           </Link>

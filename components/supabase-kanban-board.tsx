@@ -17,12 +17,14 @@ import {
 } from "./ui/dropdown-menu"
 import { BoardSelector } from "./boards/board-selector"
 import { BoardActions } from "./boards/board-actions"
+import { TaskLimitWarning } from "./task-limit-warning"
 import { getBoardWithData, createTask, updateTask, deleteTask, moveTask, archiveTask, BoardWithColumnsAndTasks } from "@/lib/api/boards"
 import { getCategories, upsertCategory, deleteCategory, syncCategoriesFromTasks } from "@/lib/api/categories"
 import { Database, createClient } from "@/lib/supabase"
 import { logger } from "@/lib/logger"
 import { ValidationError } from "@/lib/validation"
 import { RateLimitError } from "@/lib/rate-limit"
+import { PLAN_LIMITS, isAtLimit } from "@/lib/constants/limits"
 
 type Task = Database['public']['Tables']['tasks']['Row']
 type Column = Database['public']['Tables']['columns']['Row'] & { tasks: Task[] }
@@ -64,6 +66,7 @@ export function SupabaseKanbanBoard() {
   const [isDragging, setIsDragging] = useState(false)
   const [overId, setOverId] = useState<string | null>(null)
   const [boardRefreshTrigger, setBoardRefreshTrigger] = useState(0)
+  const [activeTaskCount, setActiveTaskCount] = useState(0)
 
   // Configure sensors for better mobile support
   const mouseSensor = useSensor(MouseSensor, {
@@ -96,21 +99,47 @@ export function SupabaseKanbanBoard() {
 
     setLoading(true)
     try {
+      console.log('Loading board data for board ID:', selectedBoardId)
+      const supabase = createClient()
+      
+      // First, verify the board exists and user has access
+      const { data: boardExists, error: accessError } = await supabase
+        .from('boards')
+        .select('id')
+        .eq('id', selectedBoardId)
+        .single()
+      
+      if (accessError || !boardExists) {
+        console.log('Board not found or no access, clearing selection:', { selectedBoardId, accessError })
+        // Clear the invalid board selection
+        setSelectedBoardId(null)
+        localStorage.removeItem('kanban-selected-board-id')
+        return
+      }
+      
       const data = await getBoardWithData(selectedBoardId)
+      console.log('Board data loaded:', data)
       setBoardData(data)
 
       // Load category colors from database
       const colors = await getCategories()
       setCategoryColors(colors)
 
-      // Extract unique categories from tasks
+      // Extract unique categories from tasks and count active tasks
       if (data) {
         const categories = new Set<string>()
+        let totalActiveTasks = 0
+        
         data.columns.forEach(column => {
           column.tasks.forEach(task => {
             categories.add(task.category)
+            if (!task.archived) {
+              totalActiveTasks++
+            }
           })
         })
+        
+        setActiveTaskCount(totalActiveTasks)
         const categoryArray = Array.from(categories)
         setAvailableCategories(categoryArray)
         
@@ -123,6 +152,13 @@ export function SupabaseKanbanBoard() {
       }
     } catch (error) {
       console.error('Error loading board data:', error)
+      console.error('Error details:', {
+        message: (error as any)?.message,
+        code: (error as any)?.code,
+        details: (error as any)?.details,
+        selectedBoardId,
+        timestamp: new Date().toISOString()
+      })
     } finally {
       setLoading(false)
     }
@@ -445,6 +481,8 @@ export function SupabaseKanbanBoard() {
         column_id: targetColumn.id,
         board_id: selectedBoardId,
         position: 0,
+        archived: false,
+        archived_at: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       }
@@ -490,6 +528,9 @@ export function SupabaseKanbanBoard() {
           columns: newColumns
         }
       })
+      
+      // Increment active task count
+      setActiveTaskCount(prev => prev + 1)
     } catch (error) {
       console.error('Error creating task:', error)
       // Remove temporary task on error
@@ -592,6 +633,8 @@ export function SupabaseKanbanBoard() {
 
     try {
       await deleteTask(taskId)
+      // Decrement active task count
+      setActiveTaskCount(prev => Math.max(0, prev - 1))
     } catch (error) {
       logger.error('Error deleting task:', error)
       // Revert optimistic update on error
@@ -634,6 +677,8 @@ export function SupabaseKanbanBoard() {
     try {
       await archiveTask(taskId)
       logger.debug('Task archived successfully')
+      // Decrement active task count
+      setActiveTaskCount(prev => Math.max(0, prev - 1))
     } catch (error) {
       logger.error('Error archiving task:', error)
 
@@ -866,6 +911,14 @@ export function SupabaseKanbanBoard() {
         </div>
       </div>
 
+      {/* Task Limit Warning */}
+      {boardData && (
+        <TaskLimitWarning 
+          currentCount={activeTaskCount}
+          limit={PLAN_LIMITS.FREE.ACTIVE_TASKS_PER_BOARD}
+        />
+      )}
+
       <DndContext
         sensors={sensors}
         collisionDetection={pointerWithin}
@@ -888,10 +941,14 @@ export function SupabaseKanbanBoard() {
                   onAddCategory={handleAddCategory}
                   onDeleteCategory={handleDeleteCategory}
                   columnId={column.id}
+                  disabled={isAtLimit(activeTaskCount, PLAN_LIMITS.FREE.ACTIVE_TASKS_PER_BOARD)}
+                  disabledReason={`Task limit reached (${activeTaskCount}/${PLAN_LIMITS.FREE.ACTIVE_TASKS_PER_BOARD}). Archive some tasks to make room.`}
                   triggerButton={
                     <Button
                       variant="ghost"
                       className="h-7 rounded-full group overflow-hidden transition-all duration-300 ease-in-out hover:pl-3 hover:pr-3 w-7 hover:w-auto hover:bg-primary/10 hover:text-primary"
+                      disabled={isAtLimit(activeTaskCount, PLAN_LIMITS.FREE.ACTIVE_TASKS_PER_BOARD)}
+                      title={isAtLimit(activeTaskCount, PLAN_LIMITS.FREE.ACTIVE_TASKS_PER_BOARD) ? `Task limit reached (${activeTaskCount}/${PLAN_LIMITS.FREE.ACTIVE_TASKS_PER_BOARD})` : undefined}
                     >
                       <Plus className="h-4 w-4 shrink-0" />
                       <span className="max-w-0 overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out group-hover:max-w-[100px] group-hover:ml-1 text-sm">
