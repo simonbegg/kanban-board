@@ -25,3 +25,35 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Planning and debugging documentation (keep local only)
+ADMIN_*.md
+APP_GATING.md
+BACKEND_*.md
+BOARD_*.md
+CONTEXTUAL_*.md
+COOKIE_*.md
+DATABASE_*.md
+DEBUGGING_*.md
+E2E_*.md
+EMAIL_NOTIFICATIONS.md
+FINAL_*.md
+FINISH_*.md
+FREE_PRO_*.md
+HEADER_*.md
+INTEGRATION_GUIDE.md
+MANUAL_*.md
+PHASE_*.md
+PRODUCTION_SETUP.md
+PROPER_*.md
+PRO_CANCELLATION_*.md
+READ_ONLY_*.md
+RLS_*.md
+SECURITY_AUDIT_*.md
+SECURITY_FIXES_*.md
+SERVER_*.md
+SETUP_ARCHIVE_*.md
+TASK_*.md
+TESTING_*.md
+USAGE_*.md
+threelanes-cancel-pro-dev-plan.md
