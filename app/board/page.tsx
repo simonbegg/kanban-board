@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/contexts/auth-context"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { UserMenu } from "@/components/auth/user-menu"
 import { SupabaseKanbanBoard } from "@/components/supabase-kanban-board"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -24,7 +24,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-export default function BoardPage() {
+function BoardPageContent() {
   const { user, loading } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -177,5 +177,20 @@ export default function BoardPage() {
         </>
       )}
     </div>
+  )
+}
+
+export default function BoardPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+          <p className="mt-4 text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    }>
+      <BoardPageContent />
+    </Suspense>
   )
 }
