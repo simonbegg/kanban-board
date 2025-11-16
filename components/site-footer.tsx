@@ -12,6 +12,9 @@ export function SiteFooter() {
           <Link href="/terms-and-conditions" className="hover:text-foreground transition-colors">
             Terms of Service
           </Link>
+          <Link href="/refund-policy" className="hover:text-foreground transition-colors">
+            Refund Policy
+          </Link>
         </div>
       </div>
     </footer>
