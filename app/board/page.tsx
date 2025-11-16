@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/contexts/auth-context"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { UserMenu } from "@/components/auth/user-menu"
 import { SupabaseKanbanBoard } from "@/components/supabase-kanban-board"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -14,6 +14,7 @@ import { UpgradeModal } from "@/components/upgrade-modal"
 import { CancellationBanner } from "@/components/cancellation-banner"
 import { CancelSubscriptionDialog } from "@/components/cancel-subscription-dialog"
 import { ExportDataButtons } from "@/components/export-data-buttons"
+import { ResolveOverlimitWizard } from "@/components/resolve-overlimit-wizard"
 import { Layers, SquareKanban, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Image from 'next/image'
@@ -23,13 +24,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-export default function BoardPage() {
+function BoardPageContent() {
   const { user, loading } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false)
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
+  const [resolveWizardOpen, setResolveWizardOpen] = useState(false)
   const [selectedBoard, setSelectedBoard] = useState<string | null>(null)
 
   useEffect(() => {
@@ -84,7 +86,7 @@ export default function BoardPage() {
               className="hidden dark:block"
               priority
             />
-            <span className="text-xs border border-dashed border-gray-700 ml-auto mt-1 tracking-wider font-light px-2 py-0.5 rounded-full ">Beta</span>
+            <span className="text-xs border border-dashed border-gray-700 dark:border-white ml-auto mt-1 tracking-wider font-light px-2 py-0.5 rounded-full ">Beta</span>
 
           </div>
           <div className="flex items-center gap-4">
@@ -140,7 +142,7 @@ export default function BoardPage() {
           <CancellationBanner
             userId={user.id}
             onUndoClick={() => window.location.reload()}
-            onResolveClick={() => alert('Resolve wizard coming soon!')}
+            onResolveClick={() => setResolveWizardOpen(true)}
             onExportClick={() => setSettingsOpen(true)}
           />
         </div>
@@ -166,8 +168,29 @@ export default function BoardPage() {
             onSuccess={() => window.location.reload()}
             periodEnd={null}
           />
+          <ResolveOverlimitWizard
+            open={resolveWizardOpen}
+            onOpenChange={setResolveWizardOpen}
+            userId={user.id}
+            onComplete={() => window.location.reload()}
+          />
         </>
       )}
     </div>
+  )
+}
+
+export default function BoardPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+          <p className="mt-4 text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    }>
+      <BoardPageContent />
+    </Suspense>
   )
 }
