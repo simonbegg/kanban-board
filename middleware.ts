@@ -1,36 +1,36 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   // Enforce HTTPS in production
   if (
-    process.env.NODE_ENV === 'production' &&
-    request.headers.get('x-forwarded-proto') !== 'https'
+    process.env.NODE_ENV === "production" &&
+    request.headers.get("x-forwarded-proto") !== "https"
   ) {
     return NextResponse.redirect(
-      `https://${request.headers.get('host')}${request.nextUrl.pathname}`,
+      `https://${request.headers.get("host")}${request.nextUrl.pathname}`,
       301
-    )
+    );
   }
 
   // Add security headers
-  const response = NextResponse.next()
-  
+  const response = NextResponse.next();
+
   // Prevent clickjacking
-  response.headers.set('X-Frame-Options', 'DENY')
-  
+  response.headers.set("X-Frame-Options", "DENY");
+
   // Prevent MIME sniffing
-  response.headers.set('X-Content-Type-Options', 'nosniff')
-  
+  response.headers.set("X-Content-Type-Options", "nosniff");
+
   // XSS Protection (legacy browsers)
-  response.headers.set('X-XSS-Protection', '1; mode=block')
-  
+  response.headers.set("X-XSS-Protection", "1; mode=block");
+
   // Referrer Policy
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+
   // Content Security Policy
   response.headers.set(
-    'Content-Security-Policy',
+    "Content-Security-Policy",
     [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.seline.com https://va.vercel-scripts.com", // Next.js requires unsafe-eval, Seline and Vercel analytics
@@ -39,10 +39,10 @@ export function middleware(request: NextRequest) {
       "font-src 'self' data:",
       "connect-src 'self' https://*.supabase.co https://*.seline.so https://*.seline.com https://vitals.vercel-insights.com", // Supabase, Seline, and Vercel analytics
       "frame-ancestors 'none'",
-    ].join('; ')
-  )
+    ].join("; ")
+  );
 
-  return response
+  return response;
 }
 
 export const config = {
@@ -53,6 +53,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
-}
+};

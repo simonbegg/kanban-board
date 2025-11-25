@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { usePaddle } from '@/components/paddle-provider'
 import {
   Crown,
   Layout,
@@ -33,15 +34,18 @@ interface UpgradeModalProps {
     activeTasks: number
     archivedTasks: number
   }
+  userEmail?: string
 }
 
 export function UpgradeModal({
   isOpen,
   onClose,
   reason = 'general',
-  currentUsage
+  currentUsage,
+  userEmail
 }: UpgradeModalProps) {
   const [selectedPlan, setSelectedPlan] = useState<'free' | 'pro'>('pro')
+  const { openCheckout } = usePaddle()
 
   const getReasonMessage = () => {
     switch (reason) {
@@ -57,9 +61,7 @@ export function UpgradeModal({
   }
 
   const handleUpgrade = () => {
-    // TODO: Integrate with payment provider
-    // For now, redirect to a contact page or show admin message
-    window.location.href = 'mailto:support@threelanes.app?subject=Pro Plan Upgrade Request'
+    openCheckout(userEmail)
   }
 
   return (

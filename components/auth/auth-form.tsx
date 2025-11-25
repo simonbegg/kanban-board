@@ -68,7 +68,7 @@ export function AuthForm({ initialMode = 'signin' }: AuthFormProps = {}) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mb-2">
@@ -96,7 +96,7 @@ export function AuthForm({ initialMode = 'signin' }: AuthFormProps = {}) {
                 />
               </div>
             )}
-            
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -108,7 +108,7 @@ export function AuthForm({ initialMode = 'signin' }: AuthFormProps = {}) {
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input

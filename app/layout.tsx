@@ -7,6 +7,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { AuthProvider } from '@/contexts/auth-context'
 import { ThemeProvider } from '@/components/theme-provider'
+import { PaddleProvider } from '@/components/paddle-provider'
 import './globals.css'
 
 const urbanist = Urbanist({
@@ -71,7 +72,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            {children}
+            <PaddleProvider>
+              {children}
+            </PaddleProvider>
           </AuthProvider>
         </ThemeProvider>
         <Analytics />
