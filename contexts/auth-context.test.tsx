@@ -182,28 +182,29 @@ describe('AuthContext', () => {
   })
 
   it('handles auth state changes', async () => {
-    let authCallback: Function | null = null
-    
-    mockSupabaseClient.auth.onAuthStateChange.mockImplementation((callback) => {
-      authCallback = callback
+    // Object ref avoids TypeScript's closure-narrowing limitation on let variables
+    const callbackRef: { fn: ((...args: unknown[]) => void) | null } = { fn: null }
+
+    mockSupabaseClient.auth.onAuthStateChange.mockImplementation((...args: unknown[]) => {
+      callbackRef.fn = args[0] as (...args: unknown[]) => void
       return {
         data: { subscription: { unsubscribe: vi.fn() } },
       }
     })
-    
+
     render(
       <AuthProvider>
         <TestComponent />
       </AuthProvider>
     )
-    
+
     await waitFor(() => {
-      expect(authCallback).toBeDefined()
+      expect(callbackRef.fn).toBeDefined()
     })
-    
+
     // Simulate auth state change
-    if (authCallback) {
-      authCallback('SIGNED_IN', {
+    if (callbackRef.fn) {
+      callbackRef.fn('SIGNED_IN', {
         user: {
           id: 'user-123',
           email: 'new@example.com',

@@ -3,6 +3,7 @@ import { Database } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
 import { validateBoardTitle, validateBoardDescription, validateTaskTitle, validateTaskDescription, validateCategory, ValidationError } from '@/lib/validation'
 import { isRateLimited, RATE_LIMITS, RateLimitError } from '@/lib/rate-limit'
+import { checkBoardCap, checkTaskCap } from '@/lib/cap-enforcement'
 
 type Board = Database['public']['Tables']['boards']['Row']
 type BoardInsert = Database['public']['Tables']['boards']['Insert']
@@ -84,6 +85,12 @@ export async function createBoard(board: Omit<BoardInsert, 'user_id'>): Promise<
   // Rate limiting
   if (isRateLimited(`createBoard:${user.id}`, RATE_LIMITS.WRITE)) {
     throw new RateLimitError('Too many boards created. Please wait before creating another.', Date.now() + 60000)
+  }
+
+  // Cap enforcement
+  const capCheck = await checkBoardCap(user.id)
+  if (!capCheck.allowed) {
+    throw new Error(capCheck.reason || 'Board limit reached. Upgrade to Pro for more boards.')
   }
 
   // Input validation
@@ -189,7 +196,13 @@ export async function createTask(task: Omit<TaskInsert, 'position'>): Promise<Ta
   if (isRateLimited(`createTask:${user.id}`, RATE_LIMITS.WRITE)) {
     throw new RateLimitError('Too many tasks created. Please wait a moment.', Date.now() + 60000)
   }
-  
+
+  // Cap enforcement
+  const taskCapCheck = await checkTaskCap(task.board_id, user.id)
+  if (!taskCapCheck.allowed) {
+    throw new Error(taskCapCheck.reason || 'Task limit reached for this board. Archive some tasks to make room.')
+  }
+
   // Input validation
   const validTitle = validateTaskTitle(task.title)
   const validDescription = task.description ? validateTaskDescription(task.description) : null

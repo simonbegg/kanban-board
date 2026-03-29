@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import {
   AlertTriangle,
   Crown,
-  Archive,
   Layout,
   CheckCircle,
   XCircle
@@ -80,13 +79,9 @@ export function UsageMeter({
           {isPro ? 'Pro' : 'Free'}
         </Badge>
         <span className="text-muted-foreground">
-          {usage.boards}/{usage.limits.boards} boards
+          {usage.boards}/{usage.limits.boards} board{usage.limits.boards !== 1 ? 's' : ''}
         </span>
-        <span className="text-muted-foreground">·</span>
-        <span className="text-muted-foreground">
-          {usage.activeTasks}/{usage.limits.activeTasksPerBoard} tasks
-        </span>
-        {taskStatus && taskStatus.type !== 'normal' && (
+        {boardStatus.type !== 'normal' && (
           <AlertTriangle className="w-4 h-4 text-yellow-500" />
         )}
       </div>
@@ -142,11 +137,10 @@ export function UsageMeter({
             <Progress
               value={boardPercentage}
               className="h-2"
-              // @ts-ignore
-              style={
+              style={(
                 boardStatus.type === 'critical' ? { '--progress-background': 'hsl(var(--destructive))' } :
                   boardStatus.type === 'warning' ? { '--progress-background': 'hsl(var(--chart-2))' } : {}
-              }
+              ) as React.CSSProperties}
             />
             {boardStatus.type !== 'normal' && (
               <p className="text-sm text-muted-foreground">
@@ -177,11 +171,10 @@ export function UsageMeter({
               <Progress
                 value={boardUsage.percentage}
                 className="h-2"
-                // @ts-ignore
-                style={
+                style={(
                   taskStatus?.type === 'critical' ? { '--progress-background': 'hsl(var(--destructive))' } :
                     taskStatus?.type === 'warning' ? { '--progress-background': 'hsl(var(--chart-2))' } : {}
-                }
+                ) as React.CSSProperties}
               />
               {taskStatus && taskStatus.type !== 'normal' && (
                 <p className="text-sm text-muted-foreground">
@@ -193,34 +186,6 @@ export function UsageMeter({
         </Card>
       )}
 
-      {/* Archive Usage */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Archive className="w-4 h-4" />
-                <span className="font-medium">Archived Tasks</span>
-              </div>
-              <span className="text-sm text-muted-foreground">
-                {usage.archivedTasks}
-                {!isPro && `/${usage.limits.archivedTasks}`}
-              </span>
-            </div>
-            {!isPro && (
-              <div className="text-sm text-muted-foreground">
-                <p>Archived tasks are kept for 90 days (Free plan)</p>
-                <p>Pro users get unlimited archive storage</p>
-              </div>
-            )}
-            {isPro && (
-              <div className="text-sm text-muted-foreground">
-                <p>Unlimited archive storage (Pro plan)</p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }
@@ -265,7 +230,7 @@ function UsageMeterSkeleton({ compact = false }: { compact?: boolean }) {
 
   return (
     <div className="space-y-4">
-      {[1, 2, 3].map((i) => (
+      {[1, 2].map((i) => (
         <Card key={i}>
           <CardContent className="pt-6">
             <div className="space-y-3">

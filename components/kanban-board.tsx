@@ -295,6 +295,10 @@ export function KanbanBoard() {
     }
   }
 
+  const handleDeleteCategory = (category: string) => {
+    setAvailableCategories((prev) => prev.filter((c) => c !== category))
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -314,6 +318,7 @@ export function KanbanBoard() {
           onAddTask={addNewTask}
           availableCategories={availableCategories}
           onAddCategory={handleAddCategory}
+          onDeleteCategory={handleDeleteCategory}
         />
       </div>
 
@@ -339,6 +344,8 @@ export function KanbanBoard() {
         onOpenChange={setEditDialogOpen}
         onEditTask={handleUpdateTask}
         availableCategories={availableCategories}
+        onAddCategory={handleAddCategory}
+        onDeleteCategory={handleDeleteCategory}
       />
     </div>
   )

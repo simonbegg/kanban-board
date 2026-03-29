@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/simon/CascadeProjects/kanban-board/.claude/worktrees/objective-kepler -type d -not -path */node_modules* -not -path */.next* -not -path */dist* -not -path */build*)",
+      "Bash(ls -la /c/Users/simon/CascadeProjects/kanban-board/.claude/worktrees/objective-kepler/*.*)",
+      "Bash(ls -la \"C:\\\\Users\\\\simon\\\\CascadeProjects\\\\kanban-board\\\\.claude\\\\worktrees\\\\objective-kepler\\\\supabase\\\\migrations\"\" 2>/dev/null || echo \"Directory not found \")",
+      "Bash(npx tsc:*)",
+      "Bash(grep -r admin_entitlements /c/Users/simon/CascadeProjects/kanban-board/.claude/worktrees/objective-kepler --include=*.sql --include=*.ts --include=*.tsx)"
+    ]
+  }
+}

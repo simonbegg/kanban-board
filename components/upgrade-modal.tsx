@@ -17,10 +17,8 @@ import {
   Crown,
   Layout,
   CheckCircle,
-  Archive,
   Zap,
   Users,
-  Shield,
   Star,
   X
 } from 'lucide-react'
@@ -28,13 +26,14 @@ import {
 interface UpgradeModalProps {
   isOpen: boolean
   onClose: () => void
-  reason?: 'board_limit' | 'task_limit' | 'archive_limit' | 'general'
+  reason?: 'board_limit' | 'task_limit' | 'general'
   currentUsage?: {
     boards: number
     activeTasks: number
     archivedTasks: number
   }
   userEmail?: string
+  userId?: string
 }
 
 export function UpgradeModal({
@@ -42,7 +41,8 @@ export function UpgradeModal({
   onClose,
   reason = 'general',
   currentUsage,
-  userEmail
+  userEmail,
+  userId,
 }: UpgradeModalProps) {
   const [selectedPlan, setSelectedPlan] = useState<'free' | 'pro'>('pro')
   const { openCheckout } = usePaddle()
@@ -50,18 +50,16 @@ export function UpgradeModal({
   const getReasonMessage = () => {
     switch (reason) {
       case 'board_limit':
-        return 'You\'ve reached your board limit. Upgrade to Pro to create unlimited boards.'
+        return 'You\'ve reached your 1-board limit. Upgrade to Pro to create up to 100 boards.'
       case 'task_limit':
-        return 'This board has reached its task limit. Upgrade to Pro for higher limits.'
-      case 'archive_limit':
-        return 'You\'ve reached your archive storage limit. Pro users get unlimited archive storage.'
+        return 'This board has reached its 50-task limit. Upgrade to Pro for up to 1,000 tasks per board.'
       default:
         return 'Unlock the full power of ThreeLanes with Pro.'
     }
   }
 
   const handleUpgrade = () => {
-    openCheckout(userEmail)
+    openCheckout(userEmail, userId)
   }
 
   return (
@@ -98,11 +96,9 @@ export function UpgradeModal({
 
               <div className="space-y-3">
                 <FeatureItem icon={<Layout className="w-4 h-4" />} text="1 board" />
-                <FeatureItem icon={<CheckCircle className="w-4 h-4" />} text="100 active tasks per board" />
-                <FeatureItem icon={<Archive className="w-4 h-4" />} text="1,000 archived tasks" />
-                <FeatureItem icon={<Archive className="w-4 h-4" />} text="90-day archive retention" />
-                <FeatureItem icon={<Users className="w-4 h-4" />} text="Email notifications" />
-                <FeatureItem icon={<Zap className="w-4 h-4" />} text="Basic features" />
+                <FeatureItem icon={<CheckCircle className="w-4 h-4" />} text="50 active tasks per board" />
+                <FeatureItem icon={<Users className="w-4 h-4" />} text="Email &amp; Slack notifications" />
+                <FeatureItem icon={<Zap className="w-4 h-4" />} text="All core features" />
               </div>
 
               <Button
@@ -135,12 +131,10 @@ export function UpgradeModal({
               <Separator className="my-6" />
 
               <div className="space-y-3">
-                <FeatureItem icon={<Layout className="w-4 h-4" />} text="Unlimited boards" />
-                <FeatureItem icon={<CheckCircle className="w-4 h-4" />} text="100 active tasks per board" />
-                <FeatureItem icon={<Archive className="w-4 h-4" />} text="200,000 archived tasks" />
-                <FeatureItem icon={<Archive className="w-4 h-4" />} text="Unlimited archive retention" />
-                <FeatureItem icon={<Users className="w-4 h-4" />} text="Priority email support" />
-                <FeatureItem icon={<Star className="w-4 h-4" />} text="Future Pro features" />
+                <FeatureItem icon={<Layout className="w-4 h-4" />} text="Up to 100 boards" />
+                <FeatureItem icon={<CheckCircle className="w-4 h-4" />} text="Up to 1,000 active tasks per board" />
+                <FeatureItem icon={<Users className="w-4 h-4" />} text="Email &amp; Slack notifications" />
+                <FeatureItem icon={<Star className="w-4 h-4" />} text="Priority support &amp; future Pro features" />
               </div>
 
               <Button

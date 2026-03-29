@@ -12,6 +12,7 @@ declare global {
                 open: (config: {
                     items: Array<{ priceId: string; quantity: number }>
                     customer?: { email?: string }
+                    customData?: Record<string, string>
                     settings?: {
                         displayMode?: 'overlay' | 'inline'
                         theme?: 'light' | 'dark'
@@ -27,12 +28,12 @@ declare global {
 
 interface PaddleContextType {
     isLoaded: boolean
-    openCheckout: (userEmail?: string) => void
+    openCheckout: (userEmail?: string, userId?: string) => void
 }
 
 const PaddleContext = createContext<PaddleContextType>({
     isLoaded: false,
-    openCheckout: () => { },
+    openCheckout: () => {},
 })
 
 export function usePaddle() {
@@ -62,7 +63,7 @@ export function PaddleProvider({ children }: PaddleProviderProps) {
         }
     }, [clientToken, environment, isLoaded])
 
-    const openCheckout = (userEmail?: string) => {
+    const openCheckout = (userEmail?: string, userId?: string) => {
         if (!window.Paddle) {
             console.error('Paddle not loaded')
             return
@@ -76,6 +77,10 @@ export function PaddleProvider({ children }: PaddleProviderProps) {
         window.Paddle.Checkout.open({
             items: [{ priceId, quantity: 1 }],
             customer: userEmail ? { email: userEmail } : undefined,
+            // userId is forwarded to every webhook event for this subscription
+            // via Paddle's custom_data field, allowing the webhook handler to
+            // identify which user to upgrade without relying on email matching.
+            customData: userId ? { userId } : undefined,
             settings: {
                 displayMode: 'overlay',
                 theme: 'light',

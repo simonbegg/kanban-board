@@ -1,6 +1,18 @@
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Database } from '@/lib/supabase'
 
+// ---------------------------------------------------------------------------
+// Plan limits — hardcoded rather than stored in DB.
+// High enough to be functionally unlimited for any real user; low enough to
+// cap a compromised or abusive account before it runs up a Supabase bill.
+// ---------------------------------------------------------------------------
+export const PLAN_LIMITS = {
+  free: { boards: 1,   tasksPerBoard: 50   },
+  pro:  { boards: 100, tasksPerBoard: 1000 },
+} as const
+
+type Plan = keyof typeof PLAN_LIMITS
+
 export interface CapCheckResult {
   allowed: boolean
   reason?: string
@@ -13,179 +25,127 @@ export interface UsageStats {
   boards: number
   activeTasks: number
   archivedTasks: number
-  plan: 'free' | 'pro'
+  plan: Plan
   limits: {
     boards: number
     activeTasksPerBoard: number
-    archivedTasks: number
   }
 }
 
-/**
- * Check if user can create a new board
- */
-export async function checkBoardCap(
-  userId: string
-): Promise<CapCheckResult> {
+// ---------------------------------------------------------------------------
+// Internal helpers
+// ---------------------------------------------------------------------------
+
+async function getPlan(userId: string): Promise<Plan> {
   const supabase = createClientComponentClient<Database>()
-
-  // Get user's entitlements
-  const { data: entitlements, error: entitlementError } = await supabase
+  const { data } = await supabase
     .from('entitlements')
-    .select('board_cap, plan')
+    .select('plan')
     .eq('user_id', userId)
-    .single()
+    .maybeSingle()
+  const raw = data?.plan
+  return raw === 'pro' ? 'pro' : 'free'
+}
 
-  if (entitlementError || !entitlements) {
-    return {
-      allowed: false,
-      reason: 'Could not verify user entitlements',
-      current: 0,
-      limit: 0,
-      type: 'board'
-    }
-  }
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
 
-  // Count current boards
-  const { count, error: countError } = await supabase
+/**
+ * Check whether a user can create another board.
+ */
+export async function checkBoardCap(userId: string): Promise<CapCheckResult> {
+  const supabase = createClientComponentClient<Database>()
+  const plan  = await getPlan(userId)
+  const limit = PLAN_LIMITS[plan].boards
+
+  const { count, error } = await supabase
     .from('boards')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', userId)
 
-  if (countError) {
-    return {
-      allowed: false,
-      reason: 'Could not count current boards',
-      current: 0,
-      limit: entitlements.board_cap,
-      type: 'board'
-    }
+  if (error) {
+    return { allowed: false, reason: 'Could not count current boards', current: 0, limit, type: 'board' }
   }
 
-  const currentBoards = count || 0
-  const canCreate = currentBoards < entitlements.board_cap
+  const current = count ?? 0
+  const allowed = current < limit
 
   return {
-    allowed: canCreate,
-    reason: canCreate ? undefined : `Board limit reached (${currentBoards}/${entitlements.board_cap}). Upgrade to Pro for more boards.`,
-    current: currentBoards,
-    limit: entitlements.board_cap,
-    type: 'board'
+    allowed,
+    reason: allowed
+      ? undefined
+      : `Board limit reached (${current}/${limit}). Upgrade to Pro for more boards.`,
+    current,
+    limit,
+    type: 'board',
   }
 }
 
 /**
- * Check if user can create a new task on a specific board
+ * Check whether a user can create another task on a specific board.
  */
-export async function checkTaskCap(
-  boardId: string,
-  userId: string
-): Promise<CapCheckResult> {
+export async function checkTaskCap(boardId: string, userId: string): Promise<CapCheckResult> {
   const supabase = createClientComponentClient<Database>()
+  const plan  = await getPlan(userId)
+  const limit = PLAN_LIMITS[plan].tasksPerBoard
 
-  // Get user's entitlements
-  const { data: entitlements, error: entitlementError } = await supabase
-    .from('entitlements')
-    .select('active_cap_per_board, plan')
-    .eq('user_id', userId)
-    .single()
-
-  if (entitlementError || !entitlements) {
-    return {
-      allowed: false,
-      reason: 'Could not verify user entitlements',
-      current: 0,
-      limit: 0,
-      type: 'task'
-    }
-  }
-
-  // Count active tasks on this board
-  const { count, error: countError } = await supabase
+  const { count, error } = await supabase
     .from('tasks')
     .select('*', { count: 'exact', head: true })
     .eq('board_id', boardId)
     .eq('archived', false)
 
-  if (countError) {
-    return {
-      allowed: false,
-      reason: 'Could not count current tasks',
-      current: 0,
-      limit: entitlements.active_cap_per_board,
-      type: 'task'
-    }
+  if (error) {
+    return { allowed: false, reason: 'Could not count current tasks', current: 0, limit, type: 'task' }
   }
 
-  const currentTasks = count || 0
-  const canCreate = currentTasks < entitlements.active_cap_per_board
+  const current = count ?? 0
+  const allowed = current < limit
 
   return {
-    allowed: canCreate,
-    reason: canCreate ? undefined : `Task limit reached for this board (${currentTasks}/${entitlements.active_cap_per_board}). Archive some tasks to make room.`,
-    current: currentTasks,
-    limit: entitlements.active_cap_per_board,
-    type: 'task'
+    allowed,
+    reason: allowed
+      ? undefined
+      : `Task limit reached (${current}/${limit}). Archive some tasks to make room, or upgrade to Pro.`,
+    current,
+    limit,
+    type: 'task',
   }
 }
 
 /**
- * Get comprehensive usage statistics for a user
+ * Get full usage statistics for display in the UI.
+ * Auto-creates a free entitlement row on first call.
  */
-export async function getUserUsageStats(
-  userId: string
-): Promise<UsageStats | null> {
+export async function getUserUsageStats(userId: string): Promise<UsageStats | null> {
   const supabase = createClientComponentClient<Database>()
 
-  // Get entitlements - use maybeSingle() instead of single() to handle missing records
-  const { data: entitlements, error: entitlementError } = await supabase
+  const { data: entitlement, error } = await supabase
     .from('entitlements')
-    .select('plan, board_cap, active_cap_per_board, archived_cap_per_user')
+    .select('plan')
     .eq('user_id', userId)
     .maybeSingle()
 
-  // If no entitlements exist, create default Free plan entitlements
-  if (!entitlements) {
-    console.log('No entitlements found for user, creating default Free plan')
-    
-    const { data: newEntitlements, error: createError } = await supabase
-      .from('entitlements')
-      .insert({
-        user_id: userId,
-        plan: 'free',
-        board_cap: 1,
-        active_cap_per_board: 100,
-        archived_cap_per_user: 1000
-      })
-      .select('plan, board_cap, active_cap_per_board, archived_cap_per_user')
-      .single()
-
-    if (createError || !newEntitlements) {
-      console.error('Failed to create default entitlements:', createError)
-      return null
-    }
-
-    // Use the newly created entitlements
-    return await calculateUsageStats(userId, newEntitlements)
-  }
-
-  if (entitlementError) {
-    console.error('Error fetching entitlements:', entitlementError)
+  if (error) {
+    console.error('Error fetching entitlements:', error)
     return null
   }
 
-  // Use existing entitlements
-  return await calculateUsageStats(userId, entitlements)
-}
+  const plan: Plan = entitlement?.plan === 'pro' ? 'pro' : 'free'
 
-/**
- * Helper function to calculate usage statistics given entitlements
- */
-async function calculateUsageStats(
-  userId: string, 
-  entitlements: any
-): Promise<UsageStats | null> {
-  const supabase = createClientComponentClient<Database>()
+  // Auto-create a free entitlement row on first use so all subsequent queries
+  // have a row to read without needing to handle the missing case everywhere.
+  if (!entitlement) {
+    const { error: insertError } = await supabase
+      .from('entitlements')
+      .insert({ user_id: userId, plan: 'free' })
+    if (insertError) {
+      console.warn('Could not create default entitlement:', insertError)
+    }
+  }
+
+  const limits = PLAN_LIMITS[plan]
 
   // Count boards
   const { count: boardCount } = await supabase
@@ -193,86 +153,71 @@ async function calculateUsageStats(
     .select('*', { count: 'exact', head: true })
     .eq('user_id', userId)
 
-  // Count tasks
+  // Count tasks (active and archived across all boards)
+  const boardsResult = await supabase
+    .from('boards')
+    .select('id')
+    .eq('user_id', userId)
+  const boardIds = boardsResult.data?.map(b => b.id) ?? []
+
   const { data: tasks } = await supabase
     .from('tasks')
     .select('archived')
-    .in('board_id', 
-      (await supabase.from('boards').select('id').eq('user_id', userId)).data?.map(b => b.id) || []
-    )
+    .in('board_id', boardIds)
 
-  const activeTasks = tasks?.filter(t => !t.archived).length || 0
-  const archivedTasks = tasks?.filter(t => t.archived).length || 0
+  const activeTasks  = tasks?.filter(t => !t.archived).length ?? 0
+  const archivedTasks = tasks?.filter(t =>  t.archived).length ?? 0
 
   return {
-    boards: boardCount || 0,
+    boards: boardCount ?? 0,
     activeTasks,
     archivedTasks,
-    plan: entitlements.plan as 'free' | 'pro',
+    plan,
     limits: {
-      boards: entitlements.board_cap,
-      activeTasksPerBoard: entitlements.active_cap_per_board,
-      archivedTasks: entitlements.archived_cap_per_user
-    }
+      boards:             limits.boards,
+      activeTasksPerBoard: limits.tasksPerBoard,
+    },
   }
 }
 
 /**
- * Middleware function to enforce caps before database operations
- */
-export async function enforceCapBeforeOperation(
-  operation: 'create_board' | 'create_task',
-  userId: string,
-  boardId?: string
-): Promise<{ allowed: boolean; reason?: string }> {
-  if (operation === 'create_board') {
-    const result = await checkBoardCap(userId)
-    return { allowed: result.allowed, reason: result.reason }
-  } else if (operation === 'create_task' && boardId) {
-    const result = await checkTaskCap(boardId, userId)
-    return { allowed: result.allowed, reason: result.reason }
-  }
-
-  return { allowed: false, reason: 'Invalid operation' }
-}
-
-/**
- * Get board-specific usage for UI display
+ * Get per-board task usage for the UI progress bar.
  */
 export async function getBoardUsage(
   boardId: string,
-  userId: string
+  userId: string,
 ): Promise<{ active: number; limit: number; percentage: number } | null> {
   const supabase = createClientComponentClient<Database>()
+  const plan  = await getPlan(userId)
+  const limit = PLAN_LIMITS[plan].tasksPerBoard
 
-  // Get user's task cap
-  const { data: entitlements, error: entitlementError } = await supabase
-    .from('entitlements')
-    .select('active_cap_per_board')
-    .eq('user_id', userId)
-    .single()
-
-  if (entitlementError || !entitlements) {
-    return null
-  }
-
-  // Count active tasks on this board
-  const { count, error: countError } = await supabase
+  const { count, error } = await supabase
     .from('tasks')
     .select('*', { count: 'exact', head: true })
     .eq('board_id', boardId)
     .eq('archived', false)
 
-  if (countError) {
-    return null
-  }
+  if (error) return null
 
-  const activeTasks = count || 0
-  const percentage = (activeTasks / entitlements.active_cap_per_board) * 100
+  const active = count ?? 0
+  return { active, limit, percentage: Math.round((active / limit) * 100) }
+}
 
-  return {
-    active: activeTasks,
-    limit: entitlements.active_cap_per_board,
-    percentage: Math.round(percentage)
+/**
+ * Convenience wrapper used in some components.
+ */
+export async function enforceCapBeforeOperation(
+  operation: 'create_board' | 'create_task',
+  userId: string,
+  boardId?: string,
+): Promise<{ allowed: boolean; reason?: string }> {
+  if (operation === 'create_board') {
+    const result = await checkBoardCap(userId)
+    return { allowed: result.allowed, reason: result.reason }
   }
+  if (operation === 'create_task' && boardId) {
+    const result = await checkTaskCap(boardId, userId)
+    return { allowed: result.allowed, reason: result.reason }
+  }
+  return { allowed: false, reason: 'Invalid operation' }
 }

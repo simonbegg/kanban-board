@@ -69,6 +69,8 @@ export function AddTaskDialog({ onAddTask, availableCategories, onAddCategory, o
       title: title.trim(),
       description: description.trim(),
       category: finalCategory,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     }, columnId)
 
     // Reset form and close dialog

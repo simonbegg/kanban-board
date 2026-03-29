@@ -11,7 +11,6 @@ import { EmailSettings } from "@/components/email-settings"
 import { UsageMeter } from "@/components/usage-meter"
 import { CapWarning } from "@/components/cap-warning"
 import { UpgradeModal } from "@/components/upgrade-modal"
-import { CancellationBanner } from "@/components/cancellation-banner"
 import { CancelSubscriptionDialog } from "@/components/cancel-subscription-dialog"
 import { ExportDataButtons } from "@/components/export-data-buttons"
 import { ResolveOverlimitWizard } from "@/components/resolve-overlimit-wizard"
@@ -40,9 +39,9 @@ function BoardPageContent() {
     }
   }, [user, loading, router])
 
-  // Check for upgrade parameter
+  // Check for upgrade/upgraded parameter (Paddle redirects with ?upgraded=true)
   useEffect(() => {
-    if (searchParams.get('upgrade') === 'true') {
+    if (searchParams.get('upgrade') === 'true' || searchParams.get('upgraded') === 'true') {
       setUpgradeModalOpen(true)
       // Clean up the URL
       router.replace('/board')
@@ -136,18 +135,6 @@ function BoardPageContent() {
         </div>
       </header>
 
-      {/* Cancellation Banner */}
-      {user && (
-        <div className="container mx-auto px-6 pt-4">
-          <CancellationBanner
-            userId={user.id}
-            onUndoClick={() => window.location.reload()}
-            onResolveClick={() => setResolveWizardOpen(true)}
-            onExportClick={() => setSettingsOpen(true)}
-          />
-        </div>
-      )}
-
       {/* Main Content */}
       <main className="pt-4 md:flex-1 md:overflow-hidden">
         <div className="mx-auto max-w-7xl md:h-full px-6">
@@ -162,6 +149,7 @@ function BoardPageContent() {
             isOpen={upgradeModalOpen}
             onClose={() => setUpgradeModalOpen(false)}
             userEmail={user.email}
+            userId={user.id}
           />
           <CancelSubscriptionDialog
             open={cancelDialogOpen}
