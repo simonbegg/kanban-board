@@ -143,6 +143,8 @@ export type Database = {
           column_id: string
           board_id: string
           position: number
+          archived: boolean
+          archived_at: string | null
           created_at: string
           updated_at: string
         }
@@ -154,6 +156,8 @@ export type Database = {
           column_id: string
           board_id: string
           position: number
+          archived?: boolean
+          archived_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -165,6 +169,8 @@ export type Database = {
           column_id?: string
           board_id?: string
           position?: number
+          archived?: boolean
+          archived_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -193,6 +199,26 @@ export type Database = {
           notification_type?: string
           sent_at?: string
           metadata?: any
+        }
+      }
+      entitlements: {
+        Row: {
+          user_id: string
+          plan: string
+          paddle_subscription_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          plan?: string
+          paddle_subscription_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          plan?: string
+          paddle_subscription_id?: string | null
+          updated_at?: string
         }
       }
     }

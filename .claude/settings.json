@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const i=JSON.parse(d);const f=(i.tool_input&&i.tool_input.file_path)||'';if(/[.](ts|tsx)$/.test(f)){const {execSync}=require('child_process');try{execSync('npx tsc --noEmit 2>&1 | tail -20',{stdio:'inherit',shell:true});}catch(e){}}});\" 2>/dev/null || true",
+            "timeout": 30,
+            "statusMessage": "Type-checking..."
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const i=JSON.parse(d);const f=(i.tool_input&&i.tool_input.file_path)||'';if(/[.]env([.]|$)/.test(f)){console.log(JSON.stringify({hookSpecificOutput:{hookEventName:'PreToolUse',permissionDecision:'deny',permissionDecisionReason:'Blocked: .env files contain sensitive credentials and must not be edited by Claude.'}}));}})\""
+          }
+        ]
+      }
+    ]
+  }
+}

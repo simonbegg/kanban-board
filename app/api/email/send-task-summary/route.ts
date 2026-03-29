@@ -103,8 +103,7 @@ async function handleEmailSummary(request: NextRequest) {
         await sendEmail(profile.notification_email!, subject, html, text)
 
         // Update last notification sent timestamp
-        // @ts-expect-error - Supabase type inference issue
-        await supabase
+        await (supabase as any)
           .from('profiles')
           .update({ last_notification_sent: now.toISOString() })
           .eq('id', profile.id)

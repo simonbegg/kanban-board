@@ -472,6 +472,8 @@ export function SupabaseKanbanBoard({ onUsageChange }: SupabaseKanbanBoardProps 
         column_id: targetColumn.id,
         board_id: selectedBoardId,
         position: 0,
+        archived: false,
+        archived_at: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       }

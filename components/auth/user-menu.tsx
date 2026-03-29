@@ -1,6 +1,8 @@
 'use client'
 
 import { useAuth } from '@/contexts/auth-context'
+import { useRouter } from 'next/navigation'
+import { isAdminEmail } from '@/lib/admin'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -11,12 +13,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { LogOut, User } from 'lucide-react'
+import { LogOut, ShieldCheck } from 'lucide-react'
 
 export function UserMenu() {
   const { user, signOut } = useAuth()
+  const router = useRouter()
 
   if (!user) return null
+
+  const isAdmin = isAdminEmail(user.email)
 
   const initials = user.email
     ?.split('@')[0]
@@ -40,7 +45,7 @@ export function UserMenu() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {user.user_metadata?.full_name || 'User'}
+              {user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
@@ -48,11 +53,15 @@ export function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <User className="mr-2 h-4 w-4" />
-          <span>Profile</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
+        {isAdmin && (
+          <>
+            <DropdownMenuItem onClick={() => router.push('/admin')}>
+              <ShieldCheck className="mr-2 h-4 w-4" />
+              <span>Admin Panel</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuItem onClick={() => signOut()}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>

@@ -4,16 +4,14 @@ import { useState, useEffect } from 'react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { 
-  AlertTriangle, 
-  Crown, 
-  X, 
-  Layout, 
-  CheckCircle, 
-  Archive
+import {
+  AlertTriangle,
+  Crown,
+  X,
+  Layout,
+  CheckCircle
 } from 'lucide-react'
 import { getUserUsageStats, getBoardUsage, CapCheckResult } from '@/lib/cap-enforcement'
-import { UsageStats } from '@/lib/cap-enforcement'
 
 interface CapWarningProps {
   userId: string
@@ -23,7 +21,7 @@ interface CapWarningProps {
 }
 
 interface WarningState {
-  type: 'board_limit' | 'task_limit' | 'archive_limit' | 'none'
+  type: 'board_limit' | 'task_limit' | 'none'
   severity: 'warning' | 'critical' | 'info'
   title: string
   message: string
@@ -88,22 +86,6 @@ export function CapWarning({
         // Removed 80% warning to avoid constant alerts for free users
       }
 
-      // Check archive limits (for free users)
-      if (userStats.plan === 'free') {
-        const archivePercentage = (userStats.archivedTasks / userStats.limits.archivedTasks) * 100
-        if (archivePercentage >= 100) {
-          warnings.push({
-            type: 'archive_limit',
-            severity: 'critical',
-            title: 'Archive Limit Reached',
-            message: `You've reached the archive limit of ${userStats.limits.archivedTasks} tasks.`,
-            action: 'Upgrade to Pro for unlimited archive storage.',
-            showUpgrade: true
-          })
-        }
-        // Removed 80% warning to avoid constant alerts for free users
-      }
-
       // Show the most critical warning
       if (warnings.length > 0) {
         // Prioritize: critical > warning > board > task > archive
@@ -111,7 +93,7 @@ export function CapWarning({
           if (a.severity !== b.severity) {
             return a.severity === 'critical' ? -1 : 1
           }
-          const priority = { board_limit: 0, task_limit: 1, archive_limit: 2 }
+          const priority: Record<string, number> = { board_limit: 0, task_limit: 1 }
           return priority[a.type] - priority[b.type]
         })
         setWarning(sortedWarnings[0])
@@ -147,8 +129,6 @@ export function CapWarning({
         return <Layout className="w-4 h-4" />
       case 'task_limit':
         return <CheckCircle className="w-4 h-4" />
-      case 'archive_limit':
-        return <Archive className="w-4 h-4" />
       default:
         return <AlertTriangle className="w-4 h-4" />
     }

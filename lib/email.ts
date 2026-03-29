@@ -1,5 +1,3 @@
-import { createServerClient } from '@/lib/supabase-server'
-import type { Database } from '@/lib/supabase'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 interface EmailSettings {
@@ -19,7 +17,7 @@ interface TaskSummary {
 /**
  * Get user's email notification settings
  */
-export async function getEmailSettings(supabase: SupabaseClient<Database>, userId: string): Promise<EmailSettings> {
+export async function getEmailSettings(supabase: SupabaseClient<any>, userId: string): Promise<EmailSettings> {
   const { data: profile, error } = await supabase
     .from('profiles')
     .select('email_notifications_enabled, notification_email, notification_frequency')
@@ -41,7 +39,7 @@ export async function getEmailSettings(supabase: SupabaseClient<Database>, userI
  * Update user's email notification settings
  */
 export async function updateEmailSettings(
-  supabase: SupabaseClient<Database>,
+  supabase: SupabaseClient<any>,
   userId: string,
   settings: Partial<EmailSettings>
 ): Promise<void> {
@@ -70,7 +68,7 @@ export async function updateEmailSettings(
 /**
  * Get user's todo tasks for email summary
  */
-export async function getTodoTasks(supabase: SupabaseClient<Database>, userId: string): Promise<TaskSummary[]> {
+export async function getTodoTasks(supabase: SupabaseClient<any>, userId: string): Promise<TaskSummary[]> {
   const { data: boards, error } = await supabase
     .from('boards')
     .select(`

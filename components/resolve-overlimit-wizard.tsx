@@ -29,6 +29,7 @@ import {
 } from 'lucide-react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { Database } from '@/lib/supabase'
+import { PLAN_LIMITS } from '@/lib/cap-enforcement'
 
 interface ResolveOverlimitWizardProps {
     open: boolean
@@ -85,12 +86,16 @@ export function ResolveOverlimitWizard({
     const loadData = async () => {
         setLoading(true)
         try {
-            // Get user's entitlements
-            const { data: entitlements } = await supabase
+            // Determine plan from entitlements (defaults to free if no row exists)
+            const { data: entitlement } = await supabase
                 .from('entitlements')
-                .select('board_cap, active_cap_per_board')
+                .select('plan')
                 .eq('user_id', userId)
-                .single()
+                .maybeSingle()
+
+            const plan = entitlement?.plan === 'pro' ? 'pro' : 'free'
+            const maxBoards = PLAN_LIMITS[plan].boards
+            const maxTasks  = PLAN_LIMITS[plan].tasksPerBoard
 
             // Get all boards with task counts
             const { data: boardsData } = await supabase
@@ -118,8 +123,6 @@ export function ResolveOverlimitWizard({
 
                 setBoards(boardsWithCounts)
 
-                const maxBoards = entitlements?.board_cap || 1
-                const maxTasks = entitlements?.active_cap_per_board || 100
                 const needToDeleteBoards = Math.max(0, boardsWithCounts.length - maxBoards)
 
                 setStats({

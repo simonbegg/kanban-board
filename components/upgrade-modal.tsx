@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -8,25 +9,31 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
 import { usePaddle } from '@/components/paddle-provider'
-import { useAuth } from '@/contexts/auth-context'
 import {
   Crown,
-  Check,
-  Sparkles
+  Layout,
+  CheckCircle,
+  Zap,
+  Users,
+  Star,
+  X
 } from 'lucide-react'
 
 interface UpgradeModalProps {
   isOpen: boolean
   onClose: () => void
-  reason?: 'board_limit' | 'task_limit' | 'archive_limit' | 'general'
+  reason?: 'board_limit' | 'task_limit' | 'general'
   currentUsage?: {
     boards: number
     activeTasks: number
     archivedTasks: number
   }
   userEmail?: string
+  userId?: string
 }
 
 export function UpgradeModal({
@@ -34,128 +41,186 @@ export function UpgradeModal({
   onClose,
   reason = 'general',
   currentUsage,
-  userEmail
+  userEmail,
+  userId,
 }: UpgradeModalProps) {
+  const [selectedPlan, setSelectedPlan] = useState<'free' | 'pro'>('pro')
   const { openCheckout } = usePaddle()
-  const { user } = useAuth()
 
   const getReasonMessage = () => {
     switch (reason) {
       case 'board_limit':
-        return 'You\'ve reached your board limit.'
+        return 'You\'ve reached your 1-board limit. Upgrade to Pro to create up to 100 boards.'
       case 'task_limit':
-        return 'You\'ve reached your task limit for this board.'
-      case 'archive_limit':
-        return 'You\'ve reached your archive storage limit.'
+        return 'This board has reached its 50-task limit. Upgrade to Pro for up to 1,000 tasks per board.'
       default:
-        return 'Get more out of ThreeLanes.'
-    }
-  }
-
-  const getActionHint = () => {
-    switch (reason) {
-      case 'board_limit':
-        return 'Upgrade to Pro for unlimited boards, or delete an existing board to continue.'
-      case 'task_limit':
-        return 'Upgrade to Pro for higher limits, or archive/delete some tasks to make room.'
-      case 'archive_limit':
-        return 'Upgrade to Pro for more archive storage, or permanently delete some archived tasks.'
-      default:
-        return 'Upgrade to unlock the full power of ThreeLanes.'
+        return 'Unlock the full power of ThreeLanes with Pro.'
     }
   }
 
   const handleUpgrade = () => {
-    openCheckout(userEmail, user?.id)
+    openCheckout(userEmail, userId)
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg p-0 gap-0 overflow-hidden">
-        {/* Header with gradient background */}
-        <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-background p-6 pb-8">
-          <DialogHeader className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-full bg-primary/20">
-                <Crown className="w-5 h-5 text-primary" />
-              </div>
-              <DialogTitle className="text-xl font-bold">
-                Upgrade to Pro
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <DialogTitle className="text-2xl font-bold">
+                Upgrade to ThreeLanes Pro
               </DialogTitle>
+              <DialogDescription className="text-base mt-2">
+                {getReasonMessage()}
+              </DialogDescription>
             </div>
-            <DialogDescription className="text-base">
-              <span className="font-medium text-foreground">{getReasonMessage()}</span>
-              <br />
-              <span className="text-muted-foreground">{getActionHint()}</span>
-            </DialogDescription>
-          </DialogHeader>
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        </DialogHeader>
+
+        <div className="grid md:grid-cols-2 gap-6 mt-6">
+          {/* Free Plan */}
+          <Card className={`relative ${selectedPlan === 'free' ? 'ring-2 ring-primary' : ''}`}>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <Layout className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-xl font-semibold mb-2">Free</h3>
+                <p className="text-3xl font-bold mb-4">$0<span className="text-lg font-normal text-muted-foreground">/month</span></p>
+                <Badge variant="secondary" className="mb-4">Current Plan</Badge>
+              </div>
+
+              <Separator className="my-6" />
+
+              <div className="space-y-3">
+                <FeatureItem icon={<Layout className="w-4 h-4" />} text="1 board" />
+                <FeatureItem icon={<CheckCircle className="w-4 h-4" />} text="50 active tasks per board" />
+                <FeatureItem icon={<Users className="w-4 h-4" />} text="Email &amp; Slack notifications" />
+                <FeatureItem icon={<Zap className="w-4 h-4" />} text="All core features" />
+              </div>
+
+              <Button
+                variant="outline"
+                className="w-full mt-6"
+                disabled
+              >
+                Current Plan
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Pro Plan */}
+          <Card className={`relative border-primary ${selectedPlan === 'pro' ? 'ring-2 ring-primary' : ''}`}>
+            <CardContent className="pt-6">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-primary text-primary-foreground">
+                  <Crown className="w-3 h-3 mr-1" />
+                  RECOMMENDED
+                </Badge>
+              </div>
+
+              <div className="text-center">
+                <Crown className="w-12 h-12 mx-auto mb-4 text-yellow-500" />
+                <h3 className="text-xl font-semibold mb-2">Pro</h3>
+                <p className="text-3xl font-bold mb-4">$6<span className="text-lg font-normal text-muted-foreground">/month</span></p>
+                <Badge variant="default" className="mb-4">Best Value</Badge>
+              </div>
+
+              <Separator className="my-6" />
+
+              <div className="space-y-3">
+                <FeatureItem icon={<Layout className="w-4 h-4" />} text="Up to 100 boards" />
+                <FeatureItem icon={<CheckCircle className="w-4 h-4" />} text="Up to 1,000 active tasks per board" />
+                <FeatureItem icon={<Users className="w-4 h-4" />} text="Email &amp; Slack notifications" />
+                <FeatureItem icon={<Star className="w-4 h-4" />} text="Priority support &amp; future Pro features" />
+              </div>
+
+              <Button
+                className="w-full mt-6"
+                onClick={handleUpgrade}
+              >
+                Upgrade to Pro
+              </Button>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Pro Plan Card */}
-        <div className="p-6 pt-0 -mt-4">
-          <div className="rounded-xl border-2 border-primary bg-card p-5 relative">
-            <Badge className="absolute -top-2.5 left-4 bg-primary text-primary-foreground gap-1">
-              <Sparkles className="w-3 h-3" />
-              RECOMMENDED
-            </Badge>
-
-            <div className="flex items-baseline justify-between mt-2 mb-4">
-              <div>
-                <h3 className="text-lg font-semibold">Pro Plan</h3>
-                <p className="text-sm text-muted-foreground">Everything you need</p>
+        {/* Current Usage Summary */}
+        {currentUsage && (
+          <Card className="mt-6">
+            <CardContent className="pt-6">
+              <h4 className="font-semibold mb-4">Your Current Usage</h4>
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <p className="text-2xl font-bold">{currentUsage.boards}</p>
+                  <p className="text-sm text-muted-foreground">Boards</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{currentUsage.activeTasks}</p>
+                  <p className="text-sm text-muted-foreground">Active Tasks</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{currentUsage.archivedTasks}</p>
+                  <p className="text-sm text-muted-foreground">Archived Tasks</p>
+                </div>
               </div>
-              <div className="text-right">
-                <span className="text-3xl font-bold">$6</span>
-                <span className="text-muted-foreground">/month</span>
-              </div>
-            </div>
+            </CardContent>
+          </Card>
+        )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-5">
-              <FeatureItem text="Unlimited boards" highlight />
-              <FeatureItem text="100 tasks per board" />
-              <FeatureItem text="200K archived tasks" highlight />
-              <FeatureItem text="Unlimited retention" />
-              <FeatureItem text="Priority support" />
-              <FeatureItem text="Future Pro features" />
-            </div>
-
-            <Button className="w-full h-11 text-base font-medium" onClick={handleUpgrade}>
-              <Crown className="w-4 h-4 mr-2" />
-              Upgrade to Pro
-            </Button>
+        {/* FAQ Section */}
+        <div className="mt-6">
+          <h4 className="font-semibold mb-4">Frequently Asked Questions</h4>
+          <div className="space-y-4">
+            <FAQItem
+              question="Can I change my plan anytime?"
+              answer="Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately."
+            />
+            <FAQItem
+              question="What happens to my data if I downgrade?"
+              answer="If you downgrade from Pro to Free, you'll need to delete extra boards and archived tasks to stay within free limits."
+            />
+            <FAQItem
+              question="Do you offer refunds?"
+              answer="We offer a 30-day money-back guarantee. If you're not satisfied, contact support for a full refund."
+            />
+            <FAQItem
+              question="What payment methods do you accept?"
+              answer="We accept all major credit cards, debit cards, and PayPal."
+            />
           </div>
+        </div>
 
-          {/* Current Usage - Compact */}
-          {currentUsage && (
-            <div className="mt-4 p-4 rounded-lg bg-muted/50">
-              <p className="text-xs font-medium text-muted-foreground mb-2">YOUR CURRENT USAGE</p>
-              <div className="flex justify-between text-sm">
-                <span>{currentUsage.boards} board{currentUsage.boards !== 1 ? 's' : ''}</span>
-                <span className="text-muted-foreground">•</span>
-                <span>{currentUsage.activeTasks} active task{currentUsage.activeTasks !== 1 ? 's' : ''}</span>
-                <span className="text-muted-foreground">•</span>
-                <span>{currentUsage.archivedTasks} archived</span>
-              </div>
-            </div>
-          )}
-
-          {/* Alternative action */}
-          <div className="mt-4 text-center">
-            <Button variant="ghost" size="sm" onClick={onClose} className="text-muted-foreground">
-              Maybe later
-            </Button>
-          </div>
+        {/* Contact Support */}
+        <div className="mt-6 text-center">
+          <p className="text-sm text-muted-foreground mb-2">
+            Need help? Contact our support team
+          </p>
+          <Button variant="outline" onClick={() => window.location.href = 'mailto:support@threelanes.app'}>
+            Contact Support
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
   )
 }
 
-function FeatureItem({ text, highlight }: { text: string; highlight?: boolean }) {
+function FeatureItem({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
-    <div className="flex items-center gap-2">
-      <Check className={`w-4 h-4 shrink-0 ${highlight ? 'text-primary' : 'text-muted-foreground'}`} />
-      <span className={`text-sm ${highlight ? 'font-medium' : ''}`}>{text}</span>
+    <div className="flex items-center gap-3">
+      <div className="text-primary">{icon}</div>
+      <span className="text-sm">{text}</span>
+    </div>
+  )
+}
+
+function FAQItem({ question, answer }: { question: string; answer: string }) {
+  return (
+    <div className="border rounded-lg p-4">
+      <h5 className="font-medium mb-2">{question}</h5>
+      <p className="text-sm text-muted-foreground">{answer}</p>
     </div>
   )
 }

@@ -172,7 +172,7 @@ export function PaddleProvider({ children }: { children: ReactNode }) {
         openCheckout({
             items: [{ priceId: PADDLE_PRICE_ID, quantity: 1 }],
             customer: userEmail ? { email: userEmail } : undefined,
-            customData: userId ? { user_id: userId } : undefined
+            customData: userId ? { userId } : undefined
         })
     }
 

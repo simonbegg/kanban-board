@@ -3,31 +3,8 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import Script from 'next/script'
 
-// Paddle types
-declare global {
-    interface Window {
-        Paddle?: {
-            Environment: {
-                set: (env: 'sandbox' | 'production') => void
-            }
-            Initialize: (config: { token: string }) => void
-            Checkout: {
-                open: (config: {
-                    items: Array<{ priceId: string; quantity: number }>
-                    customer?: { email?: string }
-                    customData?: Record<string, any>
-                    settings?: {
-                        displayMode?: 'overlay' | 'inline'
-                        theme?: 'light' | 'dark'
-                        locale?: string
-                        allowLogout?: boolean
-                        successUrl?: string
-                    }
-                }) => void
-            }
-        }
-    }
-}
+// Global Paddle types are declared in contexts/paddle-context.tsx.
+// Using (window as any).Paddle here to avoid duplicate global interface merging.
 
 interface PaddleContextType {
     isLoaded: boolean
@@ -36,7 +13,7 @@ interface PaddleContextType {
 
 const PaddleContext = createContext<PaddleContextType>({
     isLoaded: false,
-    openCheckout: () => { },
+    openCheckout: () => {},
 })
 
 export function usePaddle() {
@@ -56,22 +33,19 @@ export function PaddleProvider({ children }: PaddleProviderProps) {
 
     useEffect(() => {
         // Initialize Paddle when script is loaded and we have the token
-        if (window.Paddle && clientToken && !isLoaded) {
-            if (environment === 'sandbox') {
-                window.Paddle.Environment.set('sandbox')
-            }
-            window.Paddle.Initialize({
+        if ((window as any).Paddle && clientToken && !isLoaded) {
+            (window as any).Paddle.Initialize({
                 token: clientToken,
+                environment: environment,
             })
             setIsLoaded(true)
             console.log(`Paddle initialized in ${environment} mode`)
-        } else if (!clientToken) {
         }
     }, [clientToken, environment, isLoaded])
 
     const openCheckout = (userEmail?: string, userId?: string) => {
-        if (!window.Paddle) {
-            console.error('Paddle not loaded. Check if script failed to load or token is missing.')
+        if (!(window as any).Paddle) {
+            console.error('Paddle not loaded')
             return
         }
 
@@ -80,13 +54,13 @@ export function PaddleProvider({ children }: PaddleProviderProps) {
             return
         }
 
-        if (!userId) {
-        }
-
-        window.Paddle.Checkout.open({
+        (window as any).Paddle.Checkout.open({
             items: [{ priceId, quantity: 1 }],
             customer: userEmail ? { email: userEmail } : undefined,
-            customData: userId ? { user_id: userId } : undefined,
+            // userId is forwarded to every webhook event for this subscription
+            // via Paddle's custom_data field, allowing the webhook handler to
+            // identify which user to upgrade without relying on email matching.
+            customData: userId ? { userId } : undefined,
             settings: {
                 displayMode: 'overlay',
                 theme: 'light',
@@ -96,17 +70,10 @@ export function PaddleProvider({ children }: PaddleProviderProps) {
     }
 
     const handleScriptLoad = () => {
-        if (!clientToken) {
-            console.error('Paddle script loaded but client token is missing')
-            return
-        }
-
-        if (window.Paddle) {
-            if (environment === 'sandbox') {
-                window.Paddle.Environment.set('sandbox')
-            }
-            window.Paddle.Initialize({
+        if ((window as any).Paddle && clientToken) {
+            (window as any).Paddle.Initialize({
                 token: clientToken,
+                environment: environment,
             })
             setIsLoaded(true)
             console.log(`Paddle initialized in ${environment} mode`)
@@ -119,7 +86,6 @@ export function PaddleProvider({ children }: PaddleProviderProps) {
                 src="https://cdn.paddle.com/paddle/v2/paddle.js"
                 strategy="afterInteractive"
                 onLoad={handleScriptLoad}
-                onError={(e) => console.error('Failed to load Paddle script:', e)}
             />
             {children}
         </PaddleContext.Provider>
