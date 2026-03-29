@@ -11,7 +11,7 @@ export default function TermsAndConditions() {
         <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 shadow-sm rounded-lg p-8 md:p-12">
           <div className="text-gray-900 dark:text-gray-100 [&_h1]:text-4xl [&_h1]:font-extrabold [&_h1]:mb-2 [&_h1]:leading-tight [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-10 [&_h2]:mb-4 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mt-6 [&_h3]:mb-3 [&_p]:mb-4 [&_p]:leading-relaxed [&_ul]:mb-5 [&_ul]:pl-7 [&_ul]:list-disc [&_ul_ul]:mt-2 [&_ul_ul]:mb-2 [&_li]:mb-2 [&_li]:leading-relaxed [&_hr]:my-10 [&_hr]:border-gray-200 [&_hr]:dark:border-gray-700 [&_strong]:font-semibold [&_a]:text-blue-600 [&_a]:underline [&_a:hover]:text-blue-700">
           <h1>ThreeLanes — Terms of Service</h1>
-        <p><strong>Last updated:</strong> November 03, 2025</p>
+        <p><strong>Last updated:</strong> March 29, 2026</p>
 
         <p>These Terms of Service (&quot;<strong>Terms</strong>&quot;) are a legally binding agreement between you and <strong>Two Bees Consulting Ltd</strong> (Company No. 07750344), trading as <strong>ThreeLanes</strong>, with registered address at <strong>27 Mortimer Street, London, England, W1T 3BL</strong> (&quot;<strong>ThreeLanes</strong>,&quot; &quot;<strong>we</strong>,&quot; &quot;<strong>us</strong>,&quot; or &quot;<strong>our</strong>&quot;). By creating an account, accessing, or using ThreeLanes (the &quot;<strong>Service</strong>&quot;), you agree to these Terms.</p>
 
@@ -43,25 +43,21 @@ export default function TermsAndConditions() {
         <h3>3.1 Free</h3>
         <ul>
           <li><strong>Boards:</strong> 1 board per account</li>
-          <li><strong>Active tasks:</strong> up to <strong>100 active tasks per board</strong></li>
-          <li><strong>Archived tasks:</strong> up to <strong>1,000 archived tasks in total per account</strong></li>
-          <li><strong>Archive retention:</strong> <strong>90 days</strong></li>
-          <li><strong>Features:</strong> core features; email notifications</li>
+          <li><strong>Active tasks:</strong> up to <strong>50 active tasks per board</strong></li>
+          <li><strong>Features:</strong> core kanban workflow; email notifications; task archiving</li>
         </ul>
 
-        <h3>3.2 Pro</h3>
+        <h3>3.2 Pro ($6/month)</h3>
         <ul>
-          <li><strong>Boards:</strong> <strong>Unlimited</strong> boards (currently <strong>capped at 500 boards per account</strong>)</li>
-          <li><strong>Active tasks:</strong> up to <strong>100 active tasks per board</strong></li>
-          <li><strong>Archived tasks:</strong> up to <strong>200,000 archived tasks in total per account</strong></li>
-          <li><strong>Archive retention:</strong> <strong>unlimited</strong></li>
-          <li><strong>Features:</strong> advanced features. (Priority support and enhanced security are <strong>not included at launch</strong>.)</li>
+          <li><strong>Boards:</strong> up to <strong>100 boards per account</strong></li>
+          <li><strong>Active tasks:</strong> up to <strong>1,000 active tasks per board</strong></li>
+          <li><strong>Features:</strong> everything in Free, plus Slack integration and priority email support</li>
         </ul>
 
         <h3>3.3 Definitions</h3>
         <ul>
-          <li><strong>Active tasks</strong> are tasks that exist in the To‑Do, Doing, or Done lanes.</li>
-          <li><strong>Archived tasks</strong> are tasks you move to Archive. Archived tasks do not count toward the active task limit.</li>
+          <li><strong>Active tasks</strong> are tasks that exist in the To‑Do, Doing, or Done lanes and count toward the per‑board limit.</li>
+          <li><strong>Archived tasks</strong> are tasks moved to the Archive. Archived tasks do not count toward the active task limit.</li>
         </ul>
 
         <p>We may implement reasonable <strong>technical or rate limits</strong> to protect the Service.</p>
@@ -70,7 +66,7 @@ export default function TermsAndConditions() {
 
         <h2>4. Pricing, billing &amp; taxes</h2>
         <ul>
-          <li><strong>Prices.</strong> Pro is <strong>$6/month</strong> (USD) or <strong>£5/month</strong> (GBP), depending on your billing location. Annual plans are <strong>$60/year</strong> or <strong>£50/year</strong>.</li>
+          <li><strong>Prices.</strong> Pro is billed monthly at <strong>$6/month</strong> (USD) or the local‑currency equivalent as shown at checkout, which may vary by location. Prices are subject to applicable taxes.</li>
           <li><strong>Billing.</strong> Paddle bills you on our behalf and may charge applicable taxes (e.g., VAT) based on your location. You authorise Paddle to store and charge your payment method for recurring fees until you cancel.</li>
           <li><strong>Receipts &amp; invoices</strong> are provided by Paddle.</li>
         </ul>
@@ -91,7 +87,7 @@ export default function TermsAndConditions() {
         <h2>6. Upgrades, downgrades &amp; plan changes</h2>
         <ul>
           <li><strong>Upgrades</strong> take effect immediately and may start a new billing cycle or be prorated by Paddle.</li>
-          <li><strong>Downgrades (Pro → Free).</strong> Your account must comply with Free limits. Content beyond Free limits may be <strong>locked, hidden, or read‑only</strong> until you reduce usage. Where feasible, we provide a <strong>14‑day courtesy period</strong> before enforcement. We do not delete content solely due to a downgrade, but we may restrict access until limits are met.</li>
+          <li><strong>Downgrades (Pro → Free).</strong> Your account must comply with Free limits (1 board; 50 active tasks per board). Extra boards and tasks are not automatically deleted — you will be guided to delete or archive the excess before full Free‑tier restrictions apply. We do not delete your content solely due to a downgrade.</li>
           <li><strong>Deletion.</strong> You can download your data (CSV/JSON on request) and delete your account at any time (see Privacy Policy for timelines).</li>
         </ul>
 

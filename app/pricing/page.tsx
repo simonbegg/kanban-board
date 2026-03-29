@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { useRouter } from 'next/navigation'
 import { SiteHeader } from '@/components/site-header'
@@ -14,10 +13,10 @@ import {
   Crown,
   Layout,
   CheckCircle,
-  Archive,
   Zap,
   Users,
-  Star
+  Star,
+  Slack
 } from 'lucide-react'
 
 export default function PricingPage() {
@@ -66,11 +65,9 @@ export default function PricingPage() {
 
               <div className="space-y-3">
                 <FeatureItem icon={<Layout className="w-4 h-4" />} text="1 board" />
-                <FeatureItem icon={<CheckCircle className="w-4 h-4" />} text="100 active tasks per board" />
-                <FeatureItem icon={<Archive className="w-4 h-4" />} text="1,000 archived tasks" />
-                <FeatureItem icon={<Archive className="w-4 h-4" />} text="90-day archive retention" />
+                <FeatureItem icon={<CheckCircle className="w-4 h-4" />} text="50 active tasks per board" />
                 <FeatureItem icon={<Users className="w-4 h-4" />} text="Email notifications" />
-                <FeatureItem icon={<Zap className="w-4 h-4" />} text="Basic features" />
+                <FeatureItem icon={<Zap className="w-4 h-4" />} text="Task archiving" />
               </div>
 
               <Button
@@ -103,12 +100,12 @@ export default function PricingPage() {
               <Separator className="my-6" />
 
               <div className="space-y-3">
-                <FeatureItem icon={<Layout className="w-4 h-4" />} text="Unlimited boards" />
-                <FeatureItem icon={<CheckCircle className="w-4 h-4" />} text="100 active tasks per board" />
-                <FeatureItem icon={<Archive className="w-4 h-4" />} text="200,000 archived tasks" />
-                <FeatureItem icon={<Archive className="w-4 h-4" />} text="Unlimited archive retention" />
-                <FeatureItem icon={<Users className="w-4 h-4" />} text="Priority email support" />
-                <FeatureItem icon={<Star className="w-4 h-4" />} text="Future Pro features" />
+                <FeatureItem icon={<Layout className="w-4 h-4" />} text="Up to 100 boards" />
+                <FeatureItem icon={<CheckCircle className="w-4 h-4" />} text="1,000 active tasks per board" />
+                <FeatureItem icon={<Zap className="w-4 h-4" />} text="Task archiving" />
+                <FeatureItem icon={<Users className="w-4 h-4" />} text="Email notifications" />
+                <FeatureItem icon={<Slack className="w-4 h-4" />} text="Slack integration" />
+                <FeatureItem icon={<Star className="w-4 h-4" />} text="Priority email support" />
               </div>
 
               <Button
@@ -135,15 +132,19 @@ export default function PricingPage() {
             />
             <FAQItem
               question="What happens to my data if I downgrade?"
-              answer="If you downgrade from Pro to Free, you'll need to delete extra boards and archived tasks to stay within free limits."
+              answer="If you downgrade from Pro to Free, you'll keep all your data but will need to delete extra boards (down to 1) and archive or remove tasks beyond 50 per board before creating new ones."
             />
             <FAQItem
               question="Do you offer refunds?"
-              answer="We offer a 30-day money-back guarantee. If you're not satisfied, contact support for a full refund."
+              answer="Yes — we offer an unconditional 30-day money-back guarantee on your first Pro purchase. Email support@threelanes.app with your Paddle order ID to request a refund."
             />
             <FAQItem
               question="What payment methods do you accept?"
-              answer="We accept all major credit cards, debit cards, and PayPal."
+              answer="Payments are processed securely by Paddle, our merchant of record. Paddle accepts all major credit and debit cards."
+            />
+            <FAQItem
+              question="Can I cancel anytime?"
+              answer="Yes. You can cancel your Pro subscription at any time via the Paddle customer portal. Your Pro access continues until the end of the current billing period."
             />
           </div>
         </div>
