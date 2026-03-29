@@ -7,11 +7,15 @@ import Script from 'next/script'
 declare global {
     interface Window {
         Paddle?: {
-            Initialize: (config: { token: string; environment?: 'sandbox' | 'production' }) => void
+            Environment: {
+                set: (env: 'sandbox' | 'production') => void
+            }
+            Initialize: (config: { token: string }) => void
             Checkout: {
                 open: (config: {
                     items: Array<{ priceId: string; quantity: number }>
                     customer?: { email?: string }
+                    customData?: Record<string, any>
                     settings?: {
                         displayMode?: 'overlay' | 'inline'
                         theme?: 'light' | 'dark'
@@ -27,7 +31,7 @@ declare global {
 
 interface PaddleContextType {
     isLoaded: boolean
-    openCheckout: (userEmail?: string) => void
+    openCheckout: (userEmail?: string, userId?: string) => void
 }
 
 const PaddleContext = createContext<PaddleContextType>({
@@ -53,18 +57,21 @@ export function PaddleProvider({ children }: PaddleProviderProps) {
     useEffect(() => {
         // Initialize Paddle when script is loaded and we have the token
         if (window.Paddle && clientToken && !isLoaded) {
+            if (environment === 'sandbox') {
+                window.Paddle.Environment.set('sandbox')
+            }
             window.Paddle.Initialize({
                 token: clientToken,
-                environment: environment,
             })
             setIsLoaded(true)
             console.log(`Paddle initialized in ${environment} mode`)
+        } else if (!clientToken) {
         }
     }, [clientToken, environment, isLoaded])
 
-    const openCheckout = (userEmail?: string) => {
+    const openCheckout = (userEmail?: string, userId?: string) => {
         if (!window.Paddle) {
-            console.error('Paddle not loaded')
+            console.error('Paddle not loaded. Check if script failed to load or token is missing.')
             return
         }
 
@@ -73,9 +80,13 @@ export function PaddleProvider({ children }: PaddleProviderProps) {
             return
         }
 
+        if (!userId) {
+        }
+
         window.Paddle.Checkout.open({
             items: [{ priceId, quantity: 1 }],
             customer: userEmail ? { email: userEmail } : undefined,
+            customData: userId ? { user_id: userId } : undefined,
             settings: {
                 displayMode: 'overlay',
                 theme: 'light',
@@ -85,10 +96,17 @@ export function PaddleProvider({ children }: PaddleProviderProps) {
     }
 
     const handleScriptLoad = () => {
-        if (window.Paddle && clientToken) {
+        if (!clientToken) {
+            console.error('Paddle script loaded but client token is missing')
+            return
+        }
+
+        if (window.Paddle) {
+            if (environment === 'sandbox') {
+                window.Paddle.Environment.set('sandbox')
+            }
             window.Paddle.Initialize({
                 token: clientToken,
-                environment: environment,
             })
             setIsLoaded(true)
             console.log(`Paddle initialized in ${environment} mode`)
@@ -101,6 +119,7 @@ export function PaddleProvider({ children }: PaddleProviderProps) {
                 src="https://cdn.paddle.com/paddle/v2/paddle.js"
                 strategy="afterInteractive"
                 onLoad={handleScriptLoad}
+                onError={(e) => console.error('Failed to load Paddle script:', e)}
             />
             {children}
         </PaddleContext.Provider>

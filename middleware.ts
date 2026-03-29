@@ -33,11 +33,12 @@ export function middleware(request: NextRequest) {
     "Content-Security-Policy",
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.seline.com https://va.vercel-scripts.com", // Next.js requires unsafe-eval, Seline and Vercel analytics
-      "style-src 'self' 'unsafe-inline'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.seline.com https://va.vercel-scripts.com https://cdn.paddle.com", // Allow Paddle scripts
+      "style-src 'self' 'unsafe-inline' https://cdn.paddle.com", // Allow Paddle styles
       "img-src 'self' data: https:",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.supabase.co https://*.seline.so https://*.seline.com https://vitals.vercel-insights.com", // Supabase, Seline, and Vercel analytics
+      "connect-src 'self' https://*.supabase.co https://*.seline.so https://*.seline.com https://vitals.vercel-insights.com https://*.paddle.com", // Allow Paddle API
+      "frame-src 'self' https://buy.paddle.com https://sandbox-buy.paddle.com", // Allow Paddle Checkout iframes
       "frame-ancestors 'none'",
     ].join("; ")
   );

@@ -3,6 +3,7 @@
 import { useAuth } from "@/contexts/auth-context"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState, Suspense } from "react"
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { UserMenu } from "@/components/auth/user-menu"
 import { SupabaseKanbanBoard } from "@/components/supabase-kanban-board"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -33,6 +34,27 @@ function BoardPageContent() {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
   const [resolveWizardOpen, setResolveWizardOpen] = useState(false)
   const [selectedBoard, setSelectedBoard] = useState<string | null>(null)
+  const [usageRefreshTrigger, setUsageRefreshTrigger] = useState(0)
+  const [userPlan, setUserPlan] = useState<'free' | 'pro' | null>(null)
+
+  const handleUsageChange = () => {
+    setUsageRefreshTrigger(prev => prev + 1)
+  }
+
+  // Fetch user's plan from entitlements
+  useEffect(() => {
+    const fetchUserPlan = async () => {
+      if (!user) return
+      const supabase = createClientComponentClient()
+      const { data } = await supabase
+        .from('entitlements')
+        .select('plan')
+        .eq('user_id', user.id)
+        .maybeSingle()
+      setUserPlan(data?.plan as 'free' | 'pro' || 'free')
+    }
+    fetchUserPlan()
+  }, [user, usageRefreshTrigger])
 
   useEffect(() => {
     if (!loading && !user) {
@@ -40,12 +62,17 @@ function BoardPageContent() {
     }
   }, [user, loading, router])
 
-  // Check for upgrade parameter
+  // Check for upgrade parameter or session storage intent
   useEffect(() => {
-    if (searchParams.get('upgrade') === 'true') {
+    const planIntent = sessionStorage.getItem('plan_intent')
+    const shouldUpgrade = searchParams.get('upgrade') === 'true' || planIntent === 'pro'
+
+    if (shouldUpgrade) {
       setUpgradeModalOpen(true)
-      // Clean up the URL
-      router.replace('/board')
+
+      // Clean up
+      if (planIntent) sessionStorage.removeItem('plan_intent')
+      if (searchParams.get('upgrade') === 'true') router.replace('/board')
     }
   }, [searchParams, router])
 
@@ -91,7 +118,14 @@ function BoardPageContent() {
           </div>
           <div className="flex items-center gap-4">
             {/* Usage Meter */}
-            {user && <UsageMeter userId={user.id} compact={true} />}
+            {user && (
+              <UsageMeter
+                userId={user.id}
+                compact={true}
+                refreshTrigger={usageRefreshTrigger}
+                onUpgradeClick={() => setUpgradeModalOpen(true)}
+              />
+            )}
 
             <Popover open={settingsOpen} onOpenChange={setSettingsOpen}>
               <PopoverTrigger asChild>
@@ -110,23 +144,25 @@ function BoardPageContent() {
                     <ExportDataButtons variant="buttons" />
                   </div>
 
-                  {/* Danger Zone - Cancel Subscription */}
-                  <div className="border-t pt-4">
-                    <h3 className="font-semibold mb-2 text-destructive">Danger Zone</h3>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Cancel your Pro subscription and return to Free plan
-                    </p>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => {
-                        setSettingsOpen(false)
-                        setCancelDialogOpen(true)
-                      }}
-                    >
-                      Cancel Pro Subscription
-                    </Button>
-                  </div>
+                  {/* Danger Zone - Cancel Subscription (Pro users only) */}
+                  {userPlan === 'pro' && (
+                    <div className="border-t pt-4">
+                      <h3 className="font-semibold mb-2 text-destructive">Danger Zone</h3>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Cancel your Pro subscription and return to Free plan
+                      </p>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          setSettingsOpen(false)
+                          setCancelDialogOpen(true)
+                        }}
+                      >
+                        Cancel Pro Subscription
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </PopoverContent>
             </Popover>
@@ -151,7 +187,7 @@ function BoardPageContent() {
       {/* Main Content */}
       <main className="pt-4 md:flex-1 md:overflow-hidden">
         <div className="mx-auto max-w-7xl md:h-full px-6">
-          <SupabaseKanbanBoard />
+          <SupabaseKanbanBoard onUsageChange={handleUsageChange} />
         </div>
       </main>
 

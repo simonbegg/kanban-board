@@ -22,7 +22,9 @@ interface UsageMeterProps {
   boardId?: string
   compact?: boolean
   showUpgradeButton?: boolean
+  onUpgradeClick?: () => void
   onResolveClick?: () => void
+  refreshTrigger?: number
 }
 
 export function UsageMeter({
@@ -30,7 +32,9 @@ export function UsageMeter({
   boardId,
   compact = false,
   showUpgradeButton = true,
-  onResolveClick
+  onUpgradeClick,
+  onResolveClick,
+  refreshTrigger = 0
 }: UsageMeterProps) {
   const [usage, setUsage] = useState<UsageStats | null>(null)
   const [boardUsage, setBoardUsage] = useState<{ active: number; limit: number; percentage: number } | null>(null)
@@ -40,7 +44,7 @@ export function UsageMeter({
 
   useEffect(() => {
     loadUsageStats()
-  }, [userId, boardId])
+  }, [userId, boardId, refreshTrigger])
 
   const loadUsageStats = async () => {
     try {
@@ -75,7 +79,12 @@ export function UsageMeter({
   if (compact) {
     return (
       <div className="flex items-center gap-2 text-sm">
-        <Badge variant={isPro ? 'default' : 'secondary'} className="gap-1">
+        <Badge
+          variant={isPro ? 'default' : 'secondary'}
+          className={`gap-1 ${!isPro && onUpgradeClick ? 'cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors' : ''}`}
+          onClick={!isPro && onUpgradeClick ? onUpgradeClick : undefined}
+          title={!isPro ? 'Click to upgrade to Pro' : undefined}
+        >
           {isPro ? <Crown className="w-3 h-3" /> : null}
           {isPro ? 'Pro' : 'Free'}
         </Badge>
@@ -115,7 +124,7 @@ export function UsageMeter({
               </div>
             </div>
             {showUpgradeButton && !isPro && (
-              <Button onClick={() => window.location.href = '/upgrade'}>
+              <Button onClick={onUpgradeClick || (() => window.location.href = '/pricing')}>
                 Upgrade to Pro
               </Button>
             )}

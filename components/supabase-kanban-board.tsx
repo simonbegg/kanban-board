@@ -23,6 +23,9 @@ import { Database, createClient } from "@/lib/supabase"
 import { logger } from "@/lib/logger"
 import { ValidationError } from "@/lib/validation"
 import { RateLimitError } from "@/lib/rate-limit"
+import { useAuth } from "@/contexts/auth-context"
+import { checkTaskCap, getUserUsageStats } from "@/lib/cap-enforcement"
+import { UpgradeModal } from "@/components/upgrade-modal"
 
 type Task = Database['public']['Tables']['tasks']['Row']
 type Column = Database['public']['Tables']['columns']['Row'] & { tasks: Task[] }
@@ -45,7 +48,12 @@ export interface LegacyColumn {
   tasks: LegacyTask[]
 }
 
-export function SupabaseKanbanBoard() {
+interface SupabaseKanbanBoardProps {
+  onUsageChange?: () => void
+}
+
+export function SupabaseKanbanBoard({ onUsageChange }: SupabaseKanbanBoardProps = {}) {
+  const { user } = useAuth()
   const [boardData, setBoardData] = useState<BoardWithColumnsAndTasks | null>(null)
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(() => {
     // Load selected board ID from localStorage on mount
@@ -64,6 +72,8 @@ export function SupabaseKanbanBoard() {
   const [isDragging, setIsDragging] = useState(false)
   const [overId, setOverId] = useState<string | null>(null)
   const [boardRefreshTrigger, setBoardRefreshTrigger] = useState(0)
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false)
+  const [currentUsage, setCurrentUsage] = useState<{ boards: number; activeTasks: number; archivedTasks: number } | null>(null)
 
   // Configure sensors for better mobile support
   const mouseSensor = useSensor(MouseSensor, {
@@ -71,7 +81,7 @@ export function SupabaseKanbanBoard() {
       distance: 5, // Require 5px movement to prevent accidental drags
     },
   })
-  
+
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: {
       delay: 250, // 250ms hold before drag starts
@@ -113,10 +123,10 @@ export function SupabaseKanbanBoard() {
         })
         const categoryArray = Array.from(categories)
         setAvailableCategories(categoryArray)
-        
+
         // Sync any missing categories to database
         await syncCategoriesFromTasks(categoryArray)
-        
+
         // Reload colors in case new categories were created
         const updatedColors = await getCategories()
         setCategoryColors(updatedColors)
@@ -417,7 +427,24 @@ export function SupabaseKanbanBoard() {
   }
 
   const addNewTask = async (taskData: Omit<LegacyTask, "id" | "columnId">, columnId?: string) => {
-    if (!boardData || !selectedBoardId) return
+    if (!boardData || !selectedBoardId || !user) return
+
+    // Check task cap before creating
+    const capCheck = await checkTaskCap(selectedBoardId, user.id)
+    if (!capCheck.allowed) {
+      logger.debug('Task cap reached, showing upgrade modal', capCheck)
+      // Fetch current usage for the modal
+      const usage = await getUserUsageStats(user.id)
+      if (usage) {
+        setCurrentUsage({
+          boards: usage.boards,
+          activeTasks: usage.activeTasks,
+          archivedTasks: usage.archivedTasks
+        })
+      }
+      setUpgradeModalOpen(true)
+      return
+    }
 
     // Use provided columnId or default to first column (To Do)
     const targetColumn = columnId
@@ -490,6 +517,9 @@ export function SupabaseKanbanBoard() {
           columns: newColumns
         }
       })
+
+      // Notify parent that usage changed (task added)
+      onUsageChange?.()
     } catch (error) {
       console.error('Error creating task:', error)
       // Remove temporary task on error
@@ -592,6 +622,8 @@ export function SupabaseKanbanBoard() {
 
     try {
       await deleteTask(taskId)
+      // Notify parent that usage changed (task deleted)
+      onUsageChange?.()
     } catch (error) {
       logger.error('Error deleting task:', error)
       // Revert optimistic update on error
@@ -634,6 +666,8 @@ export function SupabaseKanbanBoard() {
     try {
       await archiveTask(taskId)
       logger.debug('Task archived successfully')
+      // Notify parent that usage changed (task archived)
+      onUsageChange?.()
     } catch (error) {
       logger.error('Error archiving task:', error)
 
@@ -654,12 +688,12 @@ export function SupabaseKanbanBoard() {
     if (!availableCategories.includes(category)) {
       setAvailableCategories(prev => [...prev, category])
     }
-    
+
     if (color) {
       try {
         // Save to database
         await upsertCategory(category, color)
-        
+
         // Update local state
         setCategoryColors(prev => ({
           ...prev,
@@ -673,11 +707,11 @@ export function SupabaseKanbanBoard() {
 
   const handleDeleteCategory = async (category: string) => {
     setAvailableCategories(prev => prev.filter(cat => cat !== category))
-    
+
     try {
       // Delete from database
       await deleteCategory(category)
-      
+
       // Update local state
       setCategoryColors(prev => {
         const updated = { ...prev }
@@ -696,6 +730,7 @@ export function SupabaseKanbanBoard() {
           <BoardSelector
             selectedBoardId={selectedBoardId}
             onBoardSelect={setSelectedBoardId}
+            onBoardsChange={onUsageChange}
           />
         </div>
         <div className="text-center py-12">
@@ -714,6 +749,7 @@ export function SupabaseKanbanBoard() {
           <BoardSelector
             selectedBoardId={selectedBoardId}
             onBoardSelect={setSelectedBoardId}
+            onBoardsChange={onUsageChange}
           />
         </div>
         <div className="text-center py-12">
@@ -731,6 +767,7 @@ export function SupabaseKanbanBoard() {
           <BoardSelector
             selectedBoardId={selectedBoardId}
             onBoardSelect={setSelectedBoardId}
+            onBoardsChange={onUsageChange}
           />
         </div>
         <div className="text-center py-12">
@@ -808,6 +845,7 @@ export function SupabaseKanbanBoard() {
             <BoardSelector
               selectedBoardId={selectedBoardId}
               onBoardSelect={setSelectedBoardId}
+              onBoardsChange={onUsageChange}
               refreshTrigger={boardRefreshTrigger}
             />
           </div>
@@ -818,6 +856,7 @@ export function SupabaseKanbanBoard() {
             <BoardSelector
               selectedBoardId={selectedBoardId}
               onBoardSelect={setSelectedBoardId}
+              onBoardsChange={onUsageChange}
               refreshTrigger={boardRefreshTrigger}
             />
           </div>
@@ -860,6 +899,8 @@ export function SupabaseKanbanBoard() {
                 setTimeout(() => {
                   setBoardRefreshTrigger(prev => prev + 1)
                 }, 0)
+                // Notify parent that usage changed (board deleted)
+                onUsageChange?.()
               }}
             />
           )}
@@ -927,6 +968,14 @@ export function SupabaseKanbanBoard() {
         categoryColors={categoryColors}
         onAddCategory={handleAddCategory}
         onDeleteCategory={handleDeleteCategory}
+      />
+
+      <UpgradeModal
+        isOpen={upgradeModalOpen}
+        onClose={() => setUpgradeModalOpen(false)}
+        reason="task_limit"
+        currentUsage={currentUsage || undefined}
+        userEmail={user?.email || undefined}
       />
     </div>
   )

@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { 
-  AlertTriangle, 
-  Info, 
+import {
+  AlertTriangle,
+  Info,
   XCircle,
   Calendar,
   Download
@@ -31,8 +31,8 @@ interface EntitlementStatus {
   current_period_end: string | null
 }
 
-export function CancellationBanner({ 
-  userId, 
+export function CancellationBanner({
+  userId,
   onUndoClick,
   onResolveClick,
   onExportClick
@@ -43,7 +43,7 @@ export function CancellationBanner({
 
   useEffect(() => {
     loadEntitlements()
-    
+
     // Refresh every minute to update countdown
     const interval = setInterval(loadEntitlements, 60000)
     return () => clearInterval(interval)
@@ -55,10 +55,13 @@ export function CancellationBanner({
         .from('entitlements')
         .select('plan, status, cancel_at_period_end, cancel_effective_at, courtesy_until, enforcement_state, current_period_end')
         .eq('user_id', userId)
-        .single()
+        .maybeSingle()
 
       if (error) throw error
-      setEntitlements(data as EntitlementStatus)
+
+      if (data) {
+        setEntitlements(data as EntitlementStatus)
+      }
     } catch (error) {
       console.error('Error loading entitlements:', error)
     } finally {
@@ -82,7 +85,7 @@ export function CancellationBanner({
 
       // Refresh entitlements
       await loadEntitlements()
-      
+
       if (onUndoClick) onUndoClick()
     } catch (error) {
       console.error('Error undoing cancellation:', error)
@@ -114,7 +117,7 @@ export function CancellationBanner({
                 Pro plan scheduled for cancellation
               </p>
               <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                Your Pro plan will end {timeUntilEnd}. 
+                Your Pro plan will end {timeUntilEnd}.
                 {entitlements.courtesy_until && (
                   <> You'll have until {formatDistanceToNow(parseISO(entitlements.courtesy_until), { addSuffix: true })} to resolve any over-limit items.</>
                 )}
@@ -122,8 +125,8 @@ export function CancellationBanner({
             </div>
             <div className="flex gap-2">
               {onExportClick && (
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={onExportClick}
                   className="gap-2"
@@ -132,8 +135,8 @@ export function CancellationBanner({
                   Export Data
                 </Button>
               )}
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={handleUndoCancel}
               >
@@ -171,16 +174,16 @@ export function CancellationBanner({
             </div>
             <div className="flex gap-2">
               {onResolveClick && !isExpired && (
-                <Button 
-                  variant="default" 
+                <Button
+                  variant="default"
                   size="sm"
                   onClick={onResolveClick}
                 >
                   Resolve Now
                 </Button>
               )}
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => window.location.href = '/board?upgrade=true'}
               >
@@ -202,8 +205,8 @@ export function CancellationBanner({
           <div className="flex items-center justify-between">
             <div>
               <p className="font-semibold text-red-900 dark:text-red-100">
-                {entitlements.enforcement_state === 'enforced' 
-                  ? 'Free plan limits enforced' 
+                {entitlements.enforcement_state === 'enforced'
+                  ? 'Free plan limits enforced'
                   : 'You\'re over Free plan limits'}
               </p>
               <p className="text-sm text-red-800 dark:text-red-200">
@@ -214,16 +217,16 @@ export function CancellationBanner({
             </div>
             <div className="flex gap-2">
               {onResolveClick && (
-                <Button 
-                  variant="default" 
+                <Button
+                  variant="default"
                   size="sm"
                   onClick={onResolveClick}
                 >
                   Resolve Now
                 </Button>
               )}
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => window.location.href = '/board?upgrade=true'}
               >

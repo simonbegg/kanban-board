@@ -1,5 +1,8 @@
 'use client'
 
+import { useEffect } from 'react'
+import { useAuth } from '@/contexts/auth-context'
+import { useRouter } from 'next/navigation'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { Button } from '@/components/ui/button'
@@ -19,9 +22,17 @@ import {
 
 export default function PricingPage() {
   const { openCheckout, isLoaded } = usePaddle()
+  const { user, loading } = useAuth()
+  const router = useRouter()
 
   const handleUpgrade = () => {
-    openCheckout()
+    if (loading) return
+
+    if (user) {
+      openCheckout(user.email, user.id)
+    } else {
+      router.push('/signup?plan=pro')
+    }
   }
 
   return (

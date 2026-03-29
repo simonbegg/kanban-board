@@ -26,6 +26,9 @@ import { Database } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
 import { ValidationError } from '@/lib/validation'
 import { RateLimitError } from '@/lib/rate-limit'
+import { checkBoardCap, getUserUsageStats } from '@/lib/cap-enforcement'
+import { useAuth } from '@/contexts/auth-context'
+import { UpgradeModal } from '@/components/upgrade-modal'
 
 type Board = Database['public']['Tables']['boards']['Row']
 
@@ -43,20 +46,23 @@ export function BoardSelector({ selectedBoardId, onBoardSelect, onBoardsChange, 
   const [newBoardTitle, setNewBoardTitle] = useState('')
   const [newBoardDescription, setNewBoardDescription] = useState('')
   const [creating, setCreating] = useState(false)
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false)
+  const [currentUsage, setCurrentUsage] = useState<{ boards: number; activeTasks: number; archivedTasks: number } | null>(null)
+  const { user } = useAuth()
 
   const loadBoards = useCallback(async () => {
     logger.debug('Loading boards')
     try {
       const boardsData = await getBoards()
       setBoards(boardsData)
-      
+
       // If currently selected board no longer exists, clear selection
       if (selectedBoardId && !boardsData.some(b => b.id === selectedBoardId)) {
         logger.debug('Selected board no longer exists, clearing selection')
         onBoardSelect('')
         return
       }
-      
+
       // If no board is selected and we have boards, select the first one
       if (!selectedBoardId && boardsData.length > 0) {
         logger.debug('Auto-selecting first board')
@@ -81,6 +87,37 @@ export function BoardSelector({ selectedBoardId, onBoardSelect, onBoardsChange, 
     }
   }, [refreshTrigger, loadBoards])
 
+  const handleAddBoardClick = async () => {
+    if (!user) {
+      logger.error('No user found when trying to add board')
+      return
+    }
+
+    // Check board cap before showing create dialog
+    const capCheck = await checkBoardCap(user.id)
+
+    if (!capCheck.allowed) {
+      // User has hit their board limit - show upgrade modal
+      logger.debug('Board cap reached, showing upgrade modal', capCheck)
+
+      // Fetch current usage for the modal
+      const usage = await getUserUsageStats(user.id)
+      if (usage) {
+        setCurrentUsage({
+          boards: usage.boards,
+          activeTasks: usage.activeTasks,
+          archivedTasks: usage.archivedTasks
+        })
+      }
+
+      setUpgradeModalOpen(true)
+      return
+    }
+
+    // Cap check passed, show create dialog
+    setCreateDialogOpen(true)
+  }
+
   const handleCreateBoard = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newBoardTitle.trim()) return
@@ -91,18 +128,18 @@ export function BoardSelector({ selectedBoardId, onBoardSelect, onBoardsChange, 
         title: newBoardTitle.trim(),
         description: newBoardDescription.trim() || null,
       })
-      
+
       setBoards(prev => [newBoard, ...prev])
       onBoardSelect(newBoard.id)
       onBoardsChange?.()
-      
+
       // Reset form
       setNewBoardTitle('')
       setNewBoardDescription('')
       setCreateDialogOpen(false)
     } catch (error) {
       logger.error('Error creating board:', error)
-      
+
       // Show user-friendly error messages
       let errorMessage = 'Failed to create board'
       if (error instanceof ValidationError) {
@@ -112,7 +149,7 @@ export function BoardSelector({ selectedBoardId, onBoardSelect, onBoardsChange, 
       } else if (error instanceof Error) {
         errorMessage = error.message
       }
-      
+
       alert(errorMessage)
     } finally {
       setCreating(false)
@@ -161,7 +198,7 @@ export function BoardSelector({ selectedBoardId, onBoardSelect, onBoardsChange, 
             </DropdownMenuItem>
           ))}
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setCreateDialogOpen(true)}>
+          <DropdownMenuItem onClick={handleAddBoardClick}>
             <div className="flex items-center gap-2 w-full">
               <Plus className="h-4 w-4" />
               <span>Add new board</span>
@@ -216,6 +253,14 @@ export function BoardSelector({ selectedBoardId, onBoardSelect, onBoardsChange, 
           </form>
         </DialogContent>
       </Dialog>
+
+      <UpgradeModal
+        isOpen={upgradeModalOpen}
+        onClose={() => setUpgradeModalOpen(false)}
+        reason="board_limit"
+        currentUsage={currentUsage || undefined}
+        userEmail={user?.email || undefined}
+      />
     </>
   )
 }
