@@ -7,8 +7,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Chrome } from 'lucide-react'
+import { Chrome, ArrowLeft, MailCheck } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+
+type View = 'signin' | 'signup' | 'forgot'
 
 interface AuthFormProps {
   initialMode?: 'signin' | 'signup'
@@ -16,13 +18,20 @@ interface AuthFormProps {
 
 export function AuthForm({ initialMode = 'signin' }: AuthFormProps = {}) {
   const router = useRouter()
-  const [isSignUp, setIsSignUp] = useState(initialMode === 'signup')
+  const [view, setView] = useState<View>(initialMode === 'signup' ? 'signup' : 'signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const { signIn, signUp, signInWithGoogle } = useAuth()
+  const [resetEmailSent, setResetEmailSent] = useState(false)
+  const { signIn, signUp, signInWithGoogle, resetPassword } = useAuth()
+
+  const switchView = (next: View) => {
+    setView(next)
+    setError(null)
+    setResetEmailSent(false)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,7 +40,7 @@ export function AuthForm({ initialMode = 'signin' }: AuthFormProps = {}) {
 
     try {
       let result
-      if (isSignUp) {
+      if (view === 'signup') {
         result = await signUp(email, password, fullName)
       } else {
         result = await signIn(email, password)
@@ -41,11 +50,29 @@ export function AuthForm({ initialMode = 'signin' }: AuthFormProps = {}) {
         setError(result.error.message)
         setLoading(false)
       } else {
-        // Success - redirect to board
         router.push('/board')
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred')
+      setLoading(false)
+    }
+  }
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    try {
+      const { error } = await resetPassword(email)
+      if (error) {
+        setError(error.message)
+      } else {
+        setResetEmailSent(true)
+      }
+    } catch {
+      setError('An unexpected error occurred')
+    } finally {
       setLoading(false)
     }
   }
@@ -61,12 +88,87 @@ export function AuthForm({ initialMode = 'signin' }: AuthFormProps = {}) {
         setLoading(false)
       }
       // Don't set loading to false here - let the redirect happen
-    } catch (err) {
+    } catch {
       setError('Failed to sign in with Google')
       setLoading(false)
     }
   }
 
+  // ── Forgot password view ──────────────────────────────────────────────────
+  if (view === 'forgot') {
+    return (
+      <div className="flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mb-2">
+              <h1 className="text-3xl font-bold mb-1">ThreeLanes</h1>
+              <p className="text-sm text-muted-foreground">Kanban without the clutter</p>
+            </div>
+            <CardTitle>Reset your password</CardTitle>
+            <CardDescription>
+              {resetEmailSent
+                ? 'Check your inbox for the reset link'
+                : "Enter your email and we'll send you a reset link"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {resetEmailSent ? (
+              <div className="space-y-4">
+                <div className="flex flex-col items-center gap-3 py-4 text-center">
+                  <MailCheck className="h-10 w-10 text-primary" />
+                  <p className="text-sm text-muted-foreground">
+                    We&apos;ve sent a password reset link to <strong>{email}</strong>. Check your
+                    inbox (and spam folder) and click the link to set a new password.
+                  </p>
+                </div>
+                <Button variant="outline" className="w-full" onClick={() => switchView('signin')}>
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to sign in
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    required
+                    autoFocus
+                  />
+                </div>
+
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? 'Sending…' : 'Send reset link'}
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="link"
+                  className="w-full text-sm"
+                  onClick={() => switchView('signin')}
+                >
+                  <ArrowLeft className="mr-1 h-3 w-3" />
+                  Back to sign in
+                </Button>
+              </form>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // ── Sign in / Sign up view ────────────────────────────────────────────────
   return (
     <div className="flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -75,16 +177,16 @@ export function AuthForm({ initialMode = 'signin' }: AuthFormProps = {}) {
             <h1 className="text-3xl font-bold mb-1">ThreeLanes</h1>
             <p className="text-sm text-muted-foreground">Kanban without the clutter</p>
           </div>
-          <CardTitle>{isSignUp ? 'Create Account' : 'Sign In'}</CardTitle>
+          <CardTitle>{view === 'signup' ? 'Create Account' : 'Sign In'}</CardTitle>
           <CardDescription>
-            {isSignUp
+            {view === 'signup'
               ? 'Create a new account to start managing your boards'
               : 'Sign in to your account to access your boards'}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {isSignUp && (
+            {view === 'signup' && (
               <div className="space-y-2">
                 <Label htmlFor="fullName">Full Name</Label>
                 <Input
@@ -110,7 +212,19 @@ export function AuthForm({ initialMode = 'signin' }: AuthFormProps = {}) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                {view === 'signin' && (
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="h-auto p-0 text-xs text-muted-foreground"
+                    onClick={() => switchView('forgot')}
+                  >
+                    Forgot password?
+                  </Button>
+                )}
+              </div>
               <Input
                 id="password"
                 type="password"
@@ -129,7 +243,7 @@ export function AuthForm({ initialMode = 'signin' }: AuthFormProps = {}) {
             )}
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Loading...' : isSignUp ? 'Create Account' : 'Sign In'}
+              {loading ? 'Loading...' : view === 'signup' ? 'Create Account' : 'Sign In'}
             </Button>
           </form>
 
@@ -156,13 +270,10 @@ export function AuthForm({ initialMode = 'signin' }: AuthFormProps = {}) {
           <div className="mt-4 text-center">
             <Button
               variant="link"
-              onClick={() => {
-                setIsSignUp(!isSignUp)
-                setError(null)
-              }}
+              onClick={() => switchView(view === 'signup' ? 'signin' : 'signup')}
               className="text-sm"
             >
-              {isSignUp
+              {view === 'signup'
                 ? 'Already have an account? Sign in'
                 : "Don't have an account? Sign up"}
             </Button>
