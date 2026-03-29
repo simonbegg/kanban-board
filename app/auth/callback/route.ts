@@ -7,10 +7,6 @@ import { type Database } from '@/lib/supabase'
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
-  const next = requestUrl.searchParams.get('next') ?? '/board'
-
-  // Validate next is a relative path to prevent open-redirect attacks
-  const redirectPath = next.startsWith('/') ? next : '/board'
 
   if (code) {
     const cookieStore = cookies()
@@ -18,5 +14,6 @@ export async function GET(request: NextRequest) {
     await supabase.auth.exchangeCodeForSession(code)
   }
 
-  return NextResponse.redirect(new URL(redirectPath, requestUrl.origin))
+  // URL to redirect to after sign in process completes
+  return NextResponse.redirect(new URL('/board', requestUrl.origin))
 }
