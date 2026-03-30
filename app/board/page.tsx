@@ -36,6 +36,12 @@ function BoardPageContent() {
   useEffect(() => {
     if (!loading && !user) {
       router.push('/')
+      return
+    }
+    // If the user arrived here mid-password-reset flow, send them back to
+    // complete it — they must set a new password before using the board.
+    if (!loading && user && sessionStorage.getItem('password_reset_pending') === '1') {
+      router.replace('/auth/reset-password')
     }
   }, [user, loading, router])
 

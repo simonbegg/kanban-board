@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,70 +10,31 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CheckCircle, Loader2 } from 'lucide-react'
 
-type PageState = 'exchanging' | 'ready' | 'error' | 'success'
-
 export default function ResetPasswordPage() {
-  const { updatePassword } = useAuth()
+  const { user, loading: authLoading, updatePassword } = useAuth()
   const router = useRouter()
 
-  const [pageState, setPageState] = useState<PageState>('exchanging')
-  const [exchangeError, setExchangeError] = useState<string | null>(null)
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [success, setSuccess] = useState(false)
 
-  // Run exactly once on mount — parse the URL and establish a session
-  const exchanged = useRef(false)
+  // Mark that the user arrived via a password reset flow so the board page
+  // can redirect them back here if they try to navigate away before updating.
   useEffect(() => {
-    if (exchanged.current) return
-    exchanged.current = true
-
-    const run = async () => {
-      const supabase = createClient()
-      const params = new URLSearchParams(window.location.search)
-
-      const code       = params.get('code')
-      const tokenHash  = params.get('token_hash')
-      const type       = params.get('type')
-
-      try {
-        if (code) {
-          // PKCE flow — code is exchanged for a session
-          const { error } = await supabase.auth.exchangeCodeForSession(code)
-          if (error) throw error
-        } else if (tokenHash && type) {
-          // Email OTP / token-hash flow (Supabase v2 default for email links)
-          const { error } = await supabase.auth.verifyOtp({
-            token_hash: tokenHash,
-            type: type as 'recovery',
-          })
-          if (error) throw error
-        } else {
-          // No recognised token — likely navigated here directly
-          setExchangeError(
-            'No reset token found. Please click the link in your email, or request a new one.'
-          )
-          setPageState('error')
-          return
-        }
-
-        // Clean up the one-time token from the URL without triggering a re-render
-        window.history.replaceState({}, '', '/auth/reset-password')
-        setPageState('ready')
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : 'Unknown error'
-        setExchangeError(
-          msg.includes('expired') || msg.includes('invalid')
-            ? 'This reset link has expired or already been used. Please request a new one.'
-            : msg
-        )
-        setPageState('error')
-      }
+    if (!authLoading && user) {
+      sessionStorage.setItem('password_reset_pending', '1')
     }
+  }, [authLoading, user])
 
-    run()
-  }, [])
+  // Once the auth context has finished loading, if there is no session the
+  // reset link was invalid / already used — send the user back to sign-in.
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace('/?error=invalid_reset_link')
+    }
+  }, [authLoading, user, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -89,21 +49,35 @@ export default function ResetPasswordPage() {
       return
     }
 
-    setLoading(true)
+    setSubmitting(true)
     try {
       const { error } = await updatePassword(password)
       if (error) {
         setFormError(error.message)
       } else {
-        setPageState('success')
+        // Clear the guard flag — password has been successfully updated
+        sessionStorage.removeItem('password_reset_pending')
+        setSuccess(true)
         setTimeout(() => router.replace('/board'), 2500)
       }
     } catch {
       setFormError('An unexpected error occurred. Please try again.')
     } finally {
-      setLoading(false)
+      setSubmitting(false)
     }
   }
+
+  // Still loading auth state
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
+  // No session — useEffect will redirect; show nothing in the meantime
+  if (!user) return null
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -113,43 +87,23 @@ export default function ResetPasswordPage() {
             <h1 className="text-3xl font-bold mb-1">ThreeLanes</h1>
             <p className="text-sm text-muted-foreground">Kanban without the clutter</p>
           </div>
-          <CardTitle>
-            {pageState === 'success' ? 'Password updated' : 'Set a new password'}
-          </CardTitle>
+          <CardTitle>{success ? 'Password updated' : 'Set a new password'}</CardTitle>
           <CardDescription>
-            {pageState === 'exchanging' && 'Verifying your reset link…'}
-            {pageState === 'ready'     && 'Choose a strong password for your account'}
-            {pageState === 'error'     && 'Something went wrong'}
-            {pageState === 'success'   && 'Your password has been updated'}
+            {success
+              ? 'Your password has been updated successfully'
+              : 'Choose a new password for your account'}
           </CardDescription>
         </CardHeader>
 
         <CardContent>
-          {/* ── Verifying ── */}
-          {pageState === 'exchanging' && (
-            <div className="flex justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          {success ? (
+            <div className="flex flex-col items-center gap-3 py-4 text-center">
+              <CheckCircle className="h-10 w-10 text-green-500" />
+              <p className="text-sm text-muted-foreground">
+                Redirecting you to your board…
+              </p>
             </div>
-          )}
-
-          {/* ── Token error ── */}
-          {pageState === 'error' && (
-            <div className="space-y-4">
-              <Alert variant="destructive">
-                <AlertDescription>{exchangeError}</AlertDescription>
-              </Alert>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => router.replace('/')}
-              >
-                Back to sign in
-              </Button>
-            </div>
-          )}
-
-          {/* ── Password form ── */}
-          {pageState === 'ready' && (
+          ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="password">New password</Label>
@@ -184,8 +138,8 @@ export default function ResetPasswordPage() {
                 </Alert>
               )}
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Updating…
@@ -195,16 +149,6 @@ export default function ResetPasswordPage() {
                 )}
               </Button>
             </form>
-          )}
-
-          {/* ── Success ── */}
-          {pageState === 'success' && (
-            <div className="flex flex-col items-center gap-3 py-4 text-center">
-              <CheckCircle className="h-10 w-10 text-green-500" />
-              <p className="text-sm text-muted-foreground">
-                Password updated successfully. Redirecting you to your board…
-              </p>
-            </div>
           )}
         </CardContent>
       </Card>
